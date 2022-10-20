@@ -8,7 +8,7 @@ export function Dice({
   ...props
 }: JSX.IntrinsicElements["group"] & { die: Die }) {
   return (
-    <DiceMesh diceType={die.type} {...props}>
+    <DiceMesh diceType={die.type} {...props} sharp={die.style === "WALNUT"}>
       <DiceMaterial diceStyle={die.style} />
     </DiceMesh>
   );
