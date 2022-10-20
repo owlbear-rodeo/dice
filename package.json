@@ -1,0 +1,36 @@
+{
+  "name": "obr-dice",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
+    "@mui/icons-material": "^5.10.9",
+    "@mui/material": "^5.10.9",
+    "@react-three/drei": "^9.34.3",
+    "@react-three/fiber": "^8.8.10",
+    "@react-three/rapier": "^0.8.2",
+    "@types/uuid": "^8.3.4",
+    "immer": "^9.0.15",
+    "is-plain-object": "^5.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "three": "^0.145.0",
+    "uuid": "^9.0.0",
+    "zustand": "^4.1.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@types/three": "^0.144.0",
+    "@vitejs/plugin-react": "^2.1.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.1.0"
+  }
+}

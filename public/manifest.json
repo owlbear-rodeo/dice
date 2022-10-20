@@ -1,0 +1,12 @@
+{
+  "name": "Dice",
+  "version": "1",
+  "manifest_version": 1,
+  "action": {
+    "title": "Dice",
+    "icon": "http://localhost:5173/icon.svg",
+    "popover": "http://localhost:5173/",
+    "height": 700,
+    "width": 335
+  }
+}
