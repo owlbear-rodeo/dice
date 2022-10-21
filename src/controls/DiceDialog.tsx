@@ -63,15 +63,18 @@ export function DiceDialog({
   const [counts, setCounts] =
     useState<Record<string, number>>(defaultDiceCounts);
 
-  useEffect(() => {
-    setCounts(defaultDiceCounts);
-  }, [defaultDiceCounts]);
-
   const [bonus, setBonus] = useState(0);
   const [advantage, setAdvantage] = useState<
     "ADVANTAGE" | "DISADVANTAGE" | null
   >(null);
   const [hidden, setHidden] = useState(false);
+
+  // Reset state when changing dice sets
+  useEffect(() => {
+    setCounts(defaultDiceCounts);
+    setAdvantage(null);
+    setBonus(0);
+  }, [defaultDiceCounts]);
 
   function handleDiceCountChange(id: string, count: number) {
     setCounts((prev) => ({ ...prev, [id]: count }));
@@ -158,8 +161,10 @@ export function DiceDialog({
     () =>
       Object.entries(defaultDiceCounts).every(
         ([type, count]) => counts[type as DiceType] === count
-      ),
-    [counts]
+      ) &&
+      advantage === null &&
+      bonus === 0,
+    [counts, defaultDiceCounts, advantage, bonus]
   );
 
   const theme = useTheme();
