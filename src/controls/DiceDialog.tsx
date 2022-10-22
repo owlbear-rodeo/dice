@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { v4 as uuid } from "uuid";
 
 import Button from "@mui/material/Button";
@@ -12,10 +12,8 @@ import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
 
-import CloseIcon from "@mui/icons-material/CloseRounded";
+import CloseIcon from "@mui/icons-material/ChevronLeftRounded";
 import ResetIcon from "@mui/icons-material/RestartAltRounded";
 import HiddenOnIcon from "@mui/icons-material/VisibilityOffRounded";
 import HiddenOffIcon from "@mui/icons-material/VisibilityRounded";
@@ -37,7 +35,7 @@ const Transition = React.forwardRef(function Transition(
   },
   ref: React.Ref<unknown>
 ) {
-  return <Slide direction="up" ref={ref} {...props} />;
+  return <Slide direction="right" ref={ref} {...props} />;
 });
 
 type DiceDialogProps = {
@@ -69,12 +67,41 @@ export function DiceDialog({
   >(null);
   const [hidden, setHidden] = useState(false);
 
-  // Reset state when changing dice sets
+  const diceById = useMemo(() => {
+    const byId: Record<string, Die> = {};
+    for (const die of diceSet.dice) {
+      byId[die.id] = die;
+    }
+    return byId;
+  }, [diceSet.dice]);
+
+  // Carry over count state when changing dice sets
+  useLayoutEffect(() => {
+    const counts: Record<string, number> = {};
+    const prevCounts = prevCountsRef.current;
+    const prevDice = prevDiceRef.current;
+    for (let i = 0; i < diceSet.dice.length; i++) {
+      const die = diceSet.dice[i];
+      const prevDie = prevDice[i];
+      // Carry over count if the index and die type match
+      if (prevDie && prevDie.type === die.type) {
+        counts[die.id] = prevCounts[prevDie.id] || 0;
+      } else {
+        counts[die.id] = 0;
+      }
+    }
+    setCounts(counts);
+  }, [diceSet]);
+
+  // Keep track of previous state to carry over count
+  const prevCountsRef = useRef(counts);
+  const prevDiceRef = useRef(diceSet.dice);
   useEffect(() => {
-    setCounts(defaultDiceCounts);
-    setAdvantage(null);
-    setBonus(0);
-  }, [defaultDiceCounts]);
+    prevCountsRef.current = counts;
+  }, [counts]);
+  useEffect(() => {
+    prevDiceRef.current = diceSet.dice;
+  }, [diceSet.dice]);
 
   function handleDiceCountChange(id: string, count: number) {
     setCounts((prev) => ({ ...prev, [id]: count }));
@@ -92,7 +119,7 @@ export function DiceDialog({
     const dice: (Die | Dice)[] = [];
     const countEntries = Object.entries(counts);
     for (const [id, count] of countEntries) {
-      const die = diceSet.dice.find((die) => die.id === id);
+      const die = diceById[id];
       if (!die) {
         continue;
       }
@@ -167,15 +194,15 @@ export function DiceDialog({
     [counts, defaultDiceCounts, advantage, bonus]
   );
 
-  const theme = useTheme();
-  const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
-
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      fullScreen={isSmall}
-      TransitionComponent={isSmall ? Transition : undefined}
+      fullScreen
+      sx={{ position: "absolute" }}
+      TransitionComponent={Transition}
+      disablePortal
+      hideBackdrop
     >
       <DialogActions sx={{ justifyContent: "space-between" }}>
         <IconButton onClick={onClose}>
@@ -199,7 +226,7 @@ export function DiceDialog({
       <DialogContent sx={{ p: 0 }}>
         <List>
           {Object.entries(counts).map(([id, count]) => {
-            const die = diceSet.dice.find((die) => die.id === id);
+            const die = diceById[id];
             if (!die) {
               return null;
             }
