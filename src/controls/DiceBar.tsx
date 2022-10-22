@@ -6,8 +6,8 @@ import { styled } from "@mui/material/styles";
 import { DiceSet } from "../types/DiceSet";
 
 const PreviewImage = styled("img")({
-  width: "38px",
-  height: "38px",
+  width: "32px",
+  height: "32px",
 });
 
 type DiceBarProps = {
@@ -17,21 +17,19 @@ type DiceBarProps = {
 
 export function DiceBar({ diceSets, onOpen }: DiceBarProps) {
   return (
-    <Container maxWidth="xs" disableGutters>
-      <Stack direction="row" sx={{ overflowX: "scroll" }}>
-        {diceSets.map((diceSet) => (
-          <IconButton
-            key={diceSet.id}
-            aria-label={diceSet.name}
-            onClick={() => {
-              onOpen(diceSet);
-            }}
-            sx={{ padding: 0, margin: "auto" }}
-          >
-            <PreviewImage src={diceSet.previewImage} />
-          </IconButton>
-        ))}
-      </Stack>
-    </Container>
+    <Stack sx={{ overflowY: "auto" }} gap={1}>
+      {diceSets.map((diceSet) => (
+        <IconButton
+          key={diceSet.id}
+          aria-label={diceSet.name}
+          onClick={() => {
+            onOpen(diceSet);
+          }}
+          sx={{ padding: "4px" }}
+        >
+          <PreviewImage src={diceSet.previewImage} />
+        </IconButton>
+      ))}
+    </Stack>
   );
 }

@@ -34,19 +34,21 @@ export function App() {
 
   return (
     <Container disableGutters maxWidth="sm">
-      <Stack sx={{ height: "100vh" }}>
-        <DiceBar
-          diceSets={diceSets}
-          onOpen={(set) => {
-            setOpenDialogSet(set);
-            setOpenDialog(true);
-          }}
-        />
+      <Stack direction="row" justifyContent="center">
+        <Stack p={1}>
+          <DiceBar
+            diceSets={diceSets}
+            onOpen={(set) => {
+              setOpenDialogSet(set);
+              setOpenDialog(true);
+            }}
+          />
+        </Stack>
         <Box
           component="div"
           borderRadius={1}
-          width="100%"
-          height="100%"
+          height="100vh"
+          width="calc(100vh / 2)"
           overflow="hidden"
           position="relative"
         >
@@ -80,17 +82,17 @@ export function App() {
             </Suspense>
           </Canvas>
           <DiceRollControls />
+          <DiceDialog
+            diceSet={openDialogSet}
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+            onRoll={(roll) => {
+              setOpenDialog(false);
+              startRoll(roll);
+            }}
+          />
         </Box>
       </Stack>
-      <DiceDialog
-        diceSet={openDialogSet}
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        onRoll={(roll) => {
-          setOpenDialog(false);
-          startRoll(roll);
-        }}
-      />
     </Container>
   );
 }
