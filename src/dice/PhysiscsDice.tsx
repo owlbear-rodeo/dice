@@ -11,7 +11,7 @@ import { Html } from "@react-three/drei";
 import { Dice } from "./Dice";
 import { Die } from "../types/Die";
 import { useDiceRollStore } from "./store";
-import { getDiceRollNumber } from "../helpers/getDiceRoll";
+import { getValueFromDiceGroup } from "../helpers/getValueFromDiceGroup";
 import { DieMenu } from "../controls/DieMenu";
 import { CanvasBridge } from "../helpers/CanvasBridge";
 import { useFrame } from "@react-three/fiber";
@@ -115,7 +115,7 @@ export function PhysicsDice({
       // Ensure that the dice is in the tray
       const validPosition = rigidBody.translation().y < MIN_Y;
       if (speed < MIN_INTERACTION_SPEED && validPosition) {
-        updateValue(die.id, getDiceRollNumber(group));
+        updateValue(die.id, getValueFromDiceGroup(group));
         // Disable rigid body rotation and translation
         // This stops the dice from getting changed after it has finished rolling
         rigidBody.setEnabledRotations(false, false, false);
