@@ -11,6 +11,7 @@ import { RerollDiceIcon } from "../icons/RerollDiceIcon";
 import { GradientOverlay } from "./GradientOverlay";
 import { useDiceRollStore } from "../dice/store";
 import { useMemo } from "react";
+import { DiceResults } from "./DiceResults";
 
 export function DiceRollControls() {
   const roll = useDiceRollStore((state) => state.roll);
@@ -25,6 +26,16 @@ export function DiceRollControls() {
     } else {
       return values.every((value) => value !== null);
     }
+  }, [rollValues]);
+
+  const finishedRollValues = useMemo(() => {
+    const values: Record<string, number> = {};
+    for (const [id, value] of Object.entries(rollValues)) {
+      if (value !== null) {
+        values[id] = value;
+      }
+    }
+    return values;
   }, [rollValues]);
 
   return (
@@ -44,13 +55,20 @@ export function DiceRollControls() {
           }}
           component="div"
         >
-          <Stack direction="row" justifyContent="space-between" width="100%">
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            width="100%"
+            alignItems="center"
+          >
             <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
               <IconButton onClick={() => reroll()} disabled={!finishedRolling}>
                 <RerollDiceIcon />
               </IconButton>
             </Tooltip>
-
+            {roll && (
+              <DiceResults diceRoll={roll} rollValues={finishedRollValues} />
+            )}
             <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
               <IconButton
                 onClick={() => clearRoll()}
