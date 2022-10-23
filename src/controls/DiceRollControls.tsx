@@ -10,7 +10,7 @@ import { RerollDiceIcon } from "../icons/RerollDiceIcon";
 
 import { GradientOverlay } from "./GradientOverlay";
 import { useDiceRollStore } from "../dice/store";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { DiceResults } from "./DiceResults";
 
 export function DiceRollControls() {
@@ -38,10 +38,12 @@ export function DiceRollControls() {
     return values;
   }, [rollValues]);
 
+  const [resultsExpanded, setResultsExpanded] = useState(false);
+
   return (
     <>
       <Fade in={finishedRolling} unmountOnExit>
-        <GradientOverlay top />
+        <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
       </Fade>
       <Fade in={finishedRolling} unmountOnExit>
         <Box
@@ -59,7 +61,7 @@ export function DiceRollControls() {
             direction="row"
             justifyContent="space-between"
             width="100%"
-            alignItems="center"
+            alignItems="start"
           >
             <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
               <IconButton onClick={() => reroll()} disabled={!finishedRolling}>
@@ -67,7 +69,12 @@ export function DiceRollControls() {
               </IconButton>
             </Tooltip>
             {roll && finishedRolling && (
-              <DiceResults diceRoll={roll} rollValues={finishedRollValues} />
+              <DiceResults
+                diceRoll={roll}
+                rollValues={finishedRollValues}
+                expanded={resultsExpanded}
+                onExpand={setResultsExpanded}
+              />
             )}
             <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
               <IconButton
