@@ -66,7 +66,7 @@ export function DiceRollControls() {
                 <RerollDiceIcon />
               </IconButton>
             </Tooltip>
-            {roll && (
+            {roll && finishedRolling && (
               <DiceResults diceRoll={roll} rollValues={finishedRollValues} />
             )}
             <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
