@@ -186,6 +186,7 @@ export function PhysicsDice({
       angularVelocity={angularVelocity}
       ref={rigidBodyRef}
       onCollisionEnter={handleCollision}
+      userData={{ material: "DICE" }}
     >
       <group ref={ref} onClick={handleClick}>
         <Dice die={die} {...props} />
