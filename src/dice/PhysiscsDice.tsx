@@ -113,9 +113,7 @@ export function PhysicsDice({
       // Get the total speed for the dice
       const linVel = rigidBody.linvel();
       const angVel = rigidBody.angvel();
-      const speed =
-        Math.abs(linVel.x + linVel.y + linVel.z) +
-        Math.abs(angVel.x + angVel.y + angVel.z);
+      const speed = magnitude(linVel) + magnitude(angVel);
       // Ensure that the dice is in the tray
       const validPosition = rigidBody.translation().y < MIN_Y;
       if (speed < MIN_INTERACTION_SPEED && validPosition) {
