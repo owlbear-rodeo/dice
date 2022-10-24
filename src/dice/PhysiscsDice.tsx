@@ -39,6 +39,10 @@ function randomNumber(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
 
+function magnitude({ x, y, z }: { x: number; y: number; z: number }) {
+  return Math.sqrt(x * x + y * y + z * z);
+}
+
 /**
  * Get a random launch velocity for the dice
  * Always launches from where the dice is towards the center of the tray
@@ -154,7 +158,9 @@ export function PhysicsDice({
     // TODO: remove conditional when this gets merged https://github.com/pmndrs/react-three-rapier/pull/151/commits
     const physicalMaterial: PhysicalMaterial =
       rigidBodyObject?.userData?.material || "LEATHER";
-    if (group && physicalMaterial) {
+    const linvel = rigidBodyRef.current?.linvel();
+    if (group && physicalMaterial && linvel) {
+      const speed = magnitude(linvel);
       const weightClass = getDieWeightClass(die);
       const buffer = getNextBuffer(weightClass, physicalMaterial);
       if (buffer) {
@@ -162,6 +168,8 @@ export function PhysicsDice({
         sound.setBuffer(buffer);
         sound.setRefDistance(3);
         sound.play();
+        // Modulate sound volume based off of the speed of the colliding dice
+        sound.setVolume(Math.min(speed / 5, 1));
         sound.onEnded = () => {
           group.remove(sound);
         };
