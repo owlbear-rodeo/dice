@@ -10,6 +10,7 @@ import { PartyTrays } from "./plugin/PartyTrays";
 import { PluginGate } from "./plugin/PluginGate";
 import { DiceRollSync } from "./plugin/DiceRollSync";
 import { InteractiveTray } from "./tray/InteractiveTray";
+import { ResizeObserver } from "./plugin/ResizeObserver";
 
 export function App() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -29,6 +30,7 @@ export function App() {
           <PluginGate>
             <DiceRollSync />
             <PartyTrays />
+            <ResizeObserver />
           </PluginGate>
         </Stack>
         <InteractiveTray
