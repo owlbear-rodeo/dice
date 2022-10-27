@@ -25,7 +25,7 @@ const MIN_LAUNCH_VELOCITY = 1;
 const MAX_LAUNCH_VELOCITY = 5;
 const MIN_ANGULAR_VELOCITY = 5;
 const MAX_ANGULAR_VELOCITY = 12;
-const MIN_INTERACTION_SPEED = 0.01;
+const MIN_INTERACTION_SPEED = 0.02;
 /** Cool down in MS before dice audio can get played again */
 const AUDIO_COOLDOWN = 200;
 
