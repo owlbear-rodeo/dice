@@ -11,6 +11,10 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Fade from "@mui/material/Fade";
+import Backdrop from "@mui/material/Backdrop";
+import Tooltip from "@mui/material/Tooltip";
+
+import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
 import { Tray } from "../tray/Tray";
 import environment from "../environment.hdr";
@@ -60,6 +64,13 @@ export function PlayerTray({
             />
           </Suspense>
         </Canvas>
+        {diceRoll?.hidden && (
+          <Backdrop open sx={{ position: "absolute" }}>
+            <Tooltip title="Hidden Roll">
+              <HiddenIcon />
+            </Tooltip>
+          </Backdrop>
+        )}
       </Box>
       <Fade in={finalValue !== null} unmountOnExit>
         <GradientOverlay top height={resultsExpanded ? 500 : undefined} />

@@ -7,6 +7,9 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Badge from "@mui/material/Badge";
+import Backdrop from "@mui/material/Backdrop";
+
+import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
 import { Tray } from "../tray/Tray";
 import environment from "../environment.hdr";
@@ -21,7 +24,7 @@ export function PlayerTrayPreview({
   player: Player;
   onSelect: () => void;
 }) {
-  const { finalValue } = usePlayerDice(player);
+  const { diceRoll, finalValue } = usePlayerDice(player);
 
   return (
     <Stack>
@@ -65,6 +68,11 @@ export function PlayerTrayPreview({
                 />
               </Suspense>
             </Canvas>
+            {diceRoll?.hidden && (
+              <Backdrop open sx={{ position: "absolute" }}>
+                <HiddenIcon />
+              </Backdrop>
+            )}
           </Box>
         </IconButton>
       </Badge>

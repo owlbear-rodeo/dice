@@ -30,9 +30,11 @@ export function DiceRollSync() {
   useEffect(() => {
     // Get the roll values within the effect to avoid the need to
     // use it as a dependency
+    const roll = useDiceRollStore.getState().roll;
     const values = useDiceRollStore.getState().rollValues;
     const transforms = useDiceRollStore.getState().rollTransforms;
-    if (finishedRolling) {
+    // Only share values if the roll isn't hidden
+    if (finishedRolling && !roll?.hidden) {
       OBR.player.setMetadata(getPluginId("rollValues"), values);
       OBR.player.setMetadata(getPluginId("rollTransforms"), transforms);
     } else {
@@ -48,7 +50,12 @@ export function DiceRollSync() {
     let stopInteraction: (() => void) | null = null;
 
     const transforms = useDiceRollStore.getState().rollTransforms;
-    if (roll && !finishedRolling && Object.keys(transforms).length > 0) {
+    if (
+      roll &&
+      !roll.hidden &&
+      !finishedRolling &&
+      Object.keys(transforms).length > 0
+    ) {
       OBR.interaction
         .startCustomInteraction(transforms)
         .then(([update, stop, id]) => {
