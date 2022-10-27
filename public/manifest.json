@@ -7,6 +7,6 @@
     "icon": "http://localhost:5173/icon.svg",
     "popover": "http://localhost:5173/",
     "height": 700,
-    "width": 335
+    "width": 375
   }
 }

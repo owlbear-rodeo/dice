@@ -1,97 +1,41 @@
-import { Suspense, useState } from "react";
-import { Canvas } from "@react-three/fiber";
-import {
-  ContactShadows,
-  Environment,
-  OrbitControls,
-  PerspectiveCamera,
-} from "@react-three/drei";
-import { Physics, Debug } from "@react-three/rapier";
+import { useState } from "react";
 
 import Stack from "@mui/material/Stack";
-import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 
-import { DiceDialog } from "./controls/DiceDialog";
 import { DiceBar } from "./controls/DiceBar";
-import { PhysicsTray } from "./tray/PhysicsTray";
-import { useDiceRollStore } from "./dice/store";
-import { DiceRollFrameloop } from "./dice/DiceRollFrameloop";
-import { DiceRoll } from "./dice/DiceRoll";
-import { DiceRollControls } from "./controls/DiceRollControls";
-import { useDebugControls } from "./helpers/useDebugControls";
-import environment from "./environment.hdr";
 import { DiceSet } from "./types/DiceSet";
 import { diceSets } from "./sets/diceSets";
-import { AudioListenerProvider } from "./audio/AudioListenerProvider";
+import { PartyTrays } from "./plugin/PartyTrays";
+import { PluginGate } from "./plugin/PluginGate";
+import { DiceRollSync } from "./plugin/DiceRollSync";
+import { InteractiveTray } from "./tray/InteractiveTray";
 
 export function App() {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [openDialogSet, setOpenDialogSet] = useState<DiceSet>(diceSets[0]);
-  const startRoll = useDiceRollStore((state) => state.startRoll);
-
-  const { allowOrbit, allowDebug } = useDebugControls();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogSet, setDialogSet] = useState<DiceSet>(diceSets[0]);
 
   return (
-    <Container disableGutters maxWidth="sm">
+    <Container disableGutters maxWidth="md">
       <Stack direction="row" justifyContent="center">
-        <Stack p={1}>
+        <Stack p={1} gap={2}>
           <DiceBar
             diceSets={diceSets}
             onOpen={(set) => {
-              setOpenDialogSet(set);
-              setOpenDialog(true);
+              setDialogSet(set);
+              setDialogOpen(true);
             }}
           />
+          <PluginGate>
+            <DiceRollSync />
+            <PartyTrays />
+          </PluginGate>
         </Stack>
-        <Box
-          component="div"
-          borderRadius={1}
-          height="100vh"
-          width="calc(100vh / 2)"
-          overflow="hidden"
-          position="relative"
-        >
-          <Canvas frameloop="demand">
-            <Suspense fallback={null}>
-              <AudioListenerProvider>
-                <Environment files={environment} />
-                <ContactShadows
-                  resolution={256}
-                  scale={[1, 2]}
-                  position={[0, 0, 0]}
-                  blur={0.5}
-                  opacity={0.5}
-                  far={1}
-                  color="#222222"
-                />
-                <DiceRollFrameloop />
-                <Physics colliders={false} timeStep="vary">
-                  {allowDebug && <Debug />}
-                  <DiceRoll />
-                  <PhysicsTray />
-                </Physics>
-                <PerspectiveCamera
-                  makeDefault
-                  fov={28}
-                  position={[0, 4.3, 0]}
-                  rotation={[-Math.PI / 2, 0, 0]}
-                />
-                {allowOrbit && <OrbitControls />}
-              </AudioListenerProvider>
-            </Suspense>
-          </Canvas>
-          <DiceRollControls />
-          <DiceDialog
-            diceSet={openDialogSet}
-            open={openDialog}
-            onClose={() => setOpenDialog(false)}
-            onRoll={(roll) => {
-              setOpenDialog(false);
-              startRoll(roll);
-            }}
-          />
-        </Box>
+        <InteractiveTray
+          dialogOpen={dialogOpen}
+          onDialogClose={() => setDialogOpen(false)}
+          dialogSet={dialogSet}
+        />
       </Stack>
     </Container>
   );

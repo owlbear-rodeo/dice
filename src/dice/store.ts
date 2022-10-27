@@ -7,6 +7,7 @@ import { DiceRoll } from "../types/DiceRoll";
 import { isDie } from "../types/Die";
 import { isDice } from "../types/Dice";
 import { getDieFromDice } from "../helpers/getDieFromDice";
+import { DiceTransform } from "../types/DiceTransform";
 
 interface DiceRollState {
   roll: DiceRoll | null;
@@ -15,17 +16,20 @@ interface DiceRollState {
    * A value of `null` means the die hasn't finished rolling yet.
    */
   rollValues: Record<string, number | null>;
+  rollTransforms: Record<string, DiceTransform>;
   startRoll: (roll: DiceRoll) => void;
   clearRoll: (ids?: string) => void;
   /** Reroll select ids of dice or reroll all dice by passing `undefined` */
   reroll: (ids?: string[]) => void;
   updateValue: (id: string, number: number) => void;
+  updateTransform: (id: string, transform: DiceTransform) => void;
 }
 
 export const useDiceRollStore = create<DiceRollState>()(
   immer((set) => ({
     roll: null,
     rollValues: {},
+    rollTransforms: {},
     startRoll: (roll) =>
       set((state) => {
         state.roll = roll;
@@ -51,6 +55,10 @@ export const useDiceRollStore = create<DiceRollState>()(
     updateValue: (id, number) =>
       set((state) => {
         state.rollValues[id] = number;
+      }),
+    updateTransform: (id, transform) =>
+      set((state) => {
+        state.rollTransforms[id] = transform;
       }),
   }))
 );

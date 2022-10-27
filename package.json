@@ -19,6 +19,7 @@
     "@types/uuid": "^8.3.4",
     "immer": "^9.0.15",
     "is-plain-object": "^5.0.0",
+    "owlbear-rodeo-sdk": "link:/Users/mitch/Documents/GitHub/owlbear-rodeo-sdk",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "three": "^0.145.0",

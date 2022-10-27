@@ -73,6 +73,7 @@ export function PhysicsDice({
 }) {
   const rollValue = useDiceRollStore((state) => state.rollValues[die.id]);
   const updateValue = useDiceRollStore((state) => state.updateValue);
+  const updateTransform = useDiceRollStore((state) => state.updateTransform);
   const ref = useRef<THREE.Group>(null);
   const rigidBodyRef = useRef<RigidBodyApi>(null);
 
@@ -110,6 +111,19 @@ export function PhysicsDice({
     const rigidBody = rigidBodyRef.current;
     const group = ref.current;
     if (rigidBody && rollValue === null && group) {
+      // Update the dice store transform
+      const position = rigidBody.translation();
+      const rotation = rigidBody.rotation();
+      updateTransform(die.id, {
+        position: { x: position.x, y: position.y, z: position.z },
+        rotation: {
+          x: rotation.x,
+          y: rotation.y,
+          z: rotation.z,
+          w: rotation.w,
+        },
+      });
+
       // Get the total speed for the dice
       const linVel = rigidBody.linvel();
       const angVel = rigidBody.angvel();
@@ -126,7 +140,7 @@ export function PhysicsDice({
         rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
       }
     }
-  }, [updateValue, die.id, rollValue]);
+  }, [updateValue, updateTransform, die.id, rollValue]);
 
   useFrame(checkRollFinished);
 
