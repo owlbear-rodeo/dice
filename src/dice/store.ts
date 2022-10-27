@@ -1,6 +1,5 @@
 import create from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { v4 as uuid } from "uuid";
 import { WritableDraft } from "immer/dist/types/types-external";
 
 import { DiceRoll } from "../types/DiceRoll";
@@ -9,6 +8,7 @@ import { isDice } from "../types/Dice";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { DiceTransform } from "../types/DiceTransform";
 import { getRandomDiceTransform } from "../helpers/getRandomDiceTransform";
+import { generateDiceId } from "../helpers/generateDiceId";
 
 interface DiceRollState {
   roll: DiceRoll | null;
@@ -82,7 +82,7 @@ function rerollDraft(
       if (!ids || ids.includes(dieOrDice.id)) {
         delete rollValues[dieOrDice.id];
         delete rollTransforms[dieOrDice.id];
-        const id = uuid();
+        const id = generateDiceId();
         dieOrDice.id = id;
         rollValues[id] = null;
         rollTransforms[id] = getRandomDiceTransform();

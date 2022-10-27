@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { v4 as uuid } from "uuid";
 
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -27,6 +26,7 @@ import { Die } from "../types/Die";
 import { DiceSet } from "../types/DiceSet";
 import { Dice } from "../types/Dice";
 import { SlideTransition } from "./SlideTransition";
+import { generateDiceId } from "../helpers/generateDiceId";
 
 type DiceDialogProps = {
   diceSet: DiceSet;
@@ -120,12 +120,12 @@ export function DiceDialog({
             // Push a d100 and d10 when rolling a d100
             dice.push({
               dice: [
-                { id: uuid(), style, type: "D100" },
-                { id: uuid(), style, type: "D10" },
+                { id: generateDiceId(), style, type: "D100" },
+                { id: generateDiceId(), style, type: "D10" },
               ],
             });
           } else {
-            dice.push({ id: uuid(), style, type });
+            dice.push({ id: generateDiceId(), style, type });
           }
         } else {
           // Rolling with advantage or disadvantage
@@ -136,14 +136,14 @@ export function DiceDialog({
               dice: [
                 {
                   dice: [
-                    { id: uuid(), style, type: "D100" },
-                    { id: uuid(), style, type: "D10" },
+                    { id: generateDiceId(), style, type: "D100" },
+                    { id: generateDiceId(), style, type: "D10" },
                   ],
                 },
                 {
                   dice: [
-                    { id: uuid(), style, type: "D100" },
-                    { id: uuid(), style, type: "D10" },
+                    { id: generateDiceId(), style, type: "D100" },
+                    { id: generateDiceId(), style, type: "D10" },
                   ],
                 },
               ],
@@ -152,8 +152,8 @@ export function DiceDialog({
           } else {
             dice.push({
               dice: [
-                { id: uuid(), style, type },
-                { id: uuid(), style, type },
+                { id: generateDiceId(), style, type },
+                { id: generateDiceId(), style, type },
               ],
               combination,
             });

@@ -1231,7 +1231,7 @@ opentype.js@^1.3.3:
     string.prototype.codepointat "^0.2.1"
     tiny-inflate "^1.0.3"
 
-"owlbear-rodeo-sdk@link:/Users/mitch/Documents/GitHub/owlbear-rodeo-sdk":
+"owlbear-rodeo-sdk@link:../owlbear-rodeo-sdk":
   version "0.0.0"
   uid ""
 
