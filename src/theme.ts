@@ -35,7 +35,7 @@ export const themeOptions: ThemeOptions = {
       styleOverrides: {
         paper: {
           backgroundImage:
-            "linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))",
+            "linear-gradient(rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.07))",
         },
       },
     },
