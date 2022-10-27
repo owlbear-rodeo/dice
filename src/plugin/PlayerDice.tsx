@@ -125,7 +125,11 @@ function InterpolatedDice({
   useFrame(interpolate);
 
   return (
-    <group userData={{ dieId: die.id }} ref={groupRef}>
+    <group
+      userData={{ dieId: die.id }}
+      ref={groupRef}
+      position={[0, -100, 0]} // Default position out of frame
+    >
       <Dice die={die} />
     </group>
   );
