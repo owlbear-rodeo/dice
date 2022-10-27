@@ -8,6 +8,7 @@ import { isDie } from "../types/Die";
 import { isDice } from "../types/Dice";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { DiceTransform } from "../types/DiceTransform";
+import { getRandomDiceTransform } from "../helpers/getRandomDiceTransform";
 
 interface DiceRollState {
   roll: DiceRoll | null;
@@ -22,7 +23,9 @@ interface DiceRollState {
   /** Reroll select ids of dice or reroll all dice by passing `undefined` */
   reroll: (ids?: string[]) => void;
   updateValue: (id: string, number: number) => void;
-  updateTransform: (id: string, transform: DiceTransform) => void;
+  updateTransforms: (
+    transforms: { id: string; transform: DiceTransform }[]
+  ) => void;
 }
 
 export const useDiceRollStore = create<DiceRollState>()(
@@ -38,17 +41,19 @@ export const useDiceRollStore = create<DiceRollState>()(
         const dice = getDieFromDice(roll);
         for (const die of dice) {
           state.rollValues[die.id] = null;
+          state.rollTransforms[die.id] = getRandomDiceTransform();
         }
       }),
     clearRoll: () =>
       set((state) => {
         state.roll = null;
         state.rollValues = {};
+        state.rollTransforms = {};
       }),
     reroll: (ids) => {
       set((state) => {
         if (state.roll) {
-          rerollDraft(state.roll, ids, state.rollValues);
+          rerollDraft(state.roll, ids, state.rollValues, state.rollTransforms);
         }
       });
     },
@@ -56,9 +61,11 @@ export const useDiceRollStore = create<DiceRollState>()(
       set((state) => {
         state.rollValues[id] = number;
       }),
-    updateTransform: (id, transform) =>
+    updateTransforms: (transforms) =>
       set((state) => {
-        state.rollTransforms[id] = transform;
+        for (const { id, transform } of transforms) {
+          state.rollTransforms[id] = transform;
+        }
       }),
   }))
 );
@@ -67,18 +74,21 @@ export const useDiceRollStore = create<DiceRollState>()(
 function rerollDraft(
   diceRoll: WritableDraft<DiceRoll>,
   ids: string[] | undefined,
-  rollValues: WritableDraft<Record<string, number | null>>
+  rollValues: WritableDraft<Record<string, number | null>>,
+  rollTransforms: WritableDraft<Record<string, DiceTransform>>
 ) {
   for (let dieOrDice of diceRoll.dice) {
     if (isDie(dieOrDice)) {
       if (!ids || ids.includes(dieOrDice.id)) {
         delete rollValues[dieOrDice.id];
+        delete rollTransforms[dieOrDice.id];
         const id = uuid();
         dieOrDice.id = id;
         rollValues[id] = null;
+        rollTransforms[id] = getRandomDiceTransform();
       }
     } else if (isDice(dieOrDice)) {
-      rerollDraft(dieOrDice, ids, rollValues);
+      rerollDraft(dieOrDice, ids, rollValues, rollTransforms);
     }
   }
 }

@@ -14,19 +14,17 @@ import Fade from "@mui/material/Fade";
 
 import { Tray } from "../tray/Tray";
 import environment from "../environment.hdr";
-import { getDieFromDice } from "../helpers/getDieFromDice";
-import { Dice } from "../dice/Dice";
 import { GradientOverlay } from "../controls/GradientOverlay";
 import { DiceResults } from "../controls/DiceResults";
 import { usePlayerDice } from "./usePlayerDice";
+import { PlayerDice } from "./PlayerDice";
 
 export function PlayerTray({
   player,
 }: {
   player?: Player; // Make player optional to allow for preloading of the tray
 }) {
-  const { diceRoll, rollValues, rollTransforms, finalValue } =
-    usePlayerDice(player);
+  const { diceRoll, rollValues, finalValue } = usePlayerDice(player);
 
   const [resultsExpanded, setResultsExpanded] = useState(false);
 
@@ -53,25 +51,7 @@ export function PlayerTray({
             />
             <Environment files={environment} />
             <Tray />
-            {diceRoll &&
-              rollTransforms &&
-              getDieFromDice(diceRoll).map((die) => {
-                const transform = rollTransforms[die.id];
-                if (transform) {
-                  const p = transform.position;
-                  const r = transform.rotation;
-                  return (
-                    <Dice
-                      key={die.id}
-                      die={die}
-                      position={[p.x, p.y, p.z]}
-                      quaternion={[r.x, r.y, r.z, r.w]}
-                    />
-                  );
-                } else {
-                  return null;
-                }
-              })}
+            <PlayerDice player={player} />
             <PerspectiveCamera
               makeDefault
               fov={28}

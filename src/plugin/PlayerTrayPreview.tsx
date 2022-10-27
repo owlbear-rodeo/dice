@@ -10,10 +10,9 @@ import Badge from "@mui/material/Badge";
 
 import { Tray } from "../tray/Tray";
 import environment from "../environment.hdr";
-import { getDieFromDice } from "../helpers/getDieFromDice";
-import { Dice } from "../dice/Dice";
 import IconButton from "@mui/material/IconButton";
 import { usePlayerDice } from "./usePlayerDice";
+import { PlayerDice } from "./PlayerDice";
 
 export function PlayerTrayPreview({
   player,
@@ -22,7 +21,7 @@ export function PlayerTrayPreview({
   player: Player;
   onSelect: () => void;
 }) {
-  const { diceRoll, rollTransforms, finalValue } = usePlayerDice(player);
+  const { finalValue } = usePlayerDice(player);
 
   return (
     <Stack>
@@ -56,25 +55,7 @@ export function PlayerTrayPreview({
               <Suspense fallback={null}>
                 <Environment files={environment} />
                 <Tray />
-                {diceRoll &&
-                  rollTransforms &&
-                  getDieFromDice(diceRoll).map((die) => {
-                    const transform = rollTransforms[die.id];
-                    if (transform) {
-                      const p = transform.position;
-                      const r = transform.rotation;
-                      return (
-                        <Dice
-                          key={die.id}
-                          die={die}
-                          position={[p.x, p.y, p.z]}
-                          quaternion={[r.x, r.y, r.z, r.w]}
-                        />
-                      );
-                    } else {
-                      return null;
-                    }
-                  })}
+                <PlayerDice player={player} />
                 <PerspectiveCamera
                   makeDefault
                   fov={28}

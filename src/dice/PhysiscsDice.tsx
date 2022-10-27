@@ -4,7 +4,6 @@ import {
   CollisionEnterPayload,
   RigidBody,
   RigidBodyApi,
-  Vector3Array,
 } from "@react-three/rapier";
 import { Html } from "@react-three/drei";
 
@@ -20,28 +19,21 @@ import { getNextBuffer } from "../audio/getAudioBuffer";
 import { PhysicalMaterial } from "../types/PhysicalMaterial";
 import { getDieWeightClass } from "../helpers/getDieWeightClass";
 import { getDieDensity } from "../helpers/getDieDensity";
+import { random } from "../helpers/random";
 
 const MIN_LAUNCH_VELOCITY = 1;
 const MAX_LAUNCH_VELOCITY = 5;
 const MIN_ANGULAR_VELOCITY = 5;
 const MAX_ANGULAR_VELOCITY = 12;
-const MIN_X = -0.2;
-const MAX_X = 0.2;
-const MIN_Y = 1.5;
-const MAX_Y = 1.8;
-const MIN_Z = -0.6;
-const MAX_Z = 0.6;
 const MIN_INTERACTION_SPEED = 0.01;
 /** Cool down in MS before dice audio can get played again */
 const AUDIO_COOLDOWN = 200;
 
-function randomNumber(min: number, max: number) {
-  return Math.random() * (max - min) + min;
-}
-
 function magnitude({ x, y, z }: { x: number; y: number; z: number }) {
   return Math.sqrt(x * x + y * y + z * z);
 }
+
+type Vector3Array = [number, number, number];
 
 /**
  * Get a random launch velocity for the dice
@@ -58,7 +50,7 @@ function getRandomVelocity(position: Vector3Array): Vector3Array {
   }
   const norm: Vector3Array = [x / length, 0, z / length];
   // Generate a random speed
-  const speed = randomNumber(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY);
+  const speed = random(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY);
   // Map the speed to the normalized direction and reverse it so it
   // goes inwards instead of outwards
   const velocity = norm.map((coord) => coord * speed * -1) as Vector3Array;
@@ -73,36 +65,39 @@ export function PhysicsDice({
 }) {
   const rollValue = useDiceRollStore((state) => state.rollValues[die.id]);
   const updateValue = useDiceRollStore((state) => state.updateValue);
-  const updateTransform = useDiceRollStore((state) => state.updateTransform);
   const ref = useRef<THREE.Group>(null);
   const rigidBodyRef = useRef<RigidBodyApi>(null);
 
   // Generator initial random position, rotation and velocities
-  const position = useMemo<Vector3Array>(
-    () => [
-      randomNumber(MIN_X, MAX_X),
-      randomNumber(MIN_Y, MAX_Y),
-      randomNumber(MIN_Z, MAX_Z),
-    ],
-    []
-  );
-  const rotation = useMemo<Vector3Array>(
-    () => [
-      Math.random() * Math.PI * 2,
-      Math.random() * Math.PI * 2,
-      Math.random() * Math.PI * 2,
-    ],
-    []
-  );
+  const position = useMemo<Vector3Array>(() => {
+    const transform = useDiceRollStore.getState().rollTransforms[die.id];
+    if (transform) {
+      const p = transform.position;
+      return [p.x, p.y, p.z];
+    } else {
+      return [0, 0, 0];
+    }
+  }, [die.id]);
+  const rotation = useMemo<Vector3Array>(() => {
+    const transform = useDiceRollStore.getState().rollTransforms[die.id];
+    if (transform) {
+      const r = transform.rotation;
+      const quaternion = new THREE.Quaternion(r.x, r.y, r.z, r.w);
+      const euler = new THREE.Euler().setFromQuaternion(quaternion);
+      return [euler.x, euler.y, euler.z];
+    } else {
+      return [0, 0, 0];
+    }
+  }, []);
   const linearVelocity = useMemo<Vector3Array>(
     () => getRandomVelocity(position),
     [position]
   );
   const angularVelocity = useMemo<Vector3Array>(
     () => [
-      randomNumber(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
-      randomNumber(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
-      randomNumber(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
+      random(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
+      random(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
+      random(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
     ],
     []
   );
@@ -111,25 +106,12 @@ export function PhysicsDice({
     const rigidBody = rigidBodyRef.current;
     const group = ref.current;
     if (rigidBody && rollValue === null && group) {
-      // Update the dice store transform
-      const position = rigidBody.translation();
-      const rotation = rigidBody.rotation();
-      updateTransform(die.id, {
-        position: { x: position.x, y: position.y, z: position.z },
-        rotation: {
-          x: rotation.x,
-          y: rotation.y,
-          z: rotation.z,
-          w: rotation.w,
-        },
-      });
-
       // Get the total speed for the dice
       const linVel = rigidBody.linvel();
       const angVel = rigidBody.angvel();
       const speed = magnitude(linVel) + magnitude(angVel);
       // Ensure that the dice is in the tray
-      const validPosition = rigidBody.translation().y < MIN_Y;
+      const validPosition = rigidBody.translation().y < 1.5;
       if (speed < MIN_INTERACTION_SPEED && validPosition) {
         updateValue(die.id, getValueFromDiceGroup(group));
         // Disable rigid body rotation and translation
@@ -140,7 +122,7 @@ export function PhysicsDice({
         rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
       }
     }
-  }, [updateValue, updateTransform, die.id, rollValue]);
+  }, [updateValue, die.id, rollValue]);
 
   useFrame(checkRollFinished);
 
@@ -206,7 +188,7 @@ export function PhysicsDice({
       angularVelocity={angularVelocity}
       ref={rigidBodyRef}
       onCollisionEnter={handleCollision}
-      userData={{ material: "DICE" }}
+      userData={{ material: "DICE", dieId: die.id }}
     >
       <group ref={ref} onClick={handleClick}>
         <Dice die={die} {...props} />
