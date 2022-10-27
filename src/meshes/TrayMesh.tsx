@@ -16,17 +16,15 @@ type GLTFResult = GLTF & {
 };
 
 export function TrayMesh({
-  materialProps,
+  children,
   ...props
-}: JSX.IntrinsicElements["group"] & {
-  materialProps: JSX.IntrinsicElements["meshStandardMaterial"];
-}) {
+}: JSX.IntrinsicElements["group"]) {
   const { nodes } = useGLTF(glb) as unknown as GLTFResult;
   return (
     <group {...props} scale={0.1} dispose={null}>
       {/* Align mesh so that the tray bottom is at [0, 0, 0] */}
       <mesh geometry={nodes.Cube.geometry} position={[0, -0.33, 0]}>
-        <meshStandardMaterial {...materialProps} />
+        {children}
       </mesh>
     </group>
   );
