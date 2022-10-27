@@ -1,6 +1,7 @@
 import OBR from "owlbear-rodeo-sdk";
 import { useEffect, useMemo } from "react";
 import { useDiceRollStore } from "../dice/store";
+import { reduceDiceTransformPrecision } from "../helpers/reduceDiceTransformPrecision";
 import { getPluginId } from "./getPluginId";
 
 /** Sync the current dice roll to the plugin */
@@ -64,7 +65,8 @@ export function DiceRollSync() {
               for (const [id, transform] of Object.entries(
                 state.rollTransforms
               )) {
-                draft[id] = transform;
+                // Reduce the transform precision to save on network bandwidth
+                draft[id] = reduceDiceTransformPrecision(transform);
               }
             });
           });
