@@ -30,7 +30,10 @@ export function DiceResults({
 
   return (
     <Stack alignItems="center" maxHeight="calc(100vh - 100px)">
-      <Tooltip title={expanded ? "Hide Breakdown" : "Show Breakdown"}>
+      <Tooltip
+        title={expanded ? "Hide Breakdown" : "Show Breakdown"}
+        disableInteractive
+      >
         <Button
           sx={{ pointerEvents: "all", padding: 0.5, minWidth: "40px" }}
           onClick={() => onExpand(!expanded)}
