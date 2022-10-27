@@ -38,6 +38,7 @@ export function PlayerTrayPreview({
             bgcolor: "background.paper",
           },
         }}
+        max={999}
       >
         <IconButton
           sx={{ borderRadius: 0.5, p: 0.25 }}
