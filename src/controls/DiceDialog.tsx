@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { v4 as uuid } from "uuid";
 
 import Button from "@mui/material/Button";
@@ -10,8 +10,6 @@ import List from "@mui/material/List";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 
 import CloseIcon from "@mui/icons-material/ChevronLeftRounded";
 import ResetIcon from "@mui/icons-material/RestartAltRounded";
@@ -28,15 +26,7 @@ import { DieAdvantage } from "./DieAdvantage";
 import { Die } from "../types/Die";
 import { DiceSet } from "../types/DiceSet";
 import { Dice } from "../types/Dice";
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="right" ref={ref} {...props} />;
-});
+import { SlideTransition } from "./SlideTransition";
 
 type DiceDialogProps = {
   diceSet: DiceSet;
@@ -200,7 +190,7 @@ export function DiceDialog({
       onClose={onClose}
       fullScreen
       sx={{ position: "absolute" }}
-      TransitionComponent={Transition}
+      TransitionComponent={SlideTransition}
       disablePortal
       hideBackdrop
     >
