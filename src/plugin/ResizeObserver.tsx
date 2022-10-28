@@ -14,6 +14,8 @@ export function ResizeObserver() {
       OBR.action.setWidth(window.innerHeight / 2 + SIDEBAR_WIDTH);
     }, THROTTLE_TIME);
 
+    handleResize();
+
     window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
