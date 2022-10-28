@@ -106,16 +106,16 @@ function DiceResultsExpanded({
         {die.map((d, i) => (
           <Stack direction="row" key={d.id} gap={1}>
             <DicePreview diceStyle={d.style} diceType={d.type} small />
-            <Typography>{rollValues[d.id]}</Typography>
+            <Typography lineHeight="28px">{rollValues[d.id]}</Typography>
             {i < die.length - 1 && (
-              <Typography>{combination(diceRoll)}</Typography>
+              <Typography lineHeight="28px">{combination(diceRoll)}</Typography>
             )}
           </Stack>
         ))}
         {die.length > 0 && (
           <>
-            <Typography>=</Typography>
-            <Typography>
+            <Typography lineHeight="28px">=</Typography>
+            <Typography lineHeight="28px">
               {getCombinedDiceValue(
                 { dice: die, combination: diceRoll.combination },
                 rollValues
@@ -128,7 +128,7 @@ function DiceResultsExpanded({
         <DiceResultsExpanded key={i} diceRoll={d} rollValues={rollValues} />
       ))}
       {diceRoll.bonus && (
-        <Typography textAlign="center">
+        <Typography textAlign="center" lineHeight="28px">
           {diceRoll.bonus > 0 && "+"}
           {diceRoll.bonus}
         </Typography>

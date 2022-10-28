@@ -30,8 +30,8 @@ interface PreviewImageProps {
 const PreviewImage = styled("img", {
   shouldForwardProp: (prop) => prop !== "small",
 })<PreviewImageProps>(({ small }) => ({
-  width: small ? "24px" : "38px",
-  height: small ? "24px" : "38px",
+  width: small ? "28px" : "38px",
+  height: small ? "28px" : "38px",
 }));
 
 type DiePreviewProps = {
