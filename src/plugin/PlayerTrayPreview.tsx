@@ -11,11 +11,13 @@ import Backdrop from "@mui/material/Backdrop";
 
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
-import { Tray } from "../tray/Tray";
 import environment from "../environment.hdr";
 import IconButton from "@mui/material/IconButton";
 import { usePlayerDice } from "./usePlayerDice";
 import { PlayerDice } from "./PlayerDice";
+import { AudioListenerProvider } from "../audio/AudioListenerProvider";
+import { Physics } from "@react-three/rapier";
+import { PhysicsTray } from "../tray/PhysicsTray";
 
 export function PlayerTrayPreview({
   player,
@@ -57,15 +59,19 @@ export function PlayerTrayPreview({
           >
             <Canvas frameloop="demand">
               <Suspense fallback={null}>
-                <Environment files={environment} />
-                <Tray />
-                <PlayerDice player={player} />
-                <PerspectiveCamera
-                  makeDefault
-                  fov={28}
-                  position={[0, 4.3, 0]}
-                  rotation={[-Math.PI / 2, 0, 0]}
-                />
+                <AudioListenerProvider>
+                  <Environment files={environment} />
+                  <Physics colliders={false}>
+                    <PhysicsTray />
+                    <PlayerDice player={player} />
+                  </Physics>
+                  <PerspectiveCamera
+                    makeDefault
+                    fov={28}
+                    position={[0, 4.3, 0]}
+                    rotation={[-Math.PI / 2, 0, 0]}
+                  />
+                </AudioListenerProvider>
               </Suspense>
             </Canvas>
             {diceRoll?.hidden && (

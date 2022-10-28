@@ -7,8 +7,9 @@ import { isDie } from "../types/Die";
 import { isDice } from "../types/Dice";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { DiceTransform } from "../types/DiceTransform";
-import { getRandomDiceTransform } from "../helpers/getRandomDiceTransform";
+import { getRandomDiceThrow } from "../helpers/getRandomDiceThrow";
 import { generateDiceId } from "../helpers/generateDiceId";
+import { DiceThrow } from "../types/DiceThrow";
 
 interface DiceRollState {
   roll: DiceRoll | null;
@@ -17,15 +18,20 @@ interface DiceRollState {
    * A value of `null` means the die hasn't finished rolling yet.
    */
   rollValues: Record<string, number | null>;
-  rollTransforms: Record<string, DiceTransform>;
+  /**
+   * A mapping from the die ID to its final roll transform.
+   * A value of `null` means the die hasn't finished rolling yet.
+   */
+  rollTransforms: Record<string, DiceTransform | null>;
+  /**
+   * A mapping from the die ID to its initial roll throw state.
+   */
+  rollThrows: Record<string, DiceThrow>;
   startRoll: (roll: DiceRoll) => void;
   clearRoll: (ids?: string) => void;
   /** Reroll select ids of dice or reroll all dice by passing `undefined` */
   reroll: (ids?: string[]) => void;
-  updateValue: (id: string, number: number) => void;
-  updateTransforms: (
-    transforms: { id: string; transform: DiceTransform }[]
-  ) => void;
+  finishDieRoll: (id: string, number: number, transform: DiceTransform) => void;
 }
 
 export const useDiceRollStore = create<DiceRollState>()(
@@ -33,15 +39,19 @@ export const useDiceRollStore = create<DiceRollState>()(
     roll: null,
     rollValues: {},
     rollTransforms: {},
+    rollThrows: {},
     startRoll: (roll) =>
       set((state) => {
         state.roll = roll;
         state.rollValues = {};
+        state.rollTransforms = {};
+        state.rollThrows = {};
         // Set all values to null
         const dice = getDieFromDice(roll);
         for (const die of dice) {
           state.rollValues[die.id] = null;
-          state.rollTransforms[die.id] = getRandomDiceTransform();
+          state.rollTransforms[die.id] = null;
+          state.rollThrows[die.id] = getRandomDiceThrow();
         }
       }),
     clearRoll: () =>
@@ -49,24 +59,27 @@ export const useDiceRollStore = create<DiceRollState>()(
         state.roll = null;
         state.rollValues = {};
         state.rollTransforms = {};
+        state.rollThrows = {};
       }),
     reroll: (ids) => {
       set((state) => {
         if (state.roll) {
-          rerollDraft(state.roll, ids, state.rollValues, state.rollTransforms);
+          rerollDraft(
+            state.roll,
+            ids,
+            state.rollValues,
+            state.rollTransforms,
+            state.rollThrows
+          );
         }
       });
     },
-    updateValue: (id, number) =>
+    finishDieRoll: (id, number, transform) => {
       set((state) => {
         state.rollValues[id] = number;
-      }),
-    updateTransforms: (transforms) =>
-      set((state) => {
-        for (const { id, transform } of transforms) {
-          state.rollTransforms[id] = transform;
-        }
-      }),
+        state.rollTransforms[id] = transform;
+      });
+    },
   }))
 );
 
@@ -75,20 +88,23 @@ function rerollDraft(
   diceRoll: WritableDraft<DiceRoll>,
   ids: string[] | undefined,
   rollValues: WritableDraft<Record<string, number | null>>,
-  rollTransforms: WritableDraft<Record<string, DiceTransform>>
+  rollTransforms: WritableDraft<Record<string, DiceTransform | null>>,
+  rollThrows: WritableDraft<Record<string, DiceThrow>>
 ) {
   for (let dieOrDice of diceRoll.dice) {
     if (isDie(dieOrDice)) {
       if (!ids || ids.includes(dieOrDice.id)) {
         delete rollValues[dieOrDice.id];
         delete rollTransforms[dieOrDice.id];
+        delete rollThrows[dieOrDice.id];
         const id = generateDiceId();
         dieOrDice.id = id;
         rollValues[id] = null;
-        rollTransforms[id] = getRandomDiceTransform();
+        rollTransforms[id] = null;
+        rollThrows[id] = getRandomDiceThrow();
       }
     } else if (isDice(dieOrDice)) {
-      rerollDraft(dieOrDice, ids, rollValues, rollTransforms);
+      rerollDraft(dieOrDice, ids, rollValues, rollTransforms, rollThrows);
     }
   }
 }

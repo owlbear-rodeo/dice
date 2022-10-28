@@ -16,19 +16,21 @@ import Tooltip from "@mui/material/Tooltip";
 
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
-import { Tray } from "../tray/Tray";
 import environment from "../environment.hdr";
 import { GradientOverlay } from "../controls/GradientOverlay";
 import { DiceResults } from "../controls/DiceResults";
 import { usePlayerDice } from "./usePlayerDice";
 import { PlayerDice } from "./PlayerDice";
+import { AudioListenerProvider } from "../audio/AudioListenerProvider";
+import { Physics } from "@react-three/rapier";
+import { PhysicsTray } from "../tray/PhysicsTray";
 
 export function PlayerTray({
   player,
 }: {
   player?: Player; // Make player optional to allow for preloading of the tray
 }) {
-  const { diceRoll, rollValues, finalValue } = usePlayerDice(player);
+  const { diceRoll, finalValue, finishedRollValues } = usePlayerDice(player);
 
   const [resultsExpanded, setResultsExpanded] = useState(false);
 
@@ -44,24 +46,28 @@ export function PlayerTray({
       >
         <Canvas frameloop="demand">
           <Suspense fallback={null}>
-            <ContactShadows
-              resolution={256}
-              scale={[1, 2]}
-              position={[0, 0, 0]}
-              blur={0.5}
-              opacity={0.5}
-              far={1}
-              color="#222222"
-            />
-            <Environment files={environment} />
-            <Tray />
-            <PlayerDice player={player} />
-            <PerspectiveCamera
-              makeDefault
-              fov={28}
-              position={[0, 4.3, 0]}
-              rotation={[-Math.PI / 2, 0, 0]}
-            />
+            <AudioListenerProvider>
+              <Environment files={environment} />
+              <ContactShadows
+                resolution={256}
+                scale={[1, 2]}
+                position={[0, 0, 0]}
+                blur={0.5}
+                opacity={0.5}
+                far={1}
+                color="#222222"
+              />
+              <Physics colliders={false}>
+                <PhysicsTray />
+                <PlayerDice player={player} />
+              </Physics>
+              <PerspectiveCamera
+                makeDefault
+                fov={28}
+                position={[0, 4.3, 0]}
+                rotation={[-Math.PI / 2, 0, 0]}
+              />
+            </AudioListenerProvider>
           </Suspense>
         </Canvas>
         {diceRoll?.hidden && (
@@ -94,10 +100,10 @@ export function PlayerTray({
             width="100%"
             alignItems="start"
           >
-            {diceRoll && rollValues && finalValue !== null && (
+            {diceRoll && finishedRollValues && finalValue !== null && (
               <DiceResults
                 diceRoll={diceRoll}
-                rollValues={rollValues}
+                rollValues={finishedRollValues}
                 expanded={resultsExpanded}
                 onExpand={setResultsExpanded}
               />

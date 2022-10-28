@@ -56,11 +56,10 @@ export function InteractiveTray({
               far={1}
               color="#222222"
             />
-            <DiceRollFrameloop />
-            <Physics colliders={false} timeStep="vary">
+            <Physics colliders={false}>
               {allowDebug && <Debug />}
-              <DiceRoll />
               <PhysicsTray />
+              <DiceRoll />
             </Physics>
             <PerspectiveCamera
               makeDefault

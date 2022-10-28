@@ -5,30 +5,78 @@ import { RenderCallback, useFrame, useThree } from "@react-three/fiber";
 
 import { Dice } from "../dice/Dice";
 import { getDieFromDice } from "../helpers/getDieFromDice";
-import { useDiceInteraction } from "./useDiceInteraction";
 import { usePlayerDice } from "./usePlayerDice";
 import { Die } from "../types/Die";
 import { DiceTransform } from "../types/DiceTransform";
+import { DiceRollFrameloop } from "../dice/DiceRollFrameloop";
+import { PhysicsDice } from "../dice/PhysiscsDice";
 
 export function PlayerDice({ player }: { player?: Player }) {
-  const { diceRoll, rollTransforms } = usePlayerDice(player);
+  const { diceRoll, rollThrows, rollValues, rollTransforms } =
+    usePlayerDice(player);
 
-  const parentRef = useRef<THREE.Group>(null);
+  const dice = useMemo(() => diceRoll && getDieFromDice(diceRoll), [diceRoll]);
 
-  useDiceInteraction(player, parentRef.current);
+  const allTransformDiceValid = useMemo(() => {
+    return (
+      dice &&
+      rollTransforms &&
+      dice.every(
+        (die) => die.id in rollTransforms && rollTransforms[die.id] !== null
+      )
+    );
+  }, [dice]);
 
-  return (
-    <group ref={parentRef}>
-      {diceRoll &&
-        getDieFromDice(diceRoll).map((die) => (
-          <PossibleInterpolatedDice
-            key={die.id}
-            die={die}
-            transform={rollTransforms?.[die.id]}
-          />
-        ))}
-    </group>
-  );
+  const allPhysicsDiceValid = useMemo(() => {
+    return (
+      dice &&
+      rollThrows &&
+      rollValues &&
+      dice.every((die) => die.id in rollThrows && die.id in rollValues)
+    );
+  }, [dice]);
+
+  if (allTransformDiceValid) {
+    return (
+      <group>
+        {dice?.map((die) => {
+          const dieTransform = rollTransforms![die.id]!;
+
+          const p = dieTransform.position;
+          const r = dieTransform.rotation;
+          return (
+            <Dice
+              userData={{ dieId: die.id }}
+              key={die.id}
+              die={die}
+              position={[p.x, p.y, p.z]}
+              quaternion={[r.x, r.y, r.z, r.w]}
+            />
+          );
+        })}
+      </group>
+    );
+  } else if (allPhysicsDiceValid) {
+    return (
+      <group>
+        {dice?.map((die) => {
+          const dieThrow = rollThrows![die.id];
+          const dieValue = rollValues![die.id];
+          return (
+            <PhysicsDice
+              key={die.id}
+              die={die}
+              dieThrow={dieThrow}
+              dieValue={dieValue}
+            />
+          );
+        })}
+        <DiceRollFrameloop rollValues={rollValues!} />
+      </group>
+    );
+  } else {
+    return null;
+  }
 }
 
 /**

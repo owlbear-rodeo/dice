@@ -1,31 +1,25 @@
 import * as THREE from "three";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   CollisionEnterPayload,
   RigidBody,
   RigidBodyApi,
 } from "@react-three/rapier";
-import { Html } from "@react-three/drei";
 
 import { Dice } from "./Dice";
 import { Die } from "../types/Die";
-import { useDiceRollStore } from "./store";
 import { getValueFromDiceGroup } from "../helpers/getValueFromDiceGroup";
-import { DieMenu } from "../controls/DieMenu";
-import { CanvasBridge } from "../helpers/CanvasBridge";
 import { useFrame } from "@react-three/fiber";
 import { useAudioListener } from "../audio/AudioListenerProvider";
 import { getNextBuffer } from "../audio/getAudioBuffer";
 import { PhysicalMaterial } from "../types/PhysicalMaterial";
 import { getDieWeightClass } from "../helpers/getDieWeightClass";
 import { getDieDensity } from "../helpers/getDieDensity";
-import { random } from "../helpers/random";
+import { DiceThrow } from "../types/DiceThrow";
+import { DiceTransform } from "../types/DiceTransform";
 
-const MIN_LAUNCH_VELOCITY = 1;
-const MAX_LAUNCH_VELOCITY = 5;
-const MIN_ANGULAR_VELOCITY = 5;
-const MAX_ANGULAR_VELOCITY = 12;
-const MIN_INTERACTION_SPEED = 0.02;
+/** Minium linear and angular speed before the dice roll is considered finished */
+const MIN_ROLL_FINISHED_SPEED = 0.05;
 /** Cool down in MS before dice audio can get played again */
 const AUDIO_COOLDOWN = 200;
 
@@ -35,85 +29,72 @@ function magnitude({ x, y, z }: { x: number; y: number; z: number }) {
 
 type Vector3Array = [number, number, number];
 
-/**
- * Get a random launch velocity for the dice
- * Always launches from where the dice is towards the center of the tray
- * This better simulates a throwing motion compared to a complete random velocity
- */
-function getRandomVelocity(position: Vector3Array): Vector3Array {
-  // Only use the horizontal plane
-  const [x, _, z] = position;
-  // Normalize the position to get the direction to [0, 0, 0]
-  const length = Math.sqrt(x * x + z * z);
-  if (isNaN(length) || length === 0) {
-    return [0, 0, 0];
-  }
-  const norm: Vector3Array = [x / length, 0, z / length];
-  // Generate a random speed
-  const speed = random(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY);
-  // Map the speed to the normalized direction and reverse it so it
-  // goes inwards instead of outwards
-  const velocity = norm.map((coord) => coord * speed * -1) as Vector3Array;
-  return velocity;
-}
-
 export function PhysicsDice({
   die,
+  dieThrow,
+  dieValue,
+  onRollFinished,
+  children,
   ...props
 }: JSX.IntrinsicElements["group"] & {
   die: Die;
+  dieThrow: DiceThrow;
+  dieValue: number | null;
+  onRollFinished?: (
+    id: string,
+    number: number,
+    transform: DiceTransform
+  ) => void;
 }) {
-  const rollValue = useDiceRollStore((state) => state.rollValues[die.id]);
-  const updateValue = useDiceRollStore((state) => state.updateValue);
   const ref = useRef<THREE.Group>(null);
   const rigidBodyRef = useRef<RigidBodyApi>(null);
 
-  // Generator initial random position, rotation and velocities
+  // Convert dice throw into THREE values
   const position = useMemo<Vector3Array>(() => {
-    const transform = useDiceRollStore.getState().rollTransforms[die.id];
-    if (transform) {
-      const p = transform.position;
-      return [p.x, p.y, p.z];
-    } else {
-      return [0, 0, 0];
-    }
-  }, [die.id]);
+    const p = dieThrow.position;
+    return [p.x, p.y, p.z];
+  }, [die.id, dieThrow.position]);
+
   const rotation = useMemo<Vector3Array>(() => {
-    const transform = useDiceRollStore.getState().rollTransforms[die.id];
-    if (transform) {
-      const r = transform.rotation;
-      const quaternion = new THREE.Quaternion(r.x, r.y, r.z, r.w);
-      const euler = new THREE.Euler().setFromQuaternion(quaternion);
-      return [euler.x, euler.y, euler.z];
-    } else {
-      return [0, 0, 0];
-    }
-  }, []);
-  const linearVelocity = useMemo<Vector3Array>(
-    () => getRandomVelocity(position),
-    [position]
-  );
-  const angularVelocity = useMemo<Vector3Array>(
-    () => [
-      random(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
-      random(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
-      random(MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY),
-    ],
-    []
-  );
+    const r = dieThrow.rotation;
+    const quaternion = new THREE.Quaternion(r.x, r.y, r.z, r.w);
+    const euler = new THREE.Euler().setFromQuaternion(quaternion);
+    return [euler.x, euler.y, euler.z];
+  }, [die.id, dieThrow.rotation]);
+
+  const linearVelocity = useMemo<Vector3Array>(() => {
+    const v = dieThrow.linearVelocity;
+    return [v.x, v.y, v.z];
+  }, [die.id, dieThrow.linearVelocity]);
+  const angularVelocity = useMemo<Vector3Array>(() => {
+    const v = dieThrow.angularVelocity;
+    return [v.x, v.y, v.z];
+  }, [die.id, dieThrow.angularVelocity]);
 
   const checkRollFinished = useCallback(() => {
     const rigidBody = rigidBodyRef.current;
     const group = ref.current;
-    if (rigidBody && rollValue === null && group) {
+    if (rigidBody && dieValue === null && group) {
       // Get the total speed for the dice
       const linVel = rigidBody.linvel();
       const angVel = rigidBody.angvel();
       const speed = magnitude(linVel) + magnitude(angVel);
       // Ensure that the dice is in the tray
       const validPosition = rigidBody.translation().y < 1.5;
-      if (speed < MIN_INTERACTION_SPEED && validPosition) {
-        updateValue(die.id, getValueFromDiceGroup(group));
+      if (speed < MIN_ROLL_FINISHED_SPEED && validPosition) {
+        const value = getValueFromDiceGroup(group);
+        const position = rigidBody.translation();
+        const rotation = rigidBody.rotation();
+        const transform = {
+          position: { x: position.x, y: position.y, z: position.z },
+          rotation: {
+            x: rotation.x,
+            y: rotation.y,
+            z: rotation.z,
+            w: rotation.w,
+          },
+        };
+        onRollFinished?.(die.id, value, transform);
         // Disable rigid body rotation and translation
         // This stops the dice from getting changed after it has finished rolling
         rigidBody.setEnabledRotations(false, false, false);
@@ -122,25 +103,9 @@ export function PhysicsDice({
         rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
       }
     }
-  }, [updateValue, die.id, rollValue]);
+  }, [die.id, dieValue]);
 
   useFrame(checkRollFinished);
-
-  const [showMenu, setShowMenu] = useState(false);
-
-  function handleClick() {
-    const rigidBody = rigidBodyRef.current;
-    if (rigidBody) {
-      const linVel = rigidBody.linvel();
-      const angVel = rigidBody.angvel();
-      const speed =
-        Math.abs(linVel.x + linVel.y + linVel.z) +
-        Math.abs(angVel.x + angVel.y + angVel.z);
-      if (speed < MIN_INTERACTION_SPEED) {
-        setShowMenu((prev) => !prev);
-      }
-    }
-  }
 
   const listener = useAudioListener();
   const lastAudioTimeRef = useRef(0);
@@ -190,15 +155,9 @@ export function PhysicsDice({
       onCollisionEnter={handleCollision}
       userData={{ material: "DICE", dieId: die.id }}
     >
-      <group ref={ref} onClick={handleClick}>
+      <group ref={ref}>
         <Dice die={die} {...props} />
-        {showMenu && (
-          <Html>
-            <CanvasBridge>
-              <DieMenu die={die} onClose={() => setShowMenu(false)} />
-            </CanvasBridge>
-          </Html>
-        )}
+        {children}
       </group>
     </RigidBody>
   );
