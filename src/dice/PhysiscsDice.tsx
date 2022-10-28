@@ -17,6 +17,7 @@ import { getDieWeightClass } from "../helpers/getDieWeightClass";
 import { getDieDensity } from "../helpers/getDieDensity";
 import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
+import { DiceCollider } from "../colliders/DiceCollider";
 
 /** Minium linear and angular speed before the dice roll is considered finished */
 const MIN_ROLL_FINISHED_SPEED = 0.05;
@@ -140,7 +141,6 @@ export function PhysicsDice({
 
   return (
     <RigidBody
-      colliders="hull"
       // Increase gravity on the dice to offset the non-standard dice size.
       // Dice are around 10x larger then they should be to account for
       // physics errors when shown at proper size.
@@ -156,6 +156,7 @@ export function PhysicsDice({
       userData={{ material: "DICE", dieId: die.id }}
     >
       <group ref={ref}>
+        <DiceCollider diceType={die.type} />
         <Dice die={die} {...props} />
         {children}
       </group>
