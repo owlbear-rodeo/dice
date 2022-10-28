@@ -1,4 +1,3 @@
-import Container from "@mui/material/Container";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import { styled } from "@mui/material/styles";
@@ -17,7 +16,7 @@ type DiceBarProps = {
 
 export function DiceBar({ diceSets, onOpen }: DiceBarProps) {
   return (
-    <Stack sx={{ overflowY: "auto" }} gap={1}>
+    <Stack gap={1} alignItems="center">
       {diceSets.map((diceSet) => (
         <IconButton
           key={diceSet.id}

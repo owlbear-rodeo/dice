@@ -28,6 +28,10 @@ export function PartyTrays() {
     }
   }, [players, focusedTray]);
 
+  if (players.length === 0) {
+    return null;
+  }
+
   return (
     <Stack gap={1}>
       {players.map((player) => (

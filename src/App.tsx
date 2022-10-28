@@ -19,19 +19,21 @@ export function App() {
   return (
     <Container disableGutters maxWidth="md">
       <Stack direction="row" justifyContent="center">
-        <Stack p={1} gap={2}>
-          <DiceBar
-            diceSets={diceSets}
-            onOpen={(set) => {
-              setDialogSet(set);
-              setDialogOpen(true);
-            }}
-          />
-          <PluginGate>
-            <DiceRollSync />
-            <PartyTrays />
-            <ResizeObserver />
-          </PluginGate>
+        <Stack maxHeight="100vh" width="60px" sx={{ overflowY: "auto" }}>
+          <Stack p={1} gap={2}>
+            <DiceBar
+              diceSets={diceSets}
+              onOpen={(set) => {
+                setDialogSet(set);
+                setDialogOpen(true);
+              }}
+            />
+            <PluginGate>
+              <DiceRollSync />
+              <PartyTrays />
+              <ResizeObserver />
+            </PluginGate>
+          </Stack>
         </Stack>
         <InteractiveTray
           dialogOpen={dialogOpen}

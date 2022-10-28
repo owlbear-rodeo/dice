@@ -27,7 +27,7 @@ export function PlayerTrayPreview({
   const { diceRoll, finalValue } = usePlayerDice(player);
 
   return (
-    <Stack>
+    <Stack alignItems="center">
       <Badge
         badgeContent={finalValue}
         showZero
@@ -50,8 +50,8 @@ export function PlayerTrayPreview({
           <Box
             component="div"
             borderRadius={0.5}
-            height="80px"
-            width="40px"
+            height="76px"
+            width="36px"
             overflow="hidden"
             position="relative"
           >
@@ -80,6 +80,8 @@ export function PlayerTrayPreview({
         variant="caption"
         color="rgba(255, 255, 255, 0.7)"
         textAlign="center"
+        width="100%"
+        noWrap
       >
         {player.name}
       </Typography>
