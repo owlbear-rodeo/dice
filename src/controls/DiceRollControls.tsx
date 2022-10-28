@@ -5,6 +5,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Fade from "@mui/material/Fade";
 
 import CloseIcon from "@mui/icons-material/CloseRounded";
+import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
 import { RerollDiceIcon } from "../icons/RerollDiceIcon";
 
@@ -45,6 +46,7 @@ export function DiceRollControls() {
       <Fade in={finishedRolling} unmountOnExit>
         <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
       </Fade>
+      {roll?.hidden && <GradientOverlay />}
       <Fade in={finishedRolling} unmountOnExit>
         <Box
           sx={{
@@ -87,6 +89,23 @@ export function DiceRollControls() {
           </Stack>
         </Box>
       </Fade>
+      {roll?.hidden && (
+        <Stack
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "100%",
+            pointerEvents: "none",
+            padding: 3,
+            alignItems: "center",
+          }}
+        >
+          <Tooltip title="Hidden Roll" sx={{ pointerEvents: "all" }}>
+            <HiddenIcon />
+          </Tooltip>
+        </Stack>
+      )}
     </>
   );
 }
