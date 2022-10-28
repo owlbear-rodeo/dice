@@ -9,6 +9,7 @@ import List from "@mui/material/List";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
+import Chip from "@mui/material/Chip";
 
 import CloseIcon from "@mui/icons-material/ChevronLeftRounded";
 import ResetIcon from "@mui/icons-material/RestartAltRounded";
@@ -27,6 +28,9 @@ import { DiceSet } from "../types/DiceSet";
 import { Dice } from "../types/Dice";
 import { SlideTransition } from "./SlideTransition";
 import { generateDiceId } from "../helpers/generateDiceId";
+import { DicePreview } from "../previews/DicePreview";
+
+type Advantage = "ADVANTAGE" | "DISADVANTAGE" | null;
 
 type DiceDialogProps = {
   diceSet: DiceSet;
@@ -52,9 +56,7 @@ export function DiceDialog({
     useState<Record<string, number>>(defaultDiceCounts);
 
   const [bonus, setBonus] = useState(0);
-  const [advantage, setAdvantage] = useState<
-    "ADVANTAGE" | "DISADVANTAGE" | null
-  >(null);
+  const [advantage, setAdvantage] = useState<Advantage>(null);
   const [hidden, setHidden] = useState(false);
 
   const diceById = useMemo(() => {
@@ -63,6 +65,16 @@ export function DiceDialog({
       byId[die.id] = die;
     }
     return byId;
+  }, [diceSet.dice]);
+
+  // Keep track of previous state to carry over count
+  const prevCountsRef = useRef(counts);
+  const prevDiceRef = useRef(diceSet.dice);
+  useEffect(() => {
+    prevCountsRef.current = counts;
+  }, [counts]);
+  useEffect(() => {
+    prevDiceRef.current = diceSet.dice;
   }, [diceSet.dice]);
 
   // Carry over count state when changing dice sets
@@ -83,16 +95,6 @@ export function DiceDialog({
     setCounts(counts);
   }, [diceSet]);
 
-  // Keep track of previous state to carry over count
-  const prevCountsRef = useRef(counts);
-  const prevDiceRef = useRef(diceSet.dice);
-  useEffect(() => {
-    prevCountsRef.current = counts;
-  }, [counts]);
-  useEffect(() => {
-    prevDiceRef.current = diceSet.dice;
-  }, [diceSet.dice]);
-
   function handleDiceCountChange(id: string, count: number) {
     setCounts((prev) => ({ ...prev, [id]: count }));
   }
@@ -105,7 +107,11 @@ export function DiceDialog({
     setCounts((prev) => ({ ...prev, [id]: prev[id] - 1 }));
   }
 
-  function handleRoll() {
+  function handleRoll(
+    counts: Record<string, number>,
+    bonus: number,
+    advantage: Advantage
+  ) {
     const dice: (Die | Dice)[] = [];
     const countEntries = Object.entries(counts);
     for (const [id, count] of countEntries) {
@@ -162,6 +168,7 @@ export function DiceDialog({
       }
     }
     onRoll({ dice, bonus, hidden });
+    handleReset();
   }
 
   function handleReset() {
@@ -174,6 +181,7 @@ export function DiceDialog({
     setHidden((prev) => !prev);
   }
 
+  // Is currently the default dice state (all counts 0 and advantage/bonus defaults)
   const isDefault = useMemo(
     () =>
       Object.entries(defaultDiceCounts).every(
@@ -183,6 +191,40 @@ export function DiceDialog({
       bonus === 0,
     [counts, defaultDiceCounts, advantage, bonus]
   );
+
+  // A mapping from dice set ID to its most recent roll states
+  const [recentRollsPerSet, setRecentRollsPerSet] = useState<
+    Record<
+      string,
+      {
+        counts: Record<string, number>;
+        bonus: number;
+        advantage: Advantage;
+      }[]
+    >
+  >({});
+  const recentRolls = recentRollsPerSet[diceSet.id];
+  function handleRecentsPush() {
+    // Push to recent rolls stack
+    setRecentRollsPerSet((prev) => ({
+      ...prev,
+      [diceSet.id]: [
+        // Keep last 6 rolls
+        ...(prev[diceSet.id] || []).slice(-5),
+        {
+          counts,
+          advantage,
+          bonus,
+        },
+      ],
+    }));
+  }
+  function handleRecentsDelete(index: number) {
+    setRecentRollsPerSet((prev) => ({
+      ...prev,
+      [diceSet.id]: [...(prev[diceSet.id] || []).filter((_, i) => i !== index)],
+    }));
+  }
 
   return (
     <Dialog
@@ -194,62 +236,232 @@ export function DiceDialog({
       disablePortal
       hideBackdrop
     >
-      <DialogActions sx={{ justifyContent: "space-between" }}>
-        <IconButton onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
-        <Stack direction="row">
-          {!isDefault && (
-            <Tooltip title="Reset">
-              <IconButton onClick={handleReset}>
-                <ResetIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-          <Tooltip title={hidden ? "Show Roll" : "Hide Roll"}>
-            <IconButton onClick={handleHide}>
-              {hidden ? <HiddenOnIcon /> : <HiddenOffIcon />}
-            </IconButton>
-          </Tooltip>
-        </Stack>
-      </DialogActions>
-      <DialogContent sx={{ p: 0 }}>
-        <List>
-          {Object.entries(counts).map(([id, count]) => {
-            const die = diceById[id];
-            if (!die) {
-              return null;
-            }
-            return (
-              <DieCount
-                key={id}
-                onChange={(newCount) => handleDiceCountChange(id, newCount)}
-                onIncrease={() => handleDiceCountIncrease(id)}
-                onDecrease={() => handleDiceCountDecrease(id)}
-                count={count}
-                diceStyle={die.style}
-                diceType={die.type}
-              />
-            );
-          })}
-        </List>
-        <Divider variant="middle" />
-        <List>
-          <DieBonus
-            bonus={bonus}
-            onChange={setBonus}
-            onIncrease={() => setBonus((prev) => prev + 1)}
-            onDecrease={() => setBonus((prev) => prev - 1)}
-          />
-        </List>
-        <Divider variant="middle" />
-        <DieAdvantage advantage={advantage} onChange={setAdvantage} />
-      </DialogContent>
+      <TopActions
+        onClose={onClose}
+        isDefault={isDefault}
+        onReset={handleReset}
+        hidden={hidden}
+        onHide={handleHide}
+      />
+      <RecentRolls
+        recentRolls={recentRolls}
+        onRoll={handleRoll}
+        diceById={diceById}
+        onDelete={handleRecentsDelete}
+      />
+      <Controls
+        counts={counts}
+        diceById={diceById}
+        onCountChange={handleDiceCountChange}
+        onCountIncrease={handleDiceCountIncrease}
+        onCountDecrease={handleDiceCountDecrease}
+        bonus={bonus}
+        onBonusChange={setBonus}
+        onBonusIncrease={() => setBonus((prev) => prev + 1)}
+        onBonusDecrease={() => setBonus((prev) => prev - 1)}
+        advantage={advantage}
+        onAdvantageChange={setAdvantage}
+      />
       <DialogActions>
-        <Button variant="contained" onClick={handleRoll} fullWidth>
+        <Button
+          variant="contained"
+          onClick={() => {
+            handleRoll(counts, bonus, advantage);
+            handleRecentsPush();
+          }}
+          fullWidth
+          disabled={Object.values(counts).every((count) => count === 0)}
+        >
           Roll
         </Button>
       </DialogActions>
     </Dialog>
+  );
+}
+
+function TopActions({
+  onClose,
+  isDefault,
+  onReset,
+  hidden,
+  onHide,
+}: {
+  onClose: () => void;
+  isDefault: boolean;
+  onReset: () => void;
+  hidden: boolean;
+  onHide: () => void;
+}) {
+  return (
+    <DialogActions sx={{ justifyContent: "space-between" }}>
+      <IconButton onClick={onClose}>
+        <CloseIcon />
+      </IconButton>
+      <Stack direction="row">
+        {!isDefault && (
+          <Tooltip title="Reset">
+            <IconButton onClick={onReset}>
+              <ResetIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        <Tooltip title={hidden ? "Show Roll" : "Hide Roll"}>
+          <IconButton onClick={onHide}>
+            {hidden ? <HiddenOnIcon /> : <HiddenOffIcon />}
+          </IconButton>
+        </Tooltip>
+      </Stack>
+    </DialogActions>
+  );
+}
+
+function RecentRolls({
+  recentRolls,
+  diceById,
+  onRoll,
+  onDelete,
+}: {
+  recentRolls:
+    | {
+        counts: Record<string, number>;
+        bonus: number;
+        advantage: Advantage;
+      }[]
+    | undefined;
+  diceById: Record<string, Die>;
+  onRoll: (
+    counts: Record<string, number>,
+    bonus: number,
+    advantage: Advantage
+  ) => void;
+  onDelete: (index: number) => void;
+}) {
+  if (!recentRolls || recentRolls.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <Stack
+        justifyContent="center"
+        flexWrap="wrap"
+        gap={1}
+        direction="row"
+        p={1}
+      >
+        {recentRolls.map((state, i) => (
+          <Chip
+            key={i}
+            sx={{
+              flexGrow: 1,
+              flexBasis: 0,
+              ".MuiChip-deleteIcon": {
+                position: "absolute",
+                right: 0,
+              },
+            }}
+            label={
+              <Stack direction="row" alignItems="center" gap={0.5} px={2}>
+                {Object.entries(state.counts).map(([id, count]) => {
+                  const die = diceById[id];
+                  if (!die || count === 0) {
+                    return null;
+                  }
+                  return (
+                    <Stack
+                      key={id}
+                      direction="row"
+                      alignItems="center"
+                      gap={0.25}
+                    >
+                      {count}{" "}
+                      <DicePreview
+                        diceStyle={die.style}
+                        diceType={die.type}
+                        small
+                      />
+                    </Stack>
+                  );
+                })}
+                {state.bonus !== 0 && (
+                  <span>
+                    {state.bonus > 0 && "+"}
+                    {state.bonus}
+                  </span>
+                )}
+                {state.advantage !== null && (
+                  <span>{state.advantage === "ADVANTAGE" ? "Adv" : "Dis"}</span>
+                )}
+              </Stack>
+            }
+            variant="filled"
+            onClick={() => onRoll(state.counts, state.bonus, state.advantage)}
+            onDelete={() => onDelete(i)}
+          />
+        ))}
+      </Stack>
+      <Divider variant="middle" />
+    </>
+  );
+}
+
+function Controls({
+  counts,
+  diceById,
+  onCountChange,
+  onCountIncrease,
+  onCountDecrease,
+  onBonusChange,
+  onBonusIncrease,
+  onBonusDecrease,
+  bonus,
+  advantage,
+  onAdvantageChange,
+}: {
+  counts: Record<string, number>;
+  diceById: Record<string, Die>;
+  onCountChange: (id: string, count: number) => void;
+  onCountIncrease: (id: string) => void;
+  onCountDecrease: (id: string) => void;
+  onBonusChange: (bonus: number) => void;
+  onBonusIncrease: () => void;
+  onBonusDecrease: () => void;
+  bonus: number;
+  advantage: Advantage;
+  onAdvantageChange: (advantage: Advantage) => void;
+}) {
+  return (
+    <DialogContent sx={{ p: 0 }}>
+      <List>
+        {Object.entries(counts).map(([id, count]) => {
+          const die = diceById[id];
+          if (!die) {
+            return null;
+          }
+          return (
+            <DieCount
+              key={id}
+              onChange={(newCount) => onCountChange(id, newCount)}
+              onIncrease={() => onCountIncrease(id)}
+              onDecrease={() => onCountDecrease(id)}
+              count={count}
+              diceStyle={die.style}
+              diceType={die.type}
+            />
+          );
+        })}
+      </List>
+      <Divider variant="middle" />
+      <List>
+        <DieBonus
+          bonus={bonus}
+          onChange={onBonusChange}
+          onIncrease={onBonusIncrease}
+          onDecrease={onBonusDecrease}
+        />
+      </List>
+      <Divider variant="middle" />
+      <DieAdvantage advantage={advantage} onChange={onAdvantageChange} />
+    </DialogContent>
   );
 }
