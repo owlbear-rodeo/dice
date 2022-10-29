@@ -76,21 +76,12 @@ export function DiceRoll({
           const dieValue = rollValues[die.id];
           const dieTransform = rollTransforms[die.id];
 
-          // If this die already has a transform then use it
-          // as it has already been rolled
-          const throwValue: DiceThrow = dieTransform
-            ? {
-                ...dieTransform,
-                angularVelocity: { x: 0, y: 0, z: 0 },
-                linearVelocity: { x: 0, y: 0, z: 0 },
-              }
-            : dieThrow;
-
           return (
             <PhysicsDice
               key={die.id}
               die={die}
-              dieThrow={throwValue}
+              dieThrow={dieThrow}
+              dieTransform={dieTransform}
               dieValue={dieValue}
               onRollFinished={onRollFinished}
             >

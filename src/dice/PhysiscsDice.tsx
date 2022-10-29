@@ -33,6 +33,7 @@ export function PhysicsDice({
   die,
   dieThrow,
   dieValue,
+  dieTransform,
   onRollFinished,
   children,
   ...props
@@ -40,6 +41,7 @@ export function PhysicsDice({
   die: Die;
   dieThrow: DiceThrow;
   dieValue: number | null;
+  dieTransform: DiceTransform | null;
   onRollFinished?: (
     id: string,
     number: number,
@@ -51,25 +53,38 @@ export function PhysicsDice({
 
   // Convert dice throw into THREE values
   const position = useMemo<Vector3Array>(() => {
-    const p = dieThrow.position;
+    const p = dieTransform ? dieTransform.position : dieThrow.position;
     return [p.x, p.y, p.z];
-  }, [die.id, dieThrow.position]);
+  }, [die.id, dieThrow.position, dieTransform]);
 
   const rotation = useMemo<Vector3Array>(() => {
-    const r = dieThrow.rotation;
+    const r = dieTransform ? dieTransform.rotation : dieThrow.rotation;
     const quaternion = new THREE.Quaternion(r.x, r.y, r.z, r.w);
     const euler = new THREE.Euler().setFromQuaternion(quaternion);
     return [euler.x, euler.y, euler.z];
-  }, [die.id, dieThrow.rotation]);
+  }, [die.id, dieThrow.rotation, dieTransform]);
 
   const linearVelocity = useMemo<Vector3Array>(() => {
-    const v = dieThrow.linearVelocity;
+    const v = dieTransform ? { x: 0, y: 0, z: 0 } : dieThrow.linearVelocity;
     return [v.x, v.y, v.z];
-  }, [die.id, dieThrow.linearVelocity]);
+  }, [die.id, dieThrow.linearVelocity, dieTransform]);
+
   const angularVelocity = useMemo<Vector3Array>(() => {
-    const v = dieThrow.angularVelocity;
+    const v = dieTransform ? { x: 0, y: 0, z: 0 } : dieThrow.angularVelocity;
     return [v.x, v.y, v.z];
-  }, [die.id, dieThrow.angularVelocity]);
+  }, [die.id, dieThrow.angularVelocity, dieTransform]);
+
+  const lockDice = useCallback(() => {
+    const rigidBody = rigidBodyRef.current;
+    if (rigidBody && dieValue !== null) {
+      // Disable rigid body rotation and translation
+      // This stops the dice from getting changed after it has finished rolling
+      rigidBody.setEnabledRotations(false, false, false);
+      rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
+      rigidBody.setEnabledTranslations(false, false, false);
+      rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
+    }
+  }, []);
 
   const checkRollFinished = useCallback(() => {
     const rigidBody = rigidBodyRef.current;
@@ -95,21 +110,15 @@ export function PhysicsDice({
           },
         };
         onRollFinished?.(die.id, value, transform);
+        lockDice();
       }
     }
-  }, [die.id, dieValue]);
+  }, [die.id, dieValue, lockDice]);
 
+  // Lock the dice when we have a manual transform
   useEffect(() => {
-    const rigidBody = rigidBodyRef.current;
-    if (rigidBody && dieValue !== null) {
-      // Disable rigid body rotation and translation
-      // This stops the dice from getting changed after it has finished rolling
-      rigidBody.setEnabledRotations(false, false, false);
-      rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
-      rigidBody.setEnabledTranslations(false, false, false);
-      rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
-    }
-  }, [dieValue]);
+    lockDice();
+  }, [dieTransform]);
 
   useFrame(checkRollFinished);
 
