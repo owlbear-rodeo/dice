@@ -34,11 +34,17 @@ export function DiceRollSync() {
         }
 
         if (changed) {
+          // Hide values if needed
+          const throws = state.roll?.hidden ? undefined : state.rollThrows;
+          const values = state.roll?.hidden ? undefined : state.rollValues;
+          const transforms = state.roll?.hidden
+            ? undefined
+            : state.rollTransforms;
           OBR.player.setMetadata({
             [getPluginId("roll")]: state.roll,
-            [getPluginId("rollThrows")]: state.rollThrows,
-            [getPluginId("rollValues")]: state.rollValues,
-            [getPluginId("rollTransforms")]: state.rollTransforms,
+            [getPluginId("rollThrows")]: throws,
+            [getPluginId("rollValues")]: values,
+            [getPluginId("rollTransforms")]: transforms,
           });
         }
       }),
