@@ -21,9 +21,11 @@ import { Tray } from "../tray/Tray";
 export function PlayerTrayPreview({
   player,
   onSelect,
+  focused,
 }: {
   player: Player;
   onSelect: () => void;
+  focused: boolean;
 }) {
   const { diceRoll, finalValue } = usePlayerDice(player);
 
@@ -58,7 +60,7 @@ export function PlayerTrayPreview({
           >
             <Canvas frameloop="demand">
               <Suspense fallback={null}>
-                <AudioListenerProvider>
+                <AudioListenerProvider volume={focused ? 0 : 0.25}>
                   <Environment files={environment} />
                   <Tray />
                   <PlayerDiceRoll player={player} />

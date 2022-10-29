@@ -47,6 +47,7 @@ export function PartyTrays({
           key={player.connectionId}
           player={player}
           onSelect={() => setFocusTray(player.connectionId)}
+          focused={focusedTray === player.connectionId}
         />
       ))}
       <Dialog
