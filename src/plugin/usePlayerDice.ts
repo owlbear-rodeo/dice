@@ -50,6 +50,18 @@ export function usePlayerDice(player?: Player) {
     }
   }, [diceRoll, finishedRollValues]);
 
+  const finishedRolling = useMemo(() => {
+    if (!rollValues) {
+      return false;
+    }
+    const values = Object.values(rollValues);
+    if (values.length === 0) {
+      return false;
+    } else {
+      return values.every((value) => value !== null);
+    }
+  }, [rollValues]);
+
   return {
     diceRoll,
     rollThrows,
@@ -57,5 +69,6 @@ export function usePlayerDice(player?: Player) {
     rollTransforms,
     finalValue,
     finishedRollValues,
+    finishedRolling,
   };
 }

@@ -29,7 +29,8 @@ export function PlayerTray({
 }: {
   player?: Player; // Make player optional to allow for preloading of the tray
 }) {
-  const { diceRoll, finalValue, finishedRollValues } = usePlayerDice(player);
+  const { diceRoll, finalValue, finishedRollValues, finishedRolling } =
+    usePlayerDice(player);
 
   const [resultsExpanded, setResultsExpanded] = useState(false);
 
@@ -97,14 +98,17 @@ export function PlayerTray({
             width="100%"
             alignItems="start"
           >
-            {diceRoll && finishedRollValues && finalValue !== null && (
-              <DiceResults
-                diceRoll={diceRoll}
-                rollValues={finishedRollValues}
-                expanded={resultsExpanded}
-                onExpand={setResultsExpanded}
-              />
-            )}
+            {finishedRolling &&
+              diceRoll &&
+              finishedRollValues &&
+              finalValue !== null && (
+                <DiceResults
+                  diceRoll={diceRoll}
+                  rollValues={finishedRollValues}
+                  expanded={resultsExpanded}
+                  onExpand={setResultsExpanded}
+                />
+              )}
           </Stack>
         </Box>
       </Fade>

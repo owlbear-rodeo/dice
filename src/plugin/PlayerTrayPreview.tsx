@@ -27,12 +27,12 @@ export function PlayerTrayPreview({
   onSelect: () => void;
   focused: boolean;
 }) {
-  const { diceRoll, finalValue } = usePlayerDice(player);
+  const { diceRoll, finalValue, finishedRolling } = usePlayerDice(player);
 
   return (
     <Stack alignItems="center">
       <Badge
-        badgeContent={finalValue}
+        badgeContent={finishedRolling ? finalValue : null}
         showZero
         overlap="circular"
         anchorOrigin={{
