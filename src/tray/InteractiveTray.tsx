@@ -6,21 +6,20 @@ import {
   OrbitControls,
   PerspectiveCamera,
 } from "@react-three/drei";
-import { Physics, Debug } from "@react-three/rapier";
 
 import Box from "@mui/material/Box";
 
 import { DiceDialog } from "../controls/DiceDialog";
-import { PhysicsTray } from "./PhysicsTray";
 import { useDiceRollStore } from "../dice/store";
-import { DiceRollFrameloop } from "../dice/DiceRollFrameloop";
-import { DiceRoll } from "../dice/DiceRoll";
+import { InteractiveDiceRoll } from "../dice/InteractiveDiceRoll";
 import { DiceRollControls } from "../controls/DiceRollControls";
 import { useDebugControls } from "../helpers/useDebugControls";
 import environment from "../environment.hdr";
 import { DiceSet } from "../types/DiceSet";
 import { AudioListenerProvider } from "../audio/AudioListenerProvider";
+import { Tray } from "./Tray";
 
+/** Dice tray that controls the dice roll store */
 export function InteractiveTray({
   dialogOpen,
   onDialogClose,
@@ -32,7 +31,7 @@ export function InteractiveTray({
 }) {
   const startRoll = useDiceRollStore((state) => state.startRoll);
 
-  const { allowOrbit, allowDebug } = useDebugControls();
+  const { allowOrbit } = useDebugControls();
 
   return (
     <Box
@@ -56,11 +55,8 @@ export function InteractiveTray({
               far={1}
               color="#222222"
             />
-            <Physics colliders={false}>
-              {allowDebug && <Debug />}
-              <PhysicsTray />
-              <DiceRoll />
-            </Physics>
+            <Tray />
+            <InteractiveDiceRoll />
             <PerspectiveCamera
               makeDefault
               fov={28}

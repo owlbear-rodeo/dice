@@ -1,5 +1,4 @@
 import { CuboidCollider, RigidBody } from "@react-three/rapier";
-import { Tray } from "./Tray";
 
 // Use a very large wall size and thickness to avoid the possibility
 // of the dice teleporting through the dice tray
@@ -10,10 +9,9 @@ const ROOF_Y = WALL_THICKNESS + 1.5;
 const WALL_X = WALL_THICKNESS + 0.46; // Move the wall in a bit to account for the wood thickness
 const WALL_Z = WALL_THICKNESS + 0.96;
 
-export function PhysicsTray(props: JSX.IntrinsicElements["group"]) {
+export function TrayColliders(props: JSX.IntrinsicElements["group"]) {
   return (
     <group {...props}>
-      <Tray />
       {/* Floor of the tray */}
       {/* Use a large friction and restitution to simulate a bouncy material */}
       <RigidBody

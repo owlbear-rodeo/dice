@@ -20,10 +20,9 @@ import environment from "../environment.hdr";
 import { GradientOverlay } from "../controls/GradientOverlay";
 import { DiceResults } from "../controls/DiceResults";
 import { usePlayerDice } from "./usePlayerDice";
-import { PlayerDice } from "./PlayerDice";
+import { PlayerDiceRoll } from "./PlayerDiceRoll";
 import { AudioListenerProvider } from "../audio/AudioListenerProvider";
-import { Physics } from "@react-three/rapier";
-import { PhysicsTray } from "../tray/PhysicsTray";
+import { Tray } from "../tray/Tray";
 
 export function PlayerTray({
   player,
@@ -57,10 +56,8 @@ export function PlayerTray({
                 far={1}
                 color="#222222"
               />
-              <Physics colliders={false}>
-                <PhysicsTray />
-                <PlayerDice player={player} />
-              </Physics>
+              <Tray />
+              <PlayerDiceRoll player={player} />
               <PerspectiveCamera
                 makeDefault
                 fov={28}

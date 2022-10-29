@@ -1,34 +1,112 @@
+import { Physics } from "@react-three/rapier";
 import { useMemo } from "react";
 import { getDieFromDice } from "../helpers/getDieFromDice";
+import { TrayColliders } from "../tray/TrayColliders";
+import { DiceRoll as DiceRollType } from "../types/DiceRoll";
+import { DiceThrow } from "../types/DiceThrow";
+import { DiceTransform } from "../types/DiceTransform";
+import { Die } from "../types/Die";
+import { Dice as DefaultDice } from "./Dice";
 import { DiceRollFrameloop } from "./DiceRollFrameloop";
-import { InteractiveDice } from "./InteractiveDice";
-import { useDiceRollStore } from "./store";
+import { PhysicsDice } from "./PhysiscsDice";
 
-export function DiceRoll() {
-  const roll = useDiceRollStore((state) => state.roll);
-  const throws = useDiceRollStore((state) => state.rollThrows);
-  const values = useDiceRollStore((state) => state.rollValues);
-  const finishDieRoll = useDiceRollStore((state) => state.finishDieRoll);
-
+export function DiceRoll({
+  roll,
+  rollThrows,
+  rollValues,
+  rollTransforms,
+  onRollFinished,
+  Dice,
+}: {
+  roll: DiceRollType;
+  rollThrows: Record<string, DiceThrow>;
+  rollValues: Record<string, number | null>;
+  rollTransforms: Record<string, DiceTransform | null>;
+  onRollFinished?: (
+    id: string,
+    number: number,
+    transform: DiceTransform
+  ) => void;
+  /** Override to provide a custom Dice component  */
+  Dice: React.FC<JSX.IntrinsicElements["group"] & { die: Die }>;
+}) {
   const dice = useMemo(() => roll && getDieFromDice(roll), [roll]);
 
-  const allDiceValid = useMemo(() => {
-    return dice && dice.every((die) => die.id in throws && die.id in values);
-  }, [dice, throws, values]);
+  const allTransformDiceValid = useMemo(() => {
+    return dice.every(
+      (die) => die.id in rollTransforms && rollTransforms[die.id] !== null
+    );
+  }, [dice, rollTransforms]);
 
-  return (
-    <group>
-      {allDiceValid &&
-        dice?.map((die) => (
-          <InteractiveDice
-            key={die.id}
-            die={die}
-            dieThrow={throws[die.id]}
-            dieValue={values[die.id]}
-            onRollFinished={finishDieRoll}
-          />
-        ))}
-      <DiceRollFrameloop rollValues={values} />
-    </group>
-  );
+  const allPhysicsDiceValid = useMemo(() => {
+    return dice.every((die) => die.id in rollThrows && die.id in rollValues);
+  }, [dice, rollThrows, rollValues]);
+
+  if (allTransformDiceValid) {
+    // Move to a static dice representation when all dice values have been found
+    return (
+      <group>
+        {dice?.map((die) => {
+          const dieTransform = rollTransforms[die.id]!;
+          const p = dieTransform.position;
+          const r = dieTransform.rotation;
+          return (
+            <Dice
+              userData={{ dieId: die.id }}
+              key={die.id}
+              die={die}
+              position={[p.x, p.y, p.z]}
+              quaternion={[r.x, r.y, r.z, r.w]}
+            />
+          );
+        })}
+      </group>
+    );
+  } else if (allPhysicsDiceValid) {
+    // If we have physics states for the dice then create a Rapier physics
+    // instance for this roll.
+    // We need to re-create the physics world on every new roll as the dice
+    // networking relies on the deterministic nature of Rapier when given the
+    // same inputs and using the same number of update timesteps.
+    return (
+      <Physics colliders={false}>
+        <TrayColliders />
+        {dice?.map((die) => {
+          const dieThrow = rollThrows[die.id];
+          const dieValue = rollValues[die.id];
+          const dieTransform = rollTransforms[die.id];
+
+          // If this die already has a transform then use it
+          // as it has already been rolled
+          const throwValue: DiceThrow = dieTransform
+            ? {
+                ...dieTransform,
+                angularVelocity: { x: 0, y: 0, z: 0 },
+                linearVelocity: { x: 0, y: 0, z: 0 },
+              }
+            : dieThrow;
+
+          return (
+            <PhysicsDice
+              key={die.id}
+              die={die}
+              dieThrow={throwValue}
+              dieValue={dieValue}
+              onRollFinished={onRollFinished}
+            >
+              {/* Override onClick event to make sure simulated dice can't be selected */}
+              <Dice die={die} onClick={() => {}} />
+            </PhysicsDice>
+          );
+        })}
+        <DiceRollFrameloop rollValues={rollValues} />
+      </Physics>
+    );
+  } else {
+    return null;
+  }
 }
+
+DiceRoll.defaultProps = {
+  Dice: DefaultDice,
+};

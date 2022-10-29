@@ -8,16 +8,15 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Badge from "@mui/material/Badge";
 import Backdrop from "@mui/material/Backdrop";
+import IconButton from "@mui/material/IconButton";
 
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
 import environment from "../environment.hdr";
-import IconButton from "@mui/material/IconButton";
 import { usePlayerDice } from "./usePlayerDice";
-import { PlayerDice } from "./PlayerDice";
+import { PlayerDiceRoll } from "./PlayerDiceRoll";
 import { AudioListenerProvider } from "../audio/AudioListenerProvider";
-import { Physics } from "@react-three/rapier";
-import { PhysicsTray } from "../tray/PhysicsTray";
+import { Tray } from "../tray/Tray";
 
 export function PlayerTrayPreview({
   player,
@@ -61,10 +60,8 @@ export function PlayerTrayPreview({
               <Suspense fallback={null}>
                 <AudioListenerProvider>
                   <Environment files={environment} />
-                  <Physics colliders={false}>
-                    <PhysicsTray />
-                    <PlayerDice player={player} />
-                  </Physics>
+                  <Tray />
+                  <PlayerDiceRoll player={player} />
                   <PerspectiveCamera
                     makeDefault
                     fov={28}

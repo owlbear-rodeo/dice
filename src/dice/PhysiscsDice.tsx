@@ -1,12 +1,11 @@
 import * as THREE from "three";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   CollisionEnterPayload,
   RigidBody,
   RigidBodyApi,
 } from "@react-three/rapier";
 
-import { Dice } from "./Dice";
 import { Die } from "../types/Die";
 import { getValueFromDiceGroup } from "../helpers/getValueFromDiceGroup";
 import { useFrame } from "@react-three/fiber";
@@ -96,15 +95,21 @@ export function PhysicsDice({
           },
         };
         onRollFinished?.(die.id, value, transform);
-        // Disable rigid body rotation and translation
-        // This stops the dice from getting changed after it has finished rolling
-        rigidBody.setEnabledRotations(false, false, false);
-        rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
-        rigidBody.setEnabledTranslations(false, false, false);
-        rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
       }
     }
   }, [die.id, dieValue]);
+
+  useEffect(() => {
+    const rigidBody = rigidBodyRef.current;
+    if (rigidBody && dieValue !== null) {
+      // Disable rigid body rotation and translation
+      // This stops the dice from getting changed after it has finished rolling
+      rigidBody.setEnabledRotations(false, false, false);
+      rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
+      rigidBody.setEnabledTranslations(false, false, false);
+      rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
+    }
+  }, [dieValue]);
 
   useFrame(checkRollFinished);
 
@@ -155,9 +160,8 @@ export function PhysicsDice({
       onCollisionEnter={handleCollision}
       userData={{ material: "DICE", dieId: die.id }}
     >
-      <group ref={ref}>
+      <group ref={ref} {...props}>
         <DiceCollider diceType={die.type} />
-        <Dice die={die} {...props} />
         {children}
       </group>
     </RigidBody>
