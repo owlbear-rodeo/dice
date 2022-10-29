@@ -8,11 +8,18 @@ const AudioListenerContext = React.createContext<
 
 export function AudioListenerProvider({
   children,
+  volume,
 }: {
   children?: React.ReactNode;
+  volume: number;
 }) {
   const { camera } = useThree();
   const [listener] = useState(() => new THREE.AudioListener());
+
+  useEffect(() => {
+    listener.setMasterVolume(volume);
+  }, [listener, volume]);
+
   useEffect(() => {
     camera.add(listener);
     return () => {
@@ -36,3 +43,7 @@ export function useAudioListener() {
   }
   return context;
 }
+
+AudioListenerProvider.defaultProps = {
+  volume: 1,
+};
