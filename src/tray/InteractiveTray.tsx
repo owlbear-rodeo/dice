@@ -13,11 +13,11 @@ import { DiceDialog } from "../controls/DiceDialog";
 import { useDiceRollStore } from "../dice/store";
 import { InteractiveDiceRoll } from "../dice/InteractiveDiceRoll";
 import { DiceRollControls } from "../controls/DiceRollControls";
-import { useDebugControls } from "../helpers/useDebugControls";
 import environment from "../environment.hdr";
 import { DiceSet } from "../types/DiceSet";
 import { AudioListenerProvider } from "../audio/AudioListenerProvider";
 import { Tray } from "./Tray";
+import { useDebugStore } from "../debug/store";
 
 /** Dice tray that controls the dice roll store */
 export function InteractiveTray({
@@ -31,7 +31,7 @@ export function InteractiveTray({
 }) {
   const startRoll = useDiceRollStore((state) => state.startRoll);
 
-  const { allowOrbit } = useDebugControls();
+  const allowOrbit = useDebugStore((state) => state.allowOrbit);
 
   return (
     <Box

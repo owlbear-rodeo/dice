@@ -1,5 +1,9 @@
 import { Suspense } from "react";
-import { Environment, PerspectiveCamera } from "@react-three/drei";
+import {
+  Environment,
+  OrbitControls,
+  PerspectiveCamera,
+} from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Player } from "owlbear-rodeo-sdk";
 
@@ -17,6 +21,7 @@ import { usePlayerDice } from "./usePlayerDice";
 import { PlayerDiceRoll } from "./PlayerDiceRoll";
 import { AudioListenerProvider } from "../audio/AudioListenerProvider";
 import { Tray } from "../tray/Tray";
+import { useDebugStore } from "../debug/store";
 
 export function PlayerTrayPreview({
   player,
@@ -27,6 +32,8 @@ export function PlayerTrayPreview({
   onSelect: () => void;
   focused: boolean;
 }) {
+  const allowOrbit = useDebugStore((state) => state.allowOrbit);
+
   const { diceRoll, finalValue, finishedRolling } = usePlayerDice(player);
 
   return (
@@ -70,6 +77,7 @@ export function PlayerTrayPreview({
                     position={[0, 4.3, 0]}
                     rotation={[-Math.PI / 2, 0, 0]}
                   />
+                  {allowOrbit && <OrbitControls />}
                 </AudioListenerProvider>
               </Suspense>
             </Canvas>

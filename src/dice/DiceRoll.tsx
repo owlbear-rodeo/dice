@@ -1,4 +1,4 @@
-import { Physics } from "@react-three/rapier";
+import { Debug, Physics } from "@react-three/rapier";
 import { useMemo } from "react";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { TrayColliders } from "../tray/TrayColliders";
@@ -9,6 +9,7 @@ import { Die } from "../types/Die";
 import { Dice as DefaultDice } from "./Dice";
 import { DiceRollFrameloop } from "./DiceRollFrameloop";
 import { PhysicsDice } from "./PhysiscsDice";
+import { useDebugStore } from "../debug/store";
 
 export function DiceRoll({
   roll,
@@ -30,6 +31,8 @@ export function DiceRoll({
   /** Override to provide a custom Dice component  */
   Dice: React.FC<JSX.IntrinsicElements["group"] & { die: Die }>;
 }) {
+  const allowPhysicsDebug = useDebugStore((state) => state.allowPhysicsDebug);
+
   const dice = useMemo(() => roll && getDieFromDice(roll), [roll]);
 
   const allTransformDiceValid = useMemo(() => {
@@ -70,6 +73,7 @@ export function DiceRoll({
     // same inputs and using the same number of update timesteps.
     return (
       <Physics colliders={false}>
+        {allowPhysicsDebug && <Debug />}
         <TrayColliders />
         {dice?.map((die) => {
           const dieThrow = rollThrows[die.id];
