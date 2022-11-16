@@ -1,3 +1,5 @@
+import { useTransition } from "react";
+
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
@@ -18,6 +20,8 @@ export function DiceRollControls() {
   const roll = useDiceRollStore((state) => state.roll);
   const clearRoll = useDiceRollStore((state) => state.clearRoll);
   const reroll = useDiceRollStore((state) => state.reroll);
+
+  const [_, startTransition] = useTransition();
 
   const rollValues = useDiceRollStore((state) => state.rollValues);
   const finishedRolling = useMemo(() => {
@@ -70,7 +74,7 @@ export function DiceRollControls() {
               >
                 <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
                   <IconButton
-                    onClick={() => reroll()}
+                    onClick={() => startTransition(() => reroll())}
                     disabled={!finishedRolling}
                     sx={{ pointerEvents: "all" }}
                   >
