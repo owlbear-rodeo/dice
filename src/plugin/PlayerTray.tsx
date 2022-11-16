@@ -34,11 +34,6 @@ export function PlayerTray({
 }) {
   const allowOrbit = useDebugStore((state) => state.allowOrbit);
 
-  const { diceRoll, finalValue, finishedRollValues, finishedRolling } =
-    usePlayerDice(player);
-
-  const [resultsExpanded, setResultsExpanded] = useState(false);
-
   return (
     <Box component="div" position="relative" display="flex">
       <Box
@@ -74,50 +69,8 @@ export function PlayerTray({
             </AudioListenerProvider>
           </Canvas>
         </TraySuspense>
-        {diceRoll?.hidden && (
-          <Backdrop open sx={{ position: "absolute" }}>
-            <Tooltip title="Hidden Roll">
-              <HiddenIcon />
-            </Tooltip>
-          </Backdrop>
-        )}
       </Box>
-      <Fade in={finalValue !== null} unmountOnExit>
-        <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
-      </Fade>
-      <GradientOverlay />
-      <Fade in={finalValue !== null} unmountOnExit>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            pointerEvents: "none",
-            padding: 3,
-          }}
-          component="div"
-        >
-          <Stack
-            direction="row"
-            justifyContent="center"
-            width="100%"
-            alignItems="start"
-          >
-            {finishedRolling &&
-              diceRoll &&
-              finishedRollValues &&
-              finalValue !== null && (
-                <DiceResults
-                  diceRoll={diceRoll}
-                  rollValues={finishedRollValues}
-                  expanded={resultsExpanded}
-                  onExpand={setResultsExpanded}
-                />
-              )}
-          </Stack>
-        </Box>
-      </Fade>
+      <PlayerTrayResults player={player} />
       <Box
         sx={{
           position: "absolute",
@@ -138,5 +91,63 @@ export function PlayerTray({
         </Typography>
       </Box>
     </Box>
+  );
+}
+
+function PlayerTrayResults({ player }: { player?: Player }) {
+  const { diceRoll, finalValue, finishedRollValues, finishedRolling } =
+    usePlayerDice(player);
+
+  const [resultsExpanded, setResultsExpanded] = useState(false);
+  return (
+    <>
+      {diceRoll?.hidden && (
+        <Backdrop open sx={{ position: "absolute" }}>
+          <Tooltip title="Hidden Roll">
+            <HiddenIcon />
+          </Tooltip>
+        </Backdrop>
+      )}
+      {finalValue !== null && (
+        <>
+          <Fade in>
+            <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
+          </Fade>
+          <GradientOverlay />
+          <Fade in>
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                pointerEvents: "none",
+                padding: 3,
+              }}
+              component="div"
+            >
+              <Stack
+                direction="row"
+                justifyContent="center"
+                width="100%"
+                alignItems="start"
+              >
+                {finishedRolling &&
+                  diceRoll &&
+                  finishedRollValues &&
+                  finalValue !== null && (
+                    <DiceResults
+                      diceRoll={diceRoll}
+                      rollValues={finishedRollValues}
+                      expanded={resultsExpanded}
+                      onExpand={setResultsExpanded}
+                    />
+                  )}
+              </Stack>
+            </Box>
+          </Fade>
+        </>
+      )}
+    </>
   );
 }
