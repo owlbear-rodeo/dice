@@ -66,7 +66,7 @@ export function PlayerTrayPreview({
             position="relative"
           >
             <TraySuspense>
-              <Canvas frameloop="demand">
+              <Canvas frameloop="demand" dpr={1}>
                 <AudioListenerProvider volume={focused ? 0 : 0.25}>
                   <Environment files={environment} />
                   <Tray />
