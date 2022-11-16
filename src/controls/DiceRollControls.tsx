@@ -17,7 +17,7 @@ import { DiceResults } from "./DiceResults";
 export function DiceRollControls() {
   const roll = useDiceRollStore((state) => state.roll);
   const clearRoll = useDiceRollStore((state) => state.clearRoll);
-  const reroll = useDiceRollStore((state) => state.reroll);
+  const rerollAll = useDiceRollStore((state) => state.rerollAll);
 
   const rollValues = useDiceRollStore((state) => state.rollValues);
   const finishedRolling = useMemo(() => {
@@ -70,7 +70,7 @@ export function DiceRollControls() {
               >
                 <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
                   <IconButton
-                    onClick={() => reroll()}
+                    onClick={() => rerollAll()}
                     disabled={!finishedRolling}
                     sx={{ pointerEvents: "all" }}
                   >
