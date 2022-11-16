@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CollisionEnterPayload,
   RigidBody,
@@ -52,31 +52,31 @@ export function PhysicsDice({
   const rigidBodyRef = useRef<RigidBodyApi>(null);
 
   // Convert dice throw into THREE values
-  const position = useMemo<Vector3Array>(() => {
+  const [position] = useState<Vector3Array>(() => {
     const p = dieTransform ? dieTransform.position : dieThrow.position;
     return [p.x, p.y, p.z];
-  }, [die.id, dieThrow.position, dieTransform]);
+  });
 
-  const rotation = useMemo<Vector3Array>(() => {
+  const [rotation] = useState<Vector3Array>(() => {
     const r = dieTransform ? dieTransform.rotation : dieThrow.rotation;
     const quaternion = new THREE.Quaternion(r.x, r.y, r.z, r.w);
     const euler = new THREE.Euler().setFromQuaternion(quaternion);
     return [euler.x, euler.y, euler.z];
-  }, [die.id, dieThrow.rotation, dieTransform]);
+  });
 
-  const linearVelocity = useMemo<Vector3Array>(() => {
+  const [linearVelocity] = useState<Vector3Array>(() => {
     const v = dieTransform ? { x: 0, y: 0, z: 0 } : dieThrow.linearVelocity;
     return [v.x, v.y, v.z];
-  }, [die.id, dieThrow.linearVelocity, dieTransform]);
+  });
 
-  const angularVelocity = useMemo<Vector3Array>(() => {
+  const [angularVelocity] = useState<Vector3Array>(() => {
     const v = dieTransform ? { x: 0, y: 0, z: 0 } : dieThrow.angularVelocity;
     return [v.x, v.y, v.z];
-  }, [die.id, dieThrow.angularVelocity, dieTransform]);
+  });
 
   const lockDice = useCallback(() => {
     const rigidBody = rigidBodyRef.current;
-    if (rigidBody && dieValue !== null) {
+    if (rigidBody) {
       // Disable rigid body rotation and translation
       // This stops the dice from getting changed after it has finished rolling
       rigidBody.setEnabledRotations(false, false, false);
@@ -117,7 +117,9 @@ export function PhysicsDice({
 
   // Lock the dice when we have a manual transform
   useEffect(() => {
-    lockDice();
+    if (dieTransform) {
+      lockDice();
+    }
   }, [dieTransform]);
 
   useFrame(checkRollFinished);
@@ -153,6 +155,11 @@ export function PhysicsDice({
     }
   }
 
+  const userData = useMemo(
+    () => ({ material: "DICE", dieId: die.id }),
+    [die.id]
+  );
+
   return (
     <RigidBody
       // Increase gravity on the dice to offset the non-standard dice size.
@@ -167,7 +174,7 @@ export function PhysicsDice({
       angularVelocity={angularVelocity}
       ref={rigidBodyRef}
       onCollisionEnter={handleCollision}
-      userData={{ material: "DICE", dieId: die.id }}
+      userData={userData}
     >
       <group ref={ref} {...props}>
         <DiceCollider diceType={die.type} />
