@@ -34,6 +34,7 @@ export function PhysicsDice({
   dieThrow,
   onRollFinished,
   children,
+  fixedTransform,
   ...props
 }: JSX.IntrinsicElements["group"] & {
   die: Die;
@@ -43,30 +44,31 @@ export function PhysicsDice({
     number: number,
     transform: DiceTransform
   ) => void;
+  fixedTransform?: DiceTransform;
 }) {
   const ref = useRef<THREE.Group>(null);
   const rigidBodyRef = useRef<RigidBodyApi>(null);
 
   // Convert dice throw into THREE values
   const [position] = useState<Vector3Array>(() => {
-    const p = dieThrow.position;
+    const p = fixedTransform ? fixedTransform.position : dieThrow.position;
     return [p.x, p.y, p.z];
   });
 
   const [rotation] = useState<Vector3Array>(() => {
-    const r = dieThrow.rotation;
+    const r = fixedTransform ? fixedTransform.rotation : dieThrow.rotation;
     const quaternion = new THREE.Quaternion(r.x, r.y, r.z, r.w);
     const euler = new THREE.Euler().setFromQuaternion(quaternion);
     return [euler.x, euler.y, euler.z];
   });
 
   const [linearVelocity] = useState<Vector3Array>(() => {
-    const v = dieThrow.linearVelocity;
+    const v = fixedTransform ? { x: 0, y: 0, z: 0 } : dieThrow.angularVelocity;
     return [v.x, v.y, v.z];
   });
 
   const [angularVelocity] = useState<Vector3Array>(() => {
-    const v = dieThrow.angularVelocity;
+    const v = fixedTransform ? { x: 0, y: 0, z: 0 } : dieThrow.angularVelocity;
     return [v.x, v.y, v.z];
   });
 
@@ -114,6 +116,13 @@ export function PhysicsDice({
   }, [die.id, lockDice]);
 
   useFrame(checkRollFinished);
+
+  // Lock the dice when we have a manual transform
+  useEffect(() => {
+    if (fixedTransform) {
+      lockDice();
+    }
+  }, [fixedTransform]);
 
   const listener = useAudioListener();
   const lastAudioTimeRef = useRef(0);

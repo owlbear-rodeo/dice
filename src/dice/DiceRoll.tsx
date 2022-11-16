@@ -16,6 +16,7 @@ export function DiceRoll({
   rollThrows,
   onRollFinished,
   finishedTransforms,
+  transformsRef,
   Dice,
 }: {
   roll: DiceRollType;
@@ -26,6 +27,11 @@ export function DiceRoll({
     transform: DiceTransform
   ) => void;
   finishedTransforms?: Record<string, DiceTransform>;
+  /** An updated ref of the current dice transforms */
+  transformsRef?: React.MutableRefObject<Record<
+    string,
+    DiceTransform | null
+  > | null>;
   /** Override to provide a custom Dice component  */
   Dice: React.FC<JSX.IntrinsicElements["group"] & { die: Die }>;
 }) {
@@ -67,12 +73,17 @@ export function DiceRoll({
         <TrayColliders />
         {dice?.map((die) => {
           const dieThrow = rollThrows[die.id];
+          // Use a fixed transform if we have it
+          // This allows re-rolling of individual dice as
+          // we can lock the dice that are already in the tray
+          const fixedTransform = transformsRef?.current?.[die.id] || undefined;
           return (
             <PhysicsDice
               key={die.id}
               die={die}
               dieThrow={dieThrow}
               onRollFinished={onRollFinished}
+              fixedTransform={fixedTransform}
             >
               {/* Override onClick event to make sure simulated dice can't be selected */}
               <Dice die={die} onClick={emptyCallback} />

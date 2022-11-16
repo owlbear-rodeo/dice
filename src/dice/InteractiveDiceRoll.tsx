@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { DiceTransform } from "../types/DiceTransform";
 import { DiceRoll } from "./DiceRoll";
 import { InteractiveDice } from "./InteractiveDice";
@@ -17,6 +18,17 @@ export function InteractiveDiceRoll() {
     return state.rollTransforms as Record<string, DiceTransform>;
   });
 
+  const transformsRef = useRef<Record<string, DiceTransform | null> | null>(
+    null
+  );
+  useEffect(
+    () =>
+      useDiceRollStore.subscribe((state) => {
+        transformsRef.current = state.rollTransforms;
+      }),
+    []
+  );
+
   if (!roll) {
     return null;
   }
@@ -28,6 +40,7 @@ export function InteractiveDiceRoll() {
       finishedTransforms={finishedTransforms}
       onRollFinished={finishDieRoll}
       Dice={InteractiveDice}
+      transformsRef={transformsRef}
     />
   );
 }
