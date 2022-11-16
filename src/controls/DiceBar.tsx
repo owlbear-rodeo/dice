@@ -31,14 +31,18 @@ type DiceBarProps = {
 };
 
 export function DiceBar({ diceSets, onOpen, expandable }: DiceBarProps) {
-  const [expanded, setExapnded] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [lastSelectedSet, setLastSelectedSet] = useState(diceSets[0]);
 
   // Collapse bar when a roll has been made
-  const roll = useDiceRollStore((state) => state.roll);
   useEffect(() => {
-    setExapnded(false);
-  }, [roll]);
+    if (expanded) {
+      // Subscribe straight to the roll store
+      return useDiceRollStore.subscribe(() => {
+        setExpanded(false);
+      });
+    }
+  }, [expanded]);
 
   // Reorder dice sets if we need
   const sets = useMemo(() => {
@@ -77,7 +81,7 @@ export function DiceBar({ diceSets, onOpen, expandable }: DiceBarProps) {
         </Stack>
       </Collapse>
       {expandable && (
-        <IconButton onClick={() => setExapnded((prev) => !prev)}>
+        <IconButton onClick={() => setExpanded((prev) => !prev)}>
           <Expand expand={expanded} />
         </IconButton>
       )}
