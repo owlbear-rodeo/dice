@@ -43,52 +43,62 @@ export function DiceRollControls() {
 
   return (
     <>
-      <Fade in={finishedRolling} unmountOnExit>
-        <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
-      </Fade>
       {roll?.hidden && <GradientOverlay />}
-      <Fade in={finishedRolling} unmountOnExit>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            pointerEvents: "none",
-            padding: 3,
-          }}
-          component="div"
-        >
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            width="100%"
-            alignItems="start"
-          >
-            <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
-              <IconButton onClick={() => reroll()} disabled={!finishedRolling}>
-                <RerollDiceIcon />
-              </IconButton>
-            </Tooltip>
-            {roll && finishedRolling && (
-              <DiceResults
-                diceRoll={roll}
-                rollValues={finishedRollValues}
-                expanded={resultsExpanded}
-                onExpand={setResultsExpanded}
-              />
-            )}
-            <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
-              <IconButton
-                onClick={() => clearRoll()}
-                disabled={!finishedRolling}
+      {/* Unmount controls as soon as we start rolling to save on performance */}
+      {finishedRolling && (
+        <>
+          <Fade in>
+            <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
+          </Fade>
+          <Fade in>
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                pointerEvents: "none",
+                padding: 3,
+              }}
+              component="div"
+            >
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                width="100%"
+                alignItems="start"
               >
-                <CloseIcon />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </Box>
-      </Fade>
+                <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
+                  <IconButton
+                    onClick={() => reroll()}
+                    disabled={!finishedRolling}
+                    sx={{ pointerEvents: "all" }}
+                  >
+                    <RerollDiceIcon />
+                  </IconButton>
+                </Tooltip>
+                {roll && finishedRolling && (
+                  <DiceResults
+                    diceRoll={roll}
+                    rollValues={finishedRollValues}
+                    expanded={resultsExpanded}
+                    onExpand={setResultsExpanded}
+                  />
+                )}
+                <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
+                  <IconButton
+                    onClick={() => clearRoll()}
+                    disabled={!finishedRolling}
+                    sx={{ pointerEvents: "all" }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            </Box>
+          </Fade>
+        </>
+      )}
       {roll?.hidden && (
         <Stack
           sx={{
