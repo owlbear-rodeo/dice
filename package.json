@@ -16,7 +16,7 @@
     "@owlbear-rodeo/sdk": "^0.1.1",
     "@react-three/drei": "^9.34.3",
     "@react-three/fiber": "^8.8.10",
-    "@react-three/rapier": "^0.8.2",
+    "@react-three/rapier": "^0.10.0",
     "@types/uuid": "^8.3.4",
     "immer": "^9.0.15",
     "is-plain-object": "^5.0.0",
