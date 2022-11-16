@@ -5,6 +5,7 @@ import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Grow from "@mui/material/Grow";
 import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
 
 import { getCombinedDiceValue } from "../helpers/getCombinedDiceValue";
 import { DiceRoll } from "../types/DiceRoll";
@@ -29,14 +30,18 @@ export function DiceResults({
 
   return (
     <Stack alignItems="center" maxHeight="calc(100vh - 100px)">
-      <Button
-        sx={{ pointerEvents: "all", padding: 0.5, minWidth: "40px" }}
-        onClick={() => onExpand(!expanded)}
-        color="inherit"
-        aria-label={expanded ? "hide breakdown" : "show breakdown"}
+      <Tooltip
+        title={expanded ? "Hide Breakdown" : "Show Breakdown"}
+        disableInteractive
       >
-        <Typography variant="h4">{finalValue}</Typography>
-      </Button>
+        <Button
+          sx={{ pointerEvents: "all", padding: 0.5, minWidth: "40px" }}
+          onClick={() => onExpand(!expanded)}
+          color="inherit"
+        >
+          <Typography variant="h4">{finalValue}</Typography>
+        </Button>
+      </Tooltip>
       <Grow
         in={expanded}
         mountOnEnter

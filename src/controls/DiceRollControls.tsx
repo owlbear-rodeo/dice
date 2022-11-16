@@ -68,14 +68,15 @@ export function DiceRollControls() {
                 width="100%"
                 alignItems="start"
               >
-                <IconButton
-                  onClick={() => rerollAll()}
-                  disabled={!finishedRolling}
-                  sx={{ pointerEvents: "all" }}
-                  aria-label="reroll"
-                >
-                  <RerollDiceIcon />
-                </IconButton>
+                <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
+                  <IconButton
+                    onClick={() => rerollAll()}
+                    disabled={!finishedRolling}
+                    sx={{ pointerEvents: "all" }}
+                  >
+                    <RerollDiceIcon />
+                  </IconButton>
+                </Tooltip>
                 {roll && finishedRolling && (
                   <DiceResults
                     diceRoll={roll}
@@ -84,14 +85,15 @@ export function DiceRollControls() {
                     onExpand={setResultsExpanded}
                   />
                 )}
-                <IconButton
-                  onClick={() => clearRoll()}
-                  disabled={!finishedRolling}
-                  sx={{ pointerEvents: "all" }}
-                  aria-label="clear"
-                >
-                  <CloseIcon />
-                </IconButton>
+                <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
+                  <IconButton
+                    onClick={() => clearRoll()}
+                    disabled={!finishedRolling}
+                    sx={{ pointerEvents: "all" }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Tooltip>
               </Stack>
             </Box>
           </Fade>
