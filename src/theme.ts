@@ -1,5 +1,5 @@
 import { createTheme, ThemeOptions } from "@mui/material/styles";
-import { isEmbeded } from "./helpers/isEmbeded";
+import { isEmbedded } from "./helpers/isEmbedded";
 
 export const themeOptions: ThemeOptions = {
   palette: {
@@ -22,7 +22,7 @@ export const themeOptions: ThemeOptions = {
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: isEmbeded() ? "transparent" : undefined,
+          backgroundColor: isEmbedded() ? "transparent" : undefined,
         },
       },
     },

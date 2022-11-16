@@ -1,6 +1,6 @@
 import OBR from "@owlbear-rodeo/sdk";
 import React, { useEffect, useState } from "react";
-import { isEmbeded } from "../helpers/isEmbeded";
+import { isEmbedded } from "../helpers/isEmbedded";
 
 /**
  * Only render the children when we're within a plugin
@@ -10,7 +10,7 @@ export function PluginGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (isEmbeded()) {
+    if (isEmbedded()) {
       OBR.onReady(() => setReady(true));
     }
   }, []);
