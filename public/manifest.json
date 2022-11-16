@@ -5,7 +5,7 @@
   "author": "Owlbear Rodeo",
   "homepage_url": "https://owlbear.app",
   "icon": "/logo.png",
-  "description": "A simple 3D simulated dice extension for d20 based systems.",
+  "description": "Beautiful 3D dice extension for d20 based systems",
   "action": {
     "title": "Dice",
     "icon": "/icon.svg",
