@@ -1,11 +1,15 @@
 {
   "name": "Dice",
-  "version": "1",
+  "version": "1.0.0",
   "manifest_version": 1,
+  "author": "Owlbear Rodeo",
+  "homepage_url": "https://owlbear.app",
+  "icon": "/logo.png",
+  "description": "A simple 3D simulated dice extension for d20 based systems.",
   "action": {
     "title": "Dice",
-    "icon": "http://localhost:5173/icon.svg",
-    "popover": "http://localhost:5173/",
+    "icon": "/icon.svg",
+    "popover": "/",
     "height": 700,
     "width": 375
   }
