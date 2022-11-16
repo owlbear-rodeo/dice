@@ -54,6 +54,7 @@ export function DieCount({
                 onChange(0);
               }
             }}
+            fullWidth
           />
         </ListItemText>
         <ListItemSecondaryAction>

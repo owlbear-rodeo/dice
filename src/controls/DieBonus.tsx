@@ -60,6 +60,7 @@ export function DieBonus({
                 setBonusString("0");
               }
             }}
+            fullWidth
           />
         </ListItemText>
         <ListItemSecondaryAction>
