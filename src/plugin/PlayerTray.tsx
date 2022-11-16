@@ -3,6 +3,7 @@ import {
   ContactShadows,
   Environment,
   OrbitControls,
+  PerformanceMonitor,
   PerspectiveCamera,
 } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
@@ -33,6 +34,7 @@ export function PlayerTray({
   player?: Player; // Make player optional to allow for preloading of the tray
 }) {
   const allowOrbit = useDebugStore((state) => state.allowOrbit);
+  const [dpr, setDpr] = useState(1);
 
   return (
     <Box component="div" position="relative" display="flex">
@@ -45,28 +47,34 @@ export function PlayerTray({
         position="relative"
       >
         <TraySuspense>
-          <Canvas frameloop="demand">
-            <AudioListenerProvider>
-              <Environment files={environment} />
-              <ContactShadows
-                resolution={256}
-                scale={[1, 2]}
-                position={[0, 0, 0]}
-                blur={0.5}
-                opacity={0.5}
-                far={1}
-                color="#222222"
-              />
-              <Tray />
-              <PlayerDiceRoll player={player} />
-              <PerspectiveCamera
-                makeDefault
-                fov={28}
-                position={[0, 4.3, 0]}
-                rotation={[-Math.PI / 2, 0, 0]}
-              />
-              {allowOrbit && <OrbitControls />}
-            </AudioListenerProvider>
+          <Canvas frameloop="demand" dpr={dpr}>
+            <PerformanceMonitor
+              onChange={({ factor }) =>
+                setDpr(Math.round((0.5 + 1.5 * factor) * 10) / 10)
+              }
+            >
+              <AudioListenerProvider>
+                <Environment files={environment} />
+                <ContactShadows
+                  resolution={256}
+                  scale={[1, 2]}
+                  position={[0, 0, 0]}
+                  blur={0.5}
+                  opacity={0.5}
+                  far={1}
+                  color="#222222"
+                />
+                <Tray />
+                <PlayerDiceRoll player={player} />
+                <PerspectiveCamera
+                  makeDefault
+                  fov={28}
+                  position={[0, 4.3, 0]}
+                  rotation={[-Math.PI / 2, 0, 0]}
+                />
+                {allowOrbit && <OrbitControls />}
+              </AudioListenerProvider>
+            </PerformanceMonitor>
           </Canvas>
         </TraySuspense>
       </Box>
