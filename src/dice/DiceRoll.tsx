@@ -8,7 +8,7 @@ import { DiceTransform } from "../types/DiceTransform";
 import { Die } from "../types/Die";
 import { Dice as DefaultDice } from "./Dice";
 import { DiceRollFrameloop } from "./DiceRollFrameloop";
-import { PhysicsDice } from "./PhysiscsDice";
+import { PhysicsDice } from "./PhysicsDice";
 import { useDebugStore } from "../debug/store";
 
 export function DiceRoll({
