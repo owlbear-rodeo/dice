@@ -4,8 +4,13 @@ import { usePlayerDice } from "./usePlayerDice";
 import { DiceRoll } from "../dice/DiceRoll";
 
 export function PlayerDiceRoll({ player }: { player?: Player }) {
-  const { diceRoll, rollThrows, finishedRollTransforms, finishedRolling } =
-    usePlayerDice(player);
+  const {
+    diceRoll,
+    rollThrows,
+    finishedRollTransforms,
+    finishedRolling,
+    transformsRef,
+  } = usePlayerDice(player);
 
   if (!diceRoll || !rollThrows || !finishedRollTransforms) {
     return null;
@@ -16,6 +21,7 @@ export function PlayerDiceRoll({ player }: { player?: Player }) {
       roll={diceRoll}
       rollThrows={rollThrows}
       finishedTransforms={finishedRolling ? finishedRollTransforms : undefined}
+      transformsRef={transformsRef}
     />
   );
 }

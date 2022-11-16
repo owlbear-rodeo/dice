@@ -1,5 +1,5 @@
 import { Player } from "@owlbear-rodeo/sdk";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { getCombinedDiceValue } from "../helpers/getCombinedDiceValue";
 import { DiceRoll } from "../types/DiceRoll";
 import { DiceThrow } from "../types/DiceThrow";
@@ -42,6 +42,13 @@ export function usePlayerDice(player?: Player) {
     return values;
   }, [rollTransforms]);
 
+  const transformsRef = useRef<Record<string, DiceTransform | null> | null>(
+    null
+  );
+  useEffect(() => {
+    transformsRef.current = rollTransforms || null;
+  }, [rollTransforms]);
+
   const finishedRollValues = useMemo(() => {
     if (!rollValues) {
       return undefined;
@@ -80,6 +87,7 @@ export function usePlayerDice(player?: Player) {
     rollThrows,
     rollValues,
     rollTransforms,
+    transformsRef,
     finishedRollTransforms,
     finalValue,
     finishedRollValues,
