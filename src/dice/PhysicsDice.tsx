@@ -32,16 +32,12 @@ type Vector3Array = [number, number, number];
 export function PhysicsDice({
   die,
   dieThrow,
-  dieValue,
-  dieTransform,
   onRollFinished,
   children,
   ...props
 }: JSX.IntrinsicElements["group"] & {
   die: Die;
   dieThrow: DiceThrow;
-  dieValue: number | null;
-  dieTransform: DiceTransform | null;
   onRollFinished?: (
     id: string,
     number: number,
@@ -53,27 +49,28 @@ export function PhysicsDice({
 
   // Convert dice throw into THREE values
   const [position] = useState<Vector3Array>(() => {
-    const p = dieTransform ? dieTransform.position : dieThrow.position;
+    const p = dieThrow.position;
     return [p.x, p.y, p.z];
   });
 
   const [rotation] = useState<Vector3Array>(() => {
-    const r = dieTransform ? dieTransform.rotation : dieThrow.rotation;
+    const r = dieThrow.rotation;
     const quaternion = new THREE.Quaternion(r.x, r.y, r.z, r.w);
     const euler = new THREE.Euler().setFromQuaternion(quaternion);
     return [euler.x, euler.y, euler.z];
   });
 
   const [linearVelocity] = useState<Vector3Array>(() => {
-    const v = dieTransform ? { x: 0, y: 0, z: 0 } : dieThrow.linearVelocity;
+    const v = dieThrow.linearVelocity;
     return [v.x, v.y, v.z];
   });
 
   const [angularVelocity] = useState<Vector3Array>(() => {
-    const v = dieTransform ? { x: 0, y: 0, z: 0 } : dieThrow.angularVelocity;
+    const v = dieThrow.angularVelocity;
     return [v.x, v.y, v.z];
   });
 
+  const lockedRef = useRef(false);
   const lockDice = useCallback(() => {
     const rigidBody = rigidBodyRef.current;
     if (rigidBody) {
@@ -83,13 +80,14 @@ export function PhysicsDice({
       rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
       rigidBody.setEnabledTranslations(false, false, false);
       rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
+      lockedRef.current = true;
     }
   }, []);
 
   const checkRollFinished = useCallback(() => {
     const rigidBody = rigidBodyRef.current;
     const group = ref.current;
-    if (rigidBody && dieValue === null && group) {
+    if (rigidBody && !lockedRef.current && group) {
       // Get the total speed for the dice
       const linVel = rigidBody.linvel();
       const angVel = rigidBody.angvel();
@@ -113,47 +111,43 @@ export function PhysicsDice({
         lockDice();
       }
     }
-  }, [die.id, dieValue, lockDice]);
-
-  // Lock the dice when we have a manual transform
-  useEffect(() => {
-    if (dieTransform) {
-      lockDice();
-    }
-  }, [dieTransform]);
+  }, [die.id, lockDice]);
 
   useFrame(checkRollFinished);
 
   const listener = useAudioListener();
   const lastAudioTimeRef = useRef(0);
-  function handleCollision({ rigidBodyObject }: CollisionEnterPayload) {
-    if (performance.now() - lastAudioTimeRef.current < AUDIO_COOLDOWN) {
-      return;
-    }
-    const group = ref.current;
-    // TODO: remove conditional when this gets merged https://github.com/pmndrs/react-three-rapier/pull/151/commits
-    const physicalMaterial: PhysicalMaterial =
-      rigidBodyObject?.userData?.material || "LEATHER";
-    const linvel = rigidBodyRef.current?.linvel();
-    if (group && physicalMaterial && linvel) {
-      const speed = magnitude(linvel);
-      const weightClass = getDieWeightClass(die);
-      const buffer = getNextBuffer(weightClass, physicalMaterial);
-      if (buffer) {
-        const sound = new THREE.PositionalAudio(listener);
-        sound.setBuffer(buffer);
-        sound.setRefDistance(3);
-        sound.play();
-        // Modulate sound volume based off of the speed of the colliding dice
-        sound.setVolume(Math.min(speed / 5, 1));
-        sound.onEnded = () => {
-          group.remove(sound);
-        };
-        group.add(sound);
-        lastAudioTimeRef.current = performance.now();
+  const handleCollision = useCallback(
+    ({ rigidBodyObject }: CollisionEnterPayload) => {
+      if (performance.now() - lastAudioTimeRef.current < AUDIO_COOLDOWN) {
+        return;
       }
-    }
-  }
+      const group = ref.current;
+      // TODO: remove conditional when this gets merged https://github.com/pmndrs/react-three-rapier/pull/151/commits
+      const physicalMaterial: PhysicalMaterial =
+        rigidBodyObject?.userData?.material || "LEATHER";
+      const linvel = rigidBodyRef.current?.linvel();
+      if (group && physicalMaterial && linvel) {
+        const speed = magnitude(linvel);
+        const weightClass = getDieWeightClass(die);
+        const buffer = getNextBuffer(weightClass, physicalMaterial);
+        if (buffer) {
+          const sound = new THREE.PositionalAudio(listener);
+          sound.setBuffer(buffer);
+          sound.setRefDistance(3);
+          sound.play();
+          // Modulate sound volume based off of the speed of the colliding dice
+          sound.setVolume(Math.min(speed / 5, 1));
+          sound.onEnded = () => {
+            group.remove(sound);
+          };
+          group.add(sound);
+          lastAudioTimeRef.current = performance.now();
+        }
+      }
+    },
+    []
+  );
 
   const userData = useMemo(
     () => ({ material: "DICE", dieId: die.id }),

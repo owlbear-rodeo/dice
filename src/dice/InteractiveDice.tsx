@@ -1,5 +1,5 @@
 import { Html } from "@react-three/drei";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { DieMenu } from "../controls/DieMenu";
 import { CanvasBridge } from "../helpers/CanvasBridge";
 import { Die } from "../types/Die";
@@ -13,9 +13,9 @@ export function InteractiveDice(
 ) {
   const [showMenu, setShowMenu] = useState(false);
 
-  function handleClick() {
+  const handleClick = useCallback(() => {
     setShowMenu((prev) => !prev);
-  }
+  }, []);
 
   return (
     <Dice onClick={handleClick} {...props}>

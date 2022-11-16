@@ -1,3 +1,4 @@
+import { DiceTransform } from "../types/DiceTransform";
 import { DiceRoll } from "./DiceRoll";
 import { InteractiveDice } from "./InteractiveDice";
 import { useDiceRollStore } from "./store";
@@ -6,9 +7,15 @@ import { useDiceRollStore } from "./store";
 export function InteractiveDiceRoll() {
   const roll = useDiceRollStore((state) => state.roll);
   const rollThrows = useDiceRollStore((state) => state.rollThrows);
-  const rollValues = useDiceRollStore((state) => state.rollValues);
-  const rollTransforms = useDiceRollStore((state) => state.rollTransforms);
   const finishDieRoll = useDiceRollStore((state) => state.finishDieRoll);
+
+  const finishedTransforms = useDiceRollStore((state) => {
+    const values = Object.values(state.rollTransforms);
+    if (values.some((v) => v === null)) {
+      return undefined;
+    }
+    return state.rollTransforms as Record<string, DiceTransform>;
+  });
 
   if (!roll) {
     return null;
@@ -18,8 +25,7 @@ export function InteractiveDiceRoll() {
     <DiceRoll
       roll={roll}
       rollThrows={rollThrows}
-      rollValues={rollValues}
-      rollTransforms={rollTransforms}
+      finishedTransforms={finishedTransforms}
       onRollFinished={finishDieRoll}
       Dice={InteractiveDice}
     />

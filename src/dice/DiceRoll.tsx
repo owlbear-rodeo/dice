@@ -1,5 +1,5 @@
 import { Debug, Physics } from "@react-three/rapier";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { TrayColliders } from "../colliders/TrayColliders";
 import { DiceRoll as DiceRollType } from "../types/DiceRoll";
@@ -14,20 +14,18 @@ import { useDebugStore } from "../debug/store";
 export function DiceRoll({
   roll,
   rollThrows,
-  rollValues,
-  rollTransforms,
   onRollFinished,
+  finishedTransforms,
   Dice,
 }: {
   roll: DiceRollType;
   rollThrows: Record<string, DiceThrow>;
-  rollValues: Record<string, number | null>;
-  rollTransforms: Record<string, DiceTransform | null>;
   onRollFinished?: (
     id: string,
     number: number,
     transform: DiceTransform
   ) => void;
+  finishedTransforms?: Record<string, DiceTransform>;
   /** Override to provide a custom Dice component  */
   Dice: React.FC<JSX.IntrinsicElements["group"] & { die: Die }>;
 }) {
@@ -35,22 +33,14 @@ export function DiceRoll({
 
   const dice = useMemo(() => roll && getDieFromDice(roll), [roll]);
 
-  const allTransformDiceValid = useMemo(() => {
-    return dice.every(
-      (die) => die.id in rollTransforms && rollTransforms[die.id] !== null
-    );
-  }, [dice, rollTransforms]);
+  const emptyCallback = useCallback(() => {}, []);
 
-  const allPhysicsDiceValid = useMemo(() => {
-    return dice.every((die) => die.id in rollThrows && die.id in rollValues);
-  }, [dice, rollThrows, rollValues]);
-
-  if (allTransformDiceValid) {
+  if (finishedTransforms) {
     // Move to a static dice representation when all dice values have been found
     return (
       <group>
         {dice?.map((die) => {
-          const dieTransform = rollTransforms[die.id]!;
+          const dieTransform = finishedTransforms[die.id]!;
           const p = dieTransform.position;
           const r = dieTransform.rotation;
           return (
@@ -65,7 +55,7 @@ export function DiceRoll({
         })}
       </group>
     );
-  } else if (allPhysicsDiceValid) {
+  } else {
     // If we have physics states for the dice then create a Rapier physics
     // instance for this roll.
     // We need to re-create the physics world on every new roll as the dice
@@ -77,28 +67,21 @@ export function DiceRoll({
         <TrayColliders />
         {dice?.map((die) => {
           const dieThrow = rollThrows[die.id];
-          const dieValue = rollValues[die.id];
-          const dieTransform = rollTransforms[die.id];
-
           return (
             <PhysicsDice
               key={die.id}
               die={die}
               dieThrow={dieThrow}
-              dieTransform={dieTransform}
-              dieValue={dieValue}
               onRollFinished={onRollFinished}
             >
               {/* Override onClick event to make sure simulated dice can't be selected */}
-              <Dice die={die} onClick={() => {}} />
+              <Dice die={die} onClick={emptyCallback} />
             </PhysicsDice>
           );
         })}
-        <DiceRollFrameloop rollValues={rollValues} />
+        <DiceRollFrameloop />
       </Physics>
     );
-  } else {
-    return null;
   }
 }
 

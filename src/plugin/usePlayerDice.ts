@@ -29,6 +29,19 @@ export function usePlayerDice(player?: Player) {
       | undefined;
   }, [player]);
 
+  const finishedRollTransforms = useMemo(() => {
+    if (!rollTransforms) {
+      return undefined;
+    }
+    const values: Record<string, DiceTransform> = {};
+    for (const [id, value] of Object.entries(rollTransforms)) {
+      if (value !== null) {
+        values[id] = value;
+      }
+    }
+    return values;
+  }, [rollTransforms]);
+
   const finishedRollValues = useMemo(() => {
     if (!rollValues) {
       return undefined;
@@ -67,6 +80,7 @@ export function usePlayerDice(player?: Player) {
     rollThrows,
     rollValues,
     rollTransforms,
+    finishedRollTransforms,
     finalValue,
     finishedRollValues,
     finishedRolling,
