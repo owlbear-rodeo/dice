@@ -1,4 +1,4 @@
-import OBR from "owlbear-rodeo-sdk";
+import OBR from "@owlbear-rodeo/sdk";
 import React, { useEffect, useState } from "react";
 import { isEmbeded } from "../helpers/isEmbeded";
 

@@ -1,4 +1,4 @@
-import OBR from "owlbear-rodeo-sdk";
+import OBR from "@owlbear-rodeo/sdk";
 import { useEffect } from "react";
 import throttle from "lodash.throttle";
 

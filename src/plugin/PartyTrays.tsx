@@ -1,4 +1,4 @@
-import OBR, { Player } from "owlbear-rodeo-sdk";
+import OBR, { Player } from "@owlbear-rodeo/sdk";
 import { useEffect, useMemo, useState } from "react";
 
 import Dialog from "@mui/material/Dialog";

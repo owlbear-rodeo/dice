@@ -1,4 +1,4 @@
-import { Player } from "owlbear-rodeo-sdk";
+import { Player } from "@owlbear-rodeo/sdk";
 import { useMemo } from "react";
 import { getCombinedDiceValue } from "../helpers/getCombinedDiceValue";
 import { DiceRoll } from "../types/DiceRoll";

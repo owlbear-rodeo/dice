@@ -1,4 +1,4 @@
-import { Player } from "owlbear-rodeo-sdk";
+import { Player } from "@owlbear-rodeo/sdk";
 
 import { usePlayerDice } from "./usePlayerDice";
 import { DiceRoll } from "../dice/DiceRoll";

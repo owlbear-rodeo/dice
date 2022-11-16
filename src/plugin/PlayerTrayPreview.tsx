@@ -5,7 +5,7 @@ import {
   PerspectiveCamera,
 } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Player } from "owlbear-rodeo-sdk";
+import { Player } from "@owlbear-rodeo/sdk";
 
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";

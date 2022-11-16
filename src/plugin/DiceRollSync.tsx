@@ -1,4 +1,4 @@
-import OBR from "owlbear-rodeo-sdk";
+import OBR from "@owlbear-rodeo/sdk";
 import { useEffect, useRef } from "react";
 import { useDiceRollStore } from "../dice/store";
 import { getDieFromDice } from "../helpers/getDieFromDice";
