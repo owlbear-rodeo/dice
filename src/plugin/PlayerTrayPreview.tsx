@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import {
   Environment,
   OrbitControls,
@@ -22,6 +21,7 @@ import { PlayerDiceRoll } from "./PlayerDiceRoll";
 import { AudioListenerProvider } from "../audio/AudioListenerProvider";
 import { Tray } from "../tray/Tray";
 import { useDebugStore } from "../debug/store";
+import { TraySuspense } from "../tray/TraySuspense";
 
 export function PlayerTrayPreview({
   player,
@@ -65,8 +65,8 @@ export function PlayerTrayPreview({
             overflow="hidden"
             position="relative"
           >
-            <Canvas frameloop="demand">
-              <Suspense fallback={null}>
+            <TraySuspense>
+              <Canvas frameloop="demand">
                 <AudioListenerProvider volume={focused ? 0 : 0.25}>
                   <Environment files={environment} />
                   <Tray />
@@ -79,8 +79,8 @@ export function PlayerTrayPreview({
                   />
                   {allowOrbit && <OrbitControls />}
                 </AudioListenerProvider>
-              </Suspense>
-            </Canvas>
+              </Canvas>
+            </TraySuspense>
             {diceRoll?.hidden && (
               <Backdrop open sx={{ position: "absolute" }}>
                 <HiddenIcon />

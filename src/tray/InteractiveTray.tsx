@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   ContactShadows,
@@ -18,6 +17,7 @@ import { DiceSet } from "../types/DiceSet";
 import { AudioListenerProvider } from "../audio/AudioListenerProvider";
 import { Tray } from "./Tray";
 import { useDebugStore } from "../debug/store";
+import { TraySuspense } from "./TraySuspense";
 
 /** Dice tray that controls the dice roll store */
 export function InteractiveTray({
@@ -42,8 +42,8 @@ export function InteractiveTray({
       overflow="hidden"
       position="relative"
     >
-      <Canvas frameloop="demand">
-        <Suspense fallback={null}>
+      <TraySuspense>
+        <Canvas frameloop="demand">
           <AudioListenerProvider>
             <Environment files={environment} />
             <ContactShadows
@@ -65,8 +65,8 @@ export function InteractiveTray({
             />
             {allowOrbit && <OrbitControls />}
           </AudioListenerProvider>
-        </Suspense>
-      </Canvas>
+        </Canvas>
+      </TraySuspense>
       <DiceRollControls />
       <DiceDialog
         diceSet={dialogSet}
