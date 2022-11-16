@@ -72,7 +72,7 @@ export function DiceRoll({
     // networking relies on the deterministic nature of Rapier when given the
     // same inputs and using the same number of update timesteps.
     return (
-      <Physics colliders={false}>
+      <Physics colliders={false} interpolate={false}>
         {allowPhysicsDebug && <Debug />}
         <TrayColliders />
         {dice?.map((die) => {
