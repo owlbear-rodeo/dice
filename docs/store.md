@@ -11,7 +11,7 @@ manifest: https://dice.owlbear.rodeo/manifest.json
 learn-more: https://owlbear.app
 ---
 
-# Extension
+# Dice
 
 Beautiful 3D dice extension for d20 based systems
 
