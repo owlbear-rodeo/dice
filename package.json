@@ -13,7 +13,7 @@
     "@emotion/styled": "^11.10.4",
     "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.9",
-    "@owlbear-rodeo/sdk": "^0.1.1",
+    "@owlbear-rodeo/sdk": "^1.0.0",
     "@react-three/drei": "^9.34.3",
     "@react-three/fiber": "^8.8.10",
     "@react-three/rapier": "^0.10.0",

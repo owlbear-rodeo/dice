@@ -1,5 +1,5 @@
 import { createTheme, ThemeOptions } from "@mui/material/styles";
-import { isEmbedded } from "./helpers/isEmbedded";
+import { isAvailable } from "@owlbear-rodeo/sdk";
 
 export const themeOptions: ThemeOptions = {
   palette: {
@@ -22,7 +22,7 @@ export const themeOptions: ThemeOptions = {
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: isEmbedded() ? "transparent" : undefined,
+          backgroundColor: isAvailable ? "transparent" : undefined,
         },
       },
     },
