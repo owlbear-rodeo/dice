@@ -530,10 +530,10 @@
     prop-types "^15.8.1"
     react-is "^18.2.0"
 
-"@owlbear-rodeo/sdk@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@owlbear-rodeo/sdk/-/sdk-1.0.0.tgz#78f58b67007a9edfcb160a6bac07d87a67ebf824"
-  integrity sha512-HwzBrGwkBq4R7u5uH20pgS0UA4o22WZLxr4p6BcCzHk1mSYp2980FnSB1Z00BhLEuwrs6x9Q3dRv/RW1fV1qoQ==
+"@owlbear-rodeo/sdk@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@owlbear-rodeo/sdk/-/sdk-1.1.0.tgz#d9e97f753c9ab5b185d739a214447f89c84e2a69"
+  integrity sha512-Wsndsz1aIrJ6ib4r3YSN/eY3O8qx83gHdm8DxPKWBFGRl2Zc5ZBG3d0IDn2RUqmYpFy7nLea+iDCjV9SWIxjmg==
   dependencies:
     events "^3.3.0"
     immer "^9.0.15"
