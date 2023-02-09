@@ -1,5 +1,5 @@
 import { createTheme, ThemeOptions } from "@mui/material/styles";
-import { isAvailable } from "@owlbear-rodeo/sdk";
+import SDK from "@owlbear-rodeo/sdk";
 
 export const themeOptions: ThemeOptions = {
   palette: {
@@ -22,7 +22,7 @@ export const themeOptions: ThemeOptions = {
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: isAvailable ? "transparent" : undefined,
+          backgroundColor: SDK.isAvailable ? "transparent" : undefined,
         },
       },
     },

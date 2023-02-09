@@ -530,13 +530,14 @@
     prop-types "^15.8.1"
     react-is "^18.2.0"
 
-"@owlbear-rodeo/sdk@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@owlbear-rodeo/sdk/-/sdk-1.1.0.tgz#d9e97f753c9ab5b185d739a214447f89c84e2a69"
-  integrity sha512-Wsndsz1aIrJ6ib4r3YSN/eY3O8qx83gHdm8DxPKWBFGRl2Zc5ZBG3d0IDn2RUqmYpFy7nLea+iDCjV9SWIxjmg==
+"@owlbear-rodeo/sdk@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@owlbear-rodeo/sdk/-/sdk-1.2.0.tgz#d493bbf36c265156c813fabc170b230a344b0dc6"
+  integrity sha512-UL8Gcxs424DpZrabADjMuMJTnC7vfQuTqu9BoXhp7Fke7OYj6RS+X3K3BX2Ovo25elDlf4Bz6SWniTAnqN41+g==
   dependencies:
     events "^3.3.0"
     immer "^9.0.15"
+    js-base64 "^3.7.5"
     uuid "^9.0.0"
 
 "@popperjs/core@^2.11.6":
@@ -1149,6 +1150,11 @@ its-fine@^1.0.6:
   integrity sha512-VZJZPwVT2kxe5KQv+TxCjojfLiUIut8zXDNLTxcM7gJ/xQ/bSPk5M0neZ+j3myy45KKkltY1mm1jyJgx3Fxsdg==
   dependencies:
     "@types/react-reconciler" "^0.28.0"
+
+js-base64@^3.7.5:
+  version "3.7.5"
+  resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-3.7.5.tgz#21e24cf6b886f76d6f5f165bfcd69cc55b9e3fca"
+  integrity sha512-3MEt5DTINKqfScXKfJFrRbxkrnk2AxPWGBL/ycjz4dK8iqiSJ06UxD8jh8xuh6p10TX4t2+7FsBYVxxQbMg+qA==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"

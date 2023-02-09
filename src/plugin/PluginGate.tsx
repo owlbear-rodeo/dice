@@ -1,4 +1,4 @@
-import OBR, { isAvailable } from "@owlbear-rodeo/sdk";
+import OBR from "@owlbear-rodeo/sdk";
 import React, { useEffect, useState } from "react";
 
 /**
@@ -9,7 +9,7 @@ export function PluginGate({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (isAvailable) {
+    if (OBR.isAvailable) {
       OBR.onReady(() => setReady(true));
     }
   }, []);
