@@ -44,7 +44,7 @@ export function DiceSetsDialog({
         <DialogContent>
           <Grid container spacing={2}>
             {diceSets.map((diceSet) => (
-              <Grid item xs={4} md={8} key={diceSet.id}>
+              <Grid item xs={4} key={diceSet.id}>
                 <IconButton
                   onClick={() => {
                     onChange(diceSet);

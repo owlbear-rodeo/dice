@@ -249,7 +249,7 @@ export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
             borderRadius: "26px",
           },
         }}
-        onClose={() => setCounts(defaultDiceCounts)}
+        onClose={() => !dialogOpen && setCounts(defaultDiceCounts)}
         title={
           <Paper
             sx={{
@@ -280,6 +280,7 @@ export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
                   handleRecentsPush();
                 }}
                 sx={{ width: "54px", height: "54px" }}
+                aria-label="Roll"
               >
                 <ArrowRightIcon sx={{ fontSize: "2rem" }} />
               </IconButton>
@@ -301,6 +302,9 @@ export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
         onClose={() => setDialogOpen(false)}
         fullScreen
         TransitionComponent={SlideTransition}
+        container={() => document.getElementById("dice-dialog-container")}
+        sx={{ position: "absolute" }}
+        hideBackdrop
       >
         <TopActions
           onClose={() => setDialogOpen(false)}

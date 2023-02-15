@@ -55,6 +55,8 @@ export function InteractiveTray() {
         </Canvas>
       </TraySuspense>
       <DiceRollControls />
+      {/* Create a container for the dice dialog portal */}
+      <div id="dice-dialog-container"></div>
     </Box>
   );
 }
