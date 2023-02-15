@@ -7,25 +7,28 @@ import { DiceSet } from "./types/DiceSet";
 import { diceSets } from "./sets/diceSets";
 import { InteractiveTray } from "./tray/InteractiveTray";
 import { Sidebar } from "./controls/Sidebar";
+import { DiceDialog } from "./controls/DiceDialog";
+import { useDiceRollStore } from "./dice/store";
+import { DiceSetsDialog } from "./controls/DiceSetsDialog";
 
 export function App() {
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogSet, setDialogSet] = useState<DiceSet>(diceSets[0]);
+
+  const startRoll = useDiceRollStore((state) => state.startRoll);
 
   return (
     <Container disableGutters maxWidth="md">
       <Stack direction="row" justifyContent="center">
-        <Sidebar
-          onDiceSetOpen={(set) => {
-            setDialogSet(set);
-            setDialogOpen(true);
-          }}
-        />
-        <InteractiveTray
-          dialogOpen={dialogOpen}
-          onDialogClose={() => setDialogOpen(false)}
-          dialogSet={dialogSet}
-        />
+        <Sidebar>
+          <DiceSetsDialog onChange={setDialogSet} />
+          <DiceDialog
+            diceSet={dialogSet}
+            onRoll={(roll) => {
+              startRoll(roll);
+            }}
+          />
+        </Sidebar>
+        <InteractiveTray />
       </Stack>
     </Container>
   );

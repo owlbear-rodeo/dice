@@ -8,29 +8,16 @@ import {
 
 import Box from "@mui/material/Box";
 
-import { DiceDialog } from "../controls/DiceDialog";
-import { useDiceRollStore } from "../dice/store";
 import { InteractiveDiceRoll } from "../dice/InteractiveDiceRoll";
 import { DiceRollControls } from "../controls/DiceRollControls";
 import environment from "../environment.hdr";
-import { DiceSet } from "../types/DiceSet";
 import { AudioListenerProvider } from "../audio/AudioListenerProvider";
 import { Tray } from "./Tray";
 import { useDebugStore } from "../debug/store";
 import { TraySuspense } from "./TraySuspense";
 
 /** Dice tray that controls the dice roll store */
-export function InteractiveTray({
-  dialogOpen,
-  onDialogClose,
-  dialogSet,
-}: {
-  dialogOpen: boolean;
-  onDialogClose: () => void;
-  dialogSet: DiceSet;
-}) {
-  const startRoll = useDiceRollStore((state) => state.startRoll);
-
+export function InteractiveTray() {
   const allowOrbit = useDebugStore((state) => state.allowOrbit);
 
   return (
@@ -68,15 +55,6 @@ export function InteractiveTray({
         </Canvas>
       </TraySuspense>
       <DiceRollControls />
-      <DiceDialog
-        diceSet={dialogSet}
-        open={dialogOpen}
-        onClose={() => onDialogClose()}
-        onRoll={(roll) => {
-          onDialogClose();
-          startRoll(roll);
-        }}
-      />
     </Box>
   );
 }

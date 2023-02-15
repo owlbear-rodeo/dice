@@ -10,11 +10,15 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
+import Badge from "@mui/material/Badge";
+import Paper from "@mui/material/Paper";
+import { styled } from "@mui/material/styles";
 
 import CloseIcon from "@mui/icons-material/ChevronLeftRounded";
 import ResetIcon from "@mui/icons-material/RestartAltRounded";
 import HiddenOnIcon from "@mui/icons-material/VisibilityOffRounded";
 import HiddenOffIcon from "@mui/icons-material/VisibilityRounded";
+import ArrowRightIcon from "@mui/icons-material/ArrowCircleRightRounded";
 
 import { useState } from "react";
 
@@ -30,21 +34,21 @@ import { SlideTransition } from "./SlideTransition";
 import { generateDiceId } from "../helpers/generateDiceId";
 import { DicePreview } from "../previews/DicePreview";
 
+const PreviewImage = styled("img")({
+  width: "32px",
+  height: "32px",
+});
+
 type Advantage = "ADVANTAGE" | "DISADVANTAGE" | null;
 
 type DiceDialogProps = {
   diceSet: DiceSet;
-  open: boolean;
-  onClose: () => void;
   onRoll: (roll: DiceRoll) => void;
 };
 
-export function DiceDialog({
-  diceSet,
-  open,
-  onClose,
-  onRoll,
-}: DiceDialogProps) {
+export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const defaultDiceCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const die of diceSet.dice) {
@@ -169,6 +173,7 @@ export function DiceDialog({
     }
     onRoll({ dice, bonus, hidden });
     handleReset();
+    setDialogOpen(false);
   }
 
   function handleReset() {
@@ -227,55 +232,117 @@ export function DiceDialog({
   }
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullScreen
-      sx={{ position: "absolute" }}
-      TransitionComponent={SlideTransition}
-      disablePortal
-      hideBackdrop
-    >
-      <TopActions
-        onClose={onClose}
-        isDefault={isDefault}
-        onReset={handleReset}
-        hidden={hidden}
-        onHide={handleHide}
-      />
-      <RecentRolls
-        recentRolls={recentRolls}
-        onRoll={handleRoll}
-        diceById={diceById}
-        onDelete={handleRecentsDelete}
-      />
-      <Controls
-        counts={counts}
-        diceById={diceById}
-        onCountChange={handleDiceCountChange}
-        onCountIncrease={handleDiceCountIncrease}
-        onCountDecrease={handleDiceCountDecrease}
-        bonus={bonus}
-        onBonusChange={setBonus}
-        onBonusIncrease={() => setBonus((prev) => prev + 1)}
-        onBonusDecrease={() => setBonus((prev) => prev - 1)}
-        advantage={advantage}
-        onAdvantageChange={setAdvantage}
-      />
-      <DialogActions>
-        <Button
-          variant="contained"
-          onClick={() => {
-            handleRoll(counts, bonus, advantage);
-            handleRecentsPush();
-          }}
-          fullWidth
-          disabled={Object.values(counts).every((count) => count === 0)}
-        >
-          Roll
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      <Tooltip
+        disableFocusListener
+        disableTouchListener
+        PopperProps={{
+          sx: {
+            ".MuiTooltip-tooltip": {
+              background: "none",
+              p: 0,
+            },
+            maxHeight: "calc(100vh - 60px)",
+            overflowY: "auto",
+            "::-webkit-scrollbar": { display: "none" },
+            pb: 2,
+            borderRadius: "26px",
+          },
+        }}
+        onClose={() => setCounts(defaultDiceCounts)}
+        title={
+          <Paper
+            sx={{
+              borderRadius: "24px",
+            }}
+            elevation={8}
+          >
+            <Stack>
+              {Object.entries(counts).map(([id, count]) => {
+                const die = diceById[id];
+                if (!die) {
+                  return null;
+                }
+                return (
+                  <IconButton
+                    key={id}
+                    onClick={() => handleDiceCountIncrease(id)}
+                  >
+                    <Badge badgeContent={count} color="primary">
+                      <DicePreview diceStyle={die.style} diceType={die.type} />
+                    </Badge>
+                  </IconButton>
+                );
+              })}
+              <IconButton
+                onClick={() => {
+                  handleRoll(counts, bonus, advantage);
+                  handleRecentsPush();
+                }}
+                sx={{ width: "54px", height: "54px" }}
+              >
+                <ArrowRightIcon sx={{ fontSize: "2rem" }} />
+              </IconButton>
+            </Stack>
+          </Paper>
+        }
+      >
+        <Stack width="100%" alignItems="center">
+          <IconButton
+            sx={{ padding: "4px", width: "40px" }}
+            onClick={() => setDialogOpen(true)}
+          >
+            <PreviewImage src={diceSet.previewImage} />
+          </IconButton>
+        </Stack>
+      </Tooltip>
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        fullScreen
+        TransitionComponent={SlideTransition}
+      >
+        <TopActions
+          onClose={() => setDialogOpen(false)}
+          isDefault={isDefault}
+          onReset={handleReset}
+          hidden={hidden}
+          onHide={handleHide}
+        />
+        <RecentRolls
+          recentRolls={recentRolls}
+          onRoll={handleRoll}
+          diceById={diceById}
+          onDelete={handleRecentsDelete}
+        />
+        <Controls
+          counts={counts}
+          diceById={diceById}
+          onCountChange={handleDiceCountChange}
+          onCountIncrease={handleDiceCountIncrease}
+          onCountDecrease={handleDiceCountDecrease}
+          bonus={bonus}
+          onBonusChange={setBonus}
+          onBonusIncrease={() => setBonus((prev) => prev + 1)}
+          onBonusDecrease={() => setBonus((prev) => prev - 1)}
+          advantage={advantage}
+          onAdvantageChange={setAdvantage}
+        />
+        <DialogActions>
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleRoll(counts, bonus, advantage);
+              handleRecentsPush();
+            }}
+            fullWidth
+            disabled={Object.values(counts).every((count) => count === 0)}
+          >
+            Roll
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
 

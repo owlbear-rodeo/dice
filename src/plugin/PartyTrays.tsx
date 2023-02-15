@@ -11,11 +11,7 @@ import { SlideTransition } from "../controls/SlideTransition";
 import { PlayerTray } from "./PlayerTray";
 import { PlayerTrayPreview } from "./PlayerTrayPreview";
 
-export function PartyTrays({
-  onPlayerCountChange,
-}: {
-  onPlayerCountChange: (count: number) => void;
-}) {
+export function PartyTrays() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [focusedTray, setFocusTray] = useState<string | null>(null);
 
@@ -23,10 +19,6 @@ export function PartyTrays({
     OBR.party.getPlayers().then(setPlayers);
   }, []);
   useEffect(() => OBR.party.onChange(setPlayers), []);
-
-  useEffect(() => {
-    onPlayerCountChange(players.length);
-  }, [players.length]);
 
   const focusedPlayer = useMemo(() => {
     if (focusedTray) {
