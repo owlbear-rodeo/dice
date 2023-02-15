@@ -242,7 +242,7 @@ export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
               background: "none",
               p: 0,
             },
-            maxHeight: "calc(100vh - 60px)",
+            maxHeight: "calc(100vh - 112px)",
             overflowY: "auto",
             "::-webkit-scrollbar": { display: "none" },
             pb: 2,
@@ -264,14 +264,22 @@ export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
                   return null;
                 }
                 return (
-                  <IconButton
+                  <Badge
+                    badgeContent={count}
+                    sx={{
+                      ".MuiBadge-badge": {
+                        bgcolor: "background.default",
+                        backgroundImage:
+                          "linear-gradient(rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.30))",
+                      },
+                    }}
+                    overlap="circular"
                     key={id}
-                    onClick={() => handleDiceCountIncrease(id)}
                   >
-                    <Badge badgeContent={count} color="primary">
+                    <IconButton onClick={() => handleDiceCountIncrease(id)}>
                       <DicePreview diceStyle={die.style} diceType={die.type} />
-                    </Badge>
-                  </IconButton>
+                    </IconButton>
+                  </Badge>
                 );
               })}
               <IconButton
@@ -281,6 +289,8 @@ export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
                 }}
                 sx={{ width: "54px", height: "54px" }}
                 aria-label="Roll"
+                color="primary"
+                disabled={Object.values(counts).every((count) => count === 0)}
               >
                 <ArrowRightIcon sx={{ fontSize: "2rem" }} />
               </IconButton>
@@ -291,7 +301,7 @@ export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
         <Stack width="100%" alignItems="center">
           <IconButton
             sx={{ padding: "4px", width: "40px" }}
-            onClick={() => setDialogOpen(true)}
+            onClick={() => setDialogOpen(!dialogOpen)}
           >
             <PreviewImage src={diceSet.previewImage} />
           </IconButton>
