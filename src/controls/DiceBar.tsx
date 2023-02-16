@@ -79,7 +79,7 @@ export function DiceBar({ expandable }: DiceBarProps) {
                 padding: "4px",
                 backgroundColor:
                   diceSet.id === set.id
-                    ? "rgba(255, 255, 255, 0.16)"
+                    ? "rgba(255, 255, 255, 0.16) !important"
                     : undefined,
               }}
             >
