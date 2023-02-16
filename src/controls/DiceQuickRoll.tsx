@@ -94,20 +94,22 @@ export function DiceQuickRoll() {
     >
       <Stack gap={0.5}>
         {/* Roll button */}
-        {!isDefault && (
-          <Stack position="relative" direction="row">
-            <Button fullWidth onClick={handleRoll} variant="outlined">
-              Roll
-            </Button>
-            <Stack sx={{ position: "absolute", top: 0, right: 0 }}>
-              <Tooltip title="Reset" disableInteractive>
-                <IconButton onClick={handleReset} size="small">
-                  <ResetIcon />
-                </IconButton>
-              </Tooltip>
-            </Stack>
+        <Stack
+          position="relative"
+          direction="row"
+          display={isDefault ? "none" : "block"}
+        >
+          <Button fullWidth onClick={handleRoll} variant="outlined">
+            Roll
+          </Button>
+          <Stack sx={{ position: "absolute", top: 0, right: 0 }}>
+            <Tooltip title="Reset" disableInteractive>
+              <IconButton onClick={handleReset} size="small">
+                <ResetIcon />
+              </IconButton>
+            </Tooltip>
           </Stack>
-        )}
+        </Stack>
         <Stack direction="row" alignItems="flex-end">
           <Stack sx={{ py: "5px" }}>
             <IconButton onClick={openDiceDialog}>
@@ -141,6 +143,7 @@ export function DiceQuickRoll() {
                         bgcolor: "background.default",
                         backgroundImage:
                           "linear-gradient(rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.30))",
+                        pointerEvents: "none",
                       },
                     }}
                     overlap="circular"
