@@ -1,3 +1,5 @@
+import SimpleBar from "simplebar-react";
+
 import Badge from "@mui/material/Badge";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
@@ -85,12 +87,12 @@ export function DiceQuickRoll() {
       sx={{
         borderRadius: "16px",
         m: 1,
-        p: 0.5,
+        px: 0.5,
         backgroundColor: "rgba(34, 38, 57, 0.8)",
       }}
       elevation={1}
     >
-      <Stack>
+      <Stack gap={0.5}>
         {/* Roll button */}
         {!isDefault && (
           <Stack position="relative" direction="row">
@@ -107,17 +109,18 @@ export function DiceQuickRoll() {
           </Stack>
         )}
         <Stack direction="row" alignItems="flex-end">
-          <IconButton onClick={openDiceDialog}>
-            <ExpandIcon />
-          </IconButton>
-          <Stack
-            ref={dockRef}
-            sx={{
-              overflowX: "auto",
-              pt: isDefault ? undefined : 1,
-              "::-webkit-scrollbar": { display: "none" },
+          <Stack sx={{ py: "5px" }}>
+            <IconButton onClick={openDiceDialog}>
+              <ExpandIcon />
+            </IconButton>
+          </Stack>
+          <SimpleBar
+            style={{
               flexGrow: 1,
+              width: "100%",
+              padding: "5px 0",
             }}
+            scrollableNodeProps={{ ref: dockRef }}
           >
             <Stack
               direction="row"
@@ -153,7 +156,7 @@ export function DiceQuickRoll() {
                 );
               })}
             </Stack>
-          </Stack>
+          </SimpleBar>
         </Stack>
       </Stack>
     </Paper>

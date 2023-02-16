@@ -6,6 +6,7 @@ import ThemeProvider from "@mui/material/styles/ThemeProvider";
 
 import { App } from "./App";
 import { theme } from "./theme";
+import "simplebar-react/dist/simplebar.min.css";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

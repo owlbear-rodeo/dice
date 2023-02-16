@@ -28,3 +28,7 @@
 :not(html):not(body)::-webkit-scrollbar-thumb:active {
   background-color: rgba(255, 255, 255, 0.61);
 }
+
+.simplebar-scrollbar:before {
+  background: #fff;
+}
