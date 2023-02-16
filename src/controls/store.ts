@@ -36,7 +36,7 @@ const initialDiceCounts = getDiceCountsFromSet(initialSet);
 const initialDiceById = getDiceByIdFromSet(initialSet);
 
 export const useDiceControlsStore = create<DiceControlsState>()(
-  immer((set, get, _) => ({
+  immer((set) => ({
     diceSet: initialSet,
     diceById: initialDiceById,
     defaultDiceCounts: initialDiceCounts,
