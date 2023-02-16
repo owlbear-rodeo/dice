@@ -140,7 +140,7 @@ export function PhysicsDice({
         const speed = magnitude(linvel);
         const weightClass = getDieWeightClass(die);
         const buffer = getNextBuffer(weightClass, physicalMaterial);
-        if (buffer) {
+        if (buffer && listener) {
           const sound = new THREE.PositionalAudio(listener);
           sound.setBuffer(buffer);
           sound.setRefDistance(3);
