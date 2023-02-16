@@ -73,6 +73,7 @@ export function DiceBar({ expandable }: DiceBarProps) {
                 changeDiceSet(set);
                 if (!expandable || expanded) {
                   setLastSelectedSet(set);
+                  setExpanded(false);
                 }
               }}
               sx={{
