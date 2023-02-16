@@ -10,23 +10,20 @@ import Stack from "@mui/material/Stack";
 import IncreaseIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import DecreaseIcon from "@mui/icons-material/RemoveCircleOutlineRounded";
 
-import { DiceStyle } from "../types/DiceStyle";
-import { DiceType } from "../types/DiceType";
 import { DicePreview } from "../previews/DicePreview";
+import { Die } from "../types/Die";
 
 type DieCountProps = {
   count: number;
-  diceStyle: DiceStyle;
-  diceType: DiceType;
-  onChange: (count: number) => void;
-  onIncrease: () => void;
-  onDecrease: () => void;
+  die: Die;
+  onChange: (id: string, count: number) => void;
+  onIncrease: (id: string) => void;
+  onDecrease: (id: string) => void;
 };
 
 export function DieCount({
   count,
-  diceStyle,
-  diceType,
+  die,
   onChange,
   onIncrease,
   onDecrease,
@@ -35,7 +32,7 @@ export function DieCount({
     <ListItem disablePadding>
       <ListItemButton sx={{ cursor: "inherit" }}>
         <ListItemIcon sx={{ minWidth: "38px" }}>
-          <DicePreview diceStyle={diceStyle} diceType={diceType} />
+          <DicePreview diceStyle={die.style} diceType={die.type} />
         </ListItemIcon>
         <ListItemText sx={{ marginRight: "88px" }}>
           <Input
@@ -49,9 +46,9 @@ export function DieCount({
             onChange={(e) => {
               const newCount = parseInt(e.target.value);
               if (!isNaN(newCount)) {
-                onChange(newCount);
+                onChange(die.id, newCount);
               } else {
-                onChange(0);
+                onChange(die.id, 0);
               }
             }}
             fullWidth
@@ -62,13 +59,13 @@ export function DieCount({
             <IconButton
               aria-label="decrease count"
               disabled={count <= 0}
-              onClick={() => onDecrease()}
+              onClick={() => onDecrease(die.id)}
             >
               <DecreaseIcon />
             </IconButton>
             <IconButton
               aria-label="increase count"
-              onClick={() => onIncrease()}
+              onClick={() => onIncrease(die.id)}
             >
               <IncreaseIcon />
             </IconButton>
