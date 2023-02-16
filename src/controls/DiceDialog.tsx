@@ -132,14 +132,12 @@ export function DiceDialog() {
       onClose={closeDialog}
       fullScreen
       sx={{
-        left: "60px",
-        borderRadius: "16px",
-        overflow: "hidden",
+        ".MuiDialog-container": {
+          pl: "60px",
+        },
       }}
       TransitionComponent={SlideTransition}
       container={() => document.getElementById("dice-dialog-container")}
-      hideBackdrop
-      keepMounted
     >
       <TopActions
         onClose={closeDialog}
@@ -342,12 +340,11 @@ function Controls({
           return (
             <DieCount
               key={id}
-              onChange={(newCount) => onCountChange(id, newCount)}
-              onIncrease={() => onCountIncrease(id)}
-              onDecrease={() => onCountDecrease(id)}
+              onChange={onCountChange}
+              onIncrease={onCountIncrease}
+              onDecrease={onCountDecrease}
               count={count}
-              diceStyle={die.style}
-              diceType={die.type}
+              die={die}
             />
           );
         })}
