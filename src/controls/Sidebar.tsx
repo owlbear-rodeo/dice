@@ -17,6 +17,7 @@ export function Sidebar() {
     <Stack
       maxHeight="100vh"
       width="60px"
+      minWidth="60px"
       sx={{ overflowY: "auto", overflowX: "hidden" }}
     >
       <Stack p={1} gap={2}>
