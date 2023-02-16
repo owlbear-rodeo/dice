@@ -42,7 +42,7 @@ export function DiceRollControls() {
 
   const [resultsExpanded, setResultsExpanded] = useState(false);
 
-  const [hovering, setHovering] = useState(false);
+  const [hovering, setHovering] = useState(true);
   useEffect(() => {
     const tray = document.getElementById("interactive-tray");
     if (tray) {
@@ -52,24 +52,12 @@ export function DiceRollControls() {
       const stopHover = () => {
         setHovering(false);
       };
-      // Hover on a touch event then stop after 3
-      // seconds of inactivity
-      let timeout: ReturnType<typeof setTimeout> | null = null;
-      const handleTouchEnd = () => {
-        if (timeout) {
-          clearTimeout(timeout);
-        }
-        startHover();
-        timeout = setTimeout(stopHover, 3000);
-      };
       tray.addEventListener("mouseenter", startHover);
       tray.addEventListener("mouseleave", stopHover);
-      tray.addEventListener("touchend", handleTouchEnd);
 
       return () => {
         tray.removeEventListener("mouseenter", startHover);
         tray.removeEventListener("mouseleave", stopHover);
-        tray.removeEventListener("touchend", handleTouchEnd);
       };
     }
   }, []);
