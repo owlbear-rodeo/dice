@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CollisionEnterPayload,
   RigidBody,
-  RigidBodyApi,
+  RapierRigidBody,
 } from "@react-three/rapier";
 
 import { Die } from "../types/Die";
@@ -47,7 +47,7 @@ export function PhysicsDice({
   fixedTransform?: DiceTransform;
 }) {
   const ref = useRef<THREE.Group>(null);
-  const rigidBodyRef = useRef<RigidBodyApi>(null);
+  const rigidBodyRef = useRef<RapierRigidBody>(null);
 
   // Convert dice throw into THREE values
   const [position] = useState<Vector3Array>(() => {
@@ -78,10 +78,10 @@ export function PhysicsDice({
     if (rigidBody) {
       // Disable rigid body rotation and translation
       // This stops the dice from getting changed after it has finished rolling
-      rigidBody.setEnabledRotations(false, false, false);
-      rigidBody.setAngvel({ x: 0, y: 0, z: 0 });
-      rigidBody.setEnabledTranslations(false, false, false);
-      rigidBody.setLinvel({ x: 0, y: 0, z: 0 });
+      rigidBody.setEnabledRotations(false, false, false, false);
+      rigidBody.setAngvel({ x: 0, y: 0, z: 0 }, false);
+      rigidBody.setEnabledTranslations(false, false, false, false);
+      rigidBody.setLinvel({ x: 0, y: 0, z: 0 }, false);
       lockedRef.current = true;
     }
   }, []);
