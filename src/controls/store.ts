@@ -19,7 +19,8 @@ interface DiceControlsState {
   diceAdvantage: Advantage;
   diceHidden: boolean;
   diceDialogOpen: boolean;
-  openDiceDialog: (diceSet: DiceSet) => void;
+  changeDiceSet: (diceSet: DiceSet) => void;
+  openDiceDialog: () => void;
   closeDiceDialog: () => void;
   resetDiceCounts: () => void;
   changeDieCount: (id: string, count: number) => void;
@@ -28,7 +29,6 @@ interface DiceControlsState {
   setDiceAdvantage: (advantage: Advantage) => void;
   setDiceBonus: (bonus: number) => void;
   toggleDiceHidden: () => void;
-  getRoll: () => DiceRoll;
 }
 
 const initialSet = diceSets[0];
@@ -36,7 +36,7 @@ const initialDiceCounts = getDiceCountsFromSet(initialSet);
 const initialDiceById = getDiceByIdFromSet(initialSet);
 
 export const useDiceControlsStore = create<DiceControlsState>()(
-  immer((set, get) => ({
+  immer((set, get, _) => ({
     diceSet: initialSet,
     diceById: initialDiceById,
     defaultDiceCounts: initialDiceCounts,
@@ -45,7 +45,7 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     diceAdvantage: null,
     diceHidden: false,
     diceDialogOpen: false,
-    openDiceDialog(diceSet) {
+    changeDiceSet(diceSet) {
       set((state) => {
         const counts: DiceCounts = {};
         const prevCounts = state.diceCounts;
@@ -64,6 +64,10 @@ export const useDiceControlsStore = create<DiceControlsState>()(
         state.diceSet = diceSet;
         state.defaultDiceCounts = getDiceCountsFromSet(diceSet);
         state.diceById = getDiceByIdFromSet(diceSet);
+      });
+    },
+    openDiceDialog() {
+      set((state) => {
         state.diceDialogOpen = true;
       });
     },
@@ -113,15 +117,6 @@ export const useDiceControlsStore = create<DiceControlsState>()(
         state.diceHidden = !state.diceHidden;
       });
     },
-    getRoll() {
-      const counts = get().diceCounts;
-      const bonus = get().diceBonus;
-      const advantage = get().diceAdvantage;
-      const hidden = get().diceHidden;
-      const diceById = get().diceById;
-      const dice = getDiceToRoll(counts, advantage, diceById);
-      return { dice, bonus, hidden };
-    },
   }))
 );
 
@@ -142,7 +137,7 @@ function getDiceByIdFromSet(diceSet: DiceSet) {
 }
 
 /** Generate new dice based off of a set of counts, advantage and die */
-function getDiceToRoll(
+export function getDiceToRoll(
   counts: DiceCounts,
   advantage: Advantage,
   diceById: Record<string, Die>

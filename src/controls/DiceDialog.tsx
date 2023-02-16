@@ -11,7 +11,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 
-import CloseIcon from "@mui/icons-material/ChevronLeftRounded";
+import CloseIcon from "@mui/icons-material/ExpandMoreRounded";
 import ResetIcon from "@mui/icons-material/RestartAltRounded";
 import HiddenOnIcon from "@mui/icons-material/VisibilityOffRounded";
 import HiddenOffIcon from "@mui/icons-material/VisibilityRounded";
@@ -25,7 +25,12 @@ import { DieAdvantage } from "./DieAdvantage";
 import { Die } from "../types/Die";
 import { SlideTransition } from "./SlideTransition";
 import { DicePreview } from "../previews/DicePreview";
-import { Advantage, DiceCounts, useDiceControlsStore } from "./store";
+import {
+  Advantage,
+  DiceCounts,
+  getDiceToRoll,
+  useDiceControlsStore,
+} from "./store";
 import { useDiceRollStore } from "../dice/store";
 
 export function DiceDialog() {
@@ -61,10 +66,9 @@ export function DiceDialog() {
     (state) => state.resetDiceCounts
   );
 
-  const getRoll = useDiceControlsStore((state) => state.getRoll);
-
-  function handleRoll() {
-    startRoll(getRoll());
+  function handleRoll(counts: DiceCounts, bonus: number, advantage: Advantage) {
+    const dice = getDiceToRoll(counts, advantage, diceById);
+    startRoll({ dice, bonus, hidden });
     handleReset();
     closeDialog();
   }
@@ -127,10 +131,15 @@ export function DiceDialog() {
       open={open}
       onClose={closeDialog}
       fullScreen
-      sx={{ position: "absolute" }}
+      sx={{
+        left: "60px",
+        borderRadius: "16px",
+        overflow: "hidden",
+      }}
       TransitionComponent={SlideTransition}
       container={() => document.getElementById("dice-dialog-container")}
       hideBackdrop
+      keepMounted
     >
       <TopActions
         onClose={closeDialog}
@@ -162,7 +171,7 @@ export function DiceDialog() {
         <Button
           variant="contained"
           onClick={() => {
-            handleRoll();
+            handleRoll(counts, bonus, advantage);
             handleRecentsPush();
           }}
           fullWidth

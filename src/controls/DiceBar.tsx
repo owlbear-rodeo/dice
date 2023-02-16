@@ -31,7 +31,8 @@ type DiceBarProps = {
 };
 
 export function DiceBar({ expandable }: DiceBarProps) {
-  const openDiceDialog = useDiceControlsStore((state) => state.openDiceDialog);
+  const diceSet = useDiceControlsStore((state) => state.diceSet);
+  const changeDiceSet = useDiceControlsStore((state) => state.changeDiceSet);
   const [expanded, setExpanded] = useState(false);
   const [lastSelectedSet, setLastSelectedSet] = useState(diceSets[0]);
 
@@ -64,19 +65,25 @@ export function DiceBar({ expandable }: DiceBarProps) {
     <Stack gap={1} alignItems="center">
       <Collapse in={!expandable || expanded} collapsedSize={88}>
         <Stack gap={1} alignItems="center">
-          {sets.map((diceSet) => (
+          {sets.map((set) => (
             <IconButton
-              key={diceSet.id}
-              aria-label={diceSet.name}
+              key={set.id}
+              aria-label={set.name}
               onClick={() => {
-                openDiceDialog(diceSet);
+                changeDiceSet(set);
                 if (!expandable || expanded) {
-                  setLastSelectedSet(diceSet);
+                  setLastSelectedSet(set);
                 }
               }}
-              sx={{ padding: "4px" }}
+              sx={{
+                padding: "4px",
+                backgroundColor:
+                  diceSet.id === set.id
+                    ? "rgba(255, 255, 255, 0.16)"
+                    : undefined,
+              }}
             >
-              <PreviewImage src={diceSet.previewImage} />
+              <PreviewImage src={set.previewImage} />
             </IconButton>
           ))}
         </Stack>

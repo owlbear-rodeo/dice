@@ -8,13 +8,16 @@ import Button from "@mui/material/Button";
 import { DicePreview } from "../previews/DicePreview";
 
 import ResetIcon from "@mui/icons-material/RestartAltRounded";
+import ExpandIcon from "@mui/icons-material/ExpandLessRounded";
 
-import { useDiceControlsStore } from "./store";
+import { getDiceToRoll, useDiceControlsStore } from "./store";
 import { useDiceRollStore } from "../dice/store";
 import { useEffect, useMemo, useRef } from "react";
 import { DiceType } from "../types/DiceType";
 
 export function DiceQuickRoll() {
+  const openDiceDialog = useDiceControlsStore((state) => state.openDiceDialog);
+
   const startRoll = useDiceRollStore((state) => state.startRoll);
 
   const counts = useDiceControlsStore((state) => state.diceCounts);
@@ -22,9 +25,13 @@ export function DiceQuickRoll() {
     (state) => state.defaultDiceCounts
   );
 
-  const getRoll = useDiceControlsStore((state) => state.getRoll);
   const diceById = useDiceControlsStore((state) => state.diceById);
 
+  const hidden = useDiceControlsStore((state) => state.diceHidden);
+  const bonus = useDiceControlsStore((state) => state.diceBonus);
+  const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
+  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
+  const setAdvantage = useDiceControlsStore((state) => state.setDiceAdvantage);
   const handleDiceCountIncrease = useDiceControlsStore(
     (state) => state.incrementDieCount
   );
@@ -33,12 +40,15 @@ export function DiceQuickRoll() {
   );
 
   function handleRoll() {
-    startRoll(getRoll());
+    const dice = getDiceToRoll(counts, advantage, diceById);
+    startRoll({ dice, bonus, hidden });
     handleReset();
   }
 
   function handleReset() {
     resetDiceCounts();
+    setBonus(0);
+    setAdvantage(null);
   }
 
   const isDefault = useMemo(
@@ -89,49 +99,60 @@ export function DiceQuickRoll() {
             </Button>
             <Stack sx={{ position: "absolute", top: 0, right: 0 }}>
               <Tooltip title="Reset" disableInteractive>
-                <IconButton onClick={handleReset} size="small" color="primary">
+                <IconButton onClick={handleReset} size="small">
                   <ResetIcon />
                 </IconButton>
               </Tooltip>
             </Stack>
           </Stack>
         )}
-        <Stack
-          ref={dockRef}
-          sx={{
-            overflowX: "auto",
-            pt: isDefault ? undefined : 1,
-            "::-webkit-scrollbar": { display: "none" },
-          }}
-        >
-          <Stack direction="row" sx={{ m: "0 auto" }}>
-            {Object.entries(counts).map(([id, count]) => {
-              const die = diceById[id];
-              if (!die) {
-                return null;
-              }
-              return (
-                <Badge
-                  badgeContent={count}
-                  sx={{
-                    ".MuiBadge-badge": {
-                      bgcolor: "background.default",
-                      backgroundImage:
-                        "linear-gradient(rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.30))",
-                    },
-                  }}
-                  overlap="circular"
-                  key={id}
-                >
-                  <IconButton
-                    onClick={() => handleDiceCountIncrease(id)}
-                    sx={{ p: "1px" }}
+        <Stack direction="row" alignItems="flex-end">
+          <IconButton onClick={openDiceDialog}>
+            <ExpandIcon />
+          </IconButton>
+          <Stack
+            ref={dockRef}
+            sx={{
+              overflowX: "auto",
+              pt: isDefault ? undefined : 1,
+              "::-webkit-scrollbar": { display: "none" },
+              flexGrow: 1,
+            }}
+          >
+            <Stack
+              direction="row"
+              sx={{
+                m: "0 auto",
+              }}
+            >
+              {Object.entries(counts).map(([id, count]) => {
+                const die = diceById[id];
+                if (!die) {
+                  return null;
+                }
+                return (
+                  <Badge
+                    badgeContent={count}
+                    sx={{
+                      ".MuiBadge-badge": {
+                        bgcolor: "background.default",
+                        backgroundImage:
+                          "linear-gradient(rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.30))",
+                      },
+                    }}
+                    overlap="circular"
+                    key={id}
                   >
-                    <DicePreview diceStyle={die.style} diceType={die.type} />
-                  </IconButton>
-                </Badge>
-              );
-            })}
+                    <IconButton
+                      onClick={() => handleDiceCountIncrease(id)}
+                      sx={{ p: "0.5px" }}
+                    >
+                      <DicePreview diceStyle={die.style} diceType={die.type} />
+                    </IconButton>
+                  </Badge>
+                );
+              })}
+            </Stack>
           </Stack>
         </Stack>
       </Stack>
