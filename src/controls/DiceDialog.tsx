@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -10,181 +10,72 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
-import Badge from "@mui/material/Badge";
-import Paper from "@mui/material/Paper";
-import { styled } from "@mui/material/styles";
 
 import CloseIcon from "@mui/icons-material/ChevronLeftRounded";
 import ResetIcon from "@mui/icons-material/RestartAltRounded";
 import HiddenOnIcon from "@mui/icons-material/VisibilityOffRounded";
 import HiddenOffIcon from "@mui/icons-material/VisibilityRounded";
-import ArrowRightIcon from "@mui/icons-material/ArrowCircleRightRounded";
 
 import { useState } from "react";
 
-import { DiceRoll } from "../types/DiceRoll";
 import { DiceType } from "../types/DiceType";
 import { DieCount } from "./DieCount";
 import { DieBonus } from "./DieBonus";
 import { DieAdvantage } from "./DieAdvantage";
 import { Die } from "../types/Die";
-import { DiceSet } from "../types/DiceSet";
-import { Dice } from "../types/Dice";
 import { SlideTransition } from "./SlideTransition";
-import { generateDiceId } from "../helpers/generateDiceId";
 import { DicePreview } from "../previews/DicePreview";
+import { Advantage, DiceCounts, useDiceControlsStore } from "./store";
+import { useDiceRollStore } from "../dice/store";
 
-const PreviewImage = styled("img")({
-  width: "32px",
-  height: "32px",
-});
+export function DiceDialog() {
+  const startRoll = useDiceRollStore((state) => state.startRoll);
 
-type Advantage = "ADVANTAGE" | "DISADVANTAGE" | null;
+  const open = useDiceControlsStore((state) => state.diceDialogOpen);
+  const closeDialog = useDiceControlsStore((state) => state.closeDiceDialog);
 
-type DiceDialogProps = {
-  diceSet: DiceSet;
-  onRoll: (roll: DiceRoll) => void;
-};
+  const diceSet = useDiceControlsStore((state) => state.diceSet);
+  const defaultDiceCounts = useDiceControlsStore(
+    (state) => state.defaultDiceCounts
+  );
 
-export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const counts = useDiceControlsStore((state) => state.diceCounts);
+  const bonus = useDiceControlsStore((state) => state.diceBonus);
+  const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
+  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
+  const setAdvantage = useDiceControlsStore((state) => state.setDiceAdvantage);
+  const hidden = useDiceControlsStore((state) => state.diceHidden);
 
-  const defaultDiceCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const die of diceSet.dice) {
-      counts[die.id] = 0;
-    }
-    return counts;
-  }, [diceSet]);
-  const [counts, setCounts] =
-    useState<Record<string, number>>(defaultDiceCounts);
+  const diceById = useDiceControlsStore((state) => state.diceById);
 
-  const [bonus, setBonus] = useState(0);
-  const [advantage, setAdvantage] = useState<Advantage>(null);
-  const [hidden, setHidden] = useState(false);
+  const handleDiceCountChange = useDiceControlsStore(
+    (state) => state.changeDieCount
+  );
+  const handleDiceCountIncrease = useDiceControlsStore(
+    (state) => state.incrementDieCount
+  );
+  const handleDiceCountDecrease = useDiceControlsStore(
+    (state) => state.decrementDieCount
+  );
+  const resetDiceCounts = useDiceControlsStore(
+    (state) => state.resetDiceCounts
+  );
 
-  const diceById = useMemo(() => {
-    const byId: Record<string, Die> = {};
-    for (const die of diceSet.dice) {
-      byId[die.id] = die;
-    }
-    return byId;
-  }, [diceSet.dice]);
+  const getRoll = useDiceControlsStore((state) => state.getRoll);
 
-  // Keep track of previous state to carry over count
-  const prevCountsRef = useRef(counts);
-  const prevDiceRef = useRef(diceSet.dice);
-  useEffect(() => {
-    prevCountsRef.current = counts;
-  }, [counts]);
-  useEffect(() => {
-    prevDiceRef.current = diceSet.dice;
-  }, [diceSet.dice]);
-
-  // Carry over count state when changing dice sets
-  useLayoutEffect(() => {
-    const counts: Record<string, number> = {};
-    const prevCounts = prevCountsRef.current;
-    const prevDice = prevDiceRef.current;
-    for (let i = 0; i < diceSet.dice.length; i++) {
-      const die = diceSet.dice[i];
-      const prevDie = prevDice[i];
-      // Carry over count if the index and die type match
-      if (prevDie && prevDie.type === die.type) {
-        counts[die.id] = prevCounts[prevDie.id] || 0;
-      } else {
-        counts[die.id] = 0;
-      }
-    }
-    setCounts(counts);
-  }, [diceSet]);
-
-  function handleDiceCountChange(id: string, count: number) {
-    setCounts((prev) => ({ ...prev, [id]: count }));
-  }
-
-  function handleDiceCountIncrease(id: string) {
-    setCounts((prev) => ({ ...prev, [id]: prev[id] + 1 }));
-  }
-
-  function handleDiceCountDecrease(id: string) {
-    setCounts((prev) => ({ ...prev, [id]: prev[id] - 1 }));
-  }
-
-  function handleRoll(
-    counts: Record<string, number>,
-    bonus: number,
-    advantage: Advantage
-  ) {
-    const dice: (Die | Dice)[] = [];
-    const countEntries = Object.entries(counts);
-    for (const [id, count] of countEntries) {
-      const die = diceById[id];
-      if (!die) {
-        continue;
-      }
-      const { style, type } = die;
-      for (let i = 0; i < count; i++) {
-        if (advantage === null) {
-          if (type === "D100") {
-            // Push a d100 and d10 when rolling a d100
-            dice.push({
-              dice: [
-                { id: generateDiceId(), style, type: "D100" },
-                { id: generateDiceId(), style, type: "D10" },
-              ],
-            });
-          } else {
-            dice.push({ id: generateDiceId(), style, type });
-          }
-        } else {
-          // Rolling with advantage or disadvantage
-          const combination = advantage === "ADVANTAGE" ? "HIGHEST" : "LOWEST";
-          if (type === "D100") {
-            // Push 2 d100s and d10s
-            dice.push({
-              dice: [
-                {
-                  dice: [
-                    { id: generateDiceId(), style, type: "D100" },
-                    { id: generateDiceId(), style, type: "D10" },
-                  ],
-                },
-                {
-                  dice: [
-                    { id: generateDiceId(), style, type: "D100" },
-                    { id: generateDiceId(), style, type: "D10" },
-                  ],
-                },
-              ],
-              combination,
-            });
-          } else {
-            dice.push({
-              dice: [
-                { id: generateDiceId(), style, type },
-                { id: generateDiceId(), style, type },
-              ],
-              combination,
-            });
-          }
-        }
-      }
-    }
-    onRoll({ dice, bonus, hidden });
+  function handleRoll() {
+    startRoll(getRoll());
     handleReset();
-    setDialogOpen(false);
+    closeDialog();
   }
 
   function handleReset() {
-    setCounts(defaultDiceCounts);
+    resetDiceCounts();
     setBonus(0);
     setAdvantage(null);
   }
 
-  function handleHide() {
-    setHidden((prev) => !prev);
-  }
+  const handleHide = useDiceControlsStore((state) => state.toggleDiceHidden);
 
   // Is currently the default dice state (all counts 0 and advantage/bonus defaults)
   const isDefault = useMemo(
@@ -202,7 +93,7 @@ export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
     Record<
       string,
       {
-        counts: Record<string, number>;
+        counts: DiceCounts;
         bonus: number;
         advantage: Advantage;
       }[]
@@ -232,131 +123,55 @@ export function DiceDialog({ diceSet, onRoll }: DiceDialogProps) {
   }
 
   return (
-    <>
-      <Tooltip
-        disableFocusListener
-        disableTouchListener
-        PopperProps={{
-          sx: {
-            ".MuiTooltip-tooltip": {
-              background: "none",
-              p: 0,
-            },
-            maxHeight: "calc(100vh - 112px)",
-            overflowY: "auto",
-            "::-webkit-scrollbar": { display: "none" },
-            pb: 2,
-            borderRadius: "26px",
-          },
-        }}
-        onClose={() => !dialogOpen && setCounts(defaultDiceCounts)}
-        title={
-          <Paper
-            sx={{
-              borderRadius: "24px",
-            }}
-            elevation={8}
-          >
-            <Stack>
-              {Object.entries(counts).map(([id, count]) => {
-                const die = diceById[id];
-                if (!die) {
-                  return null;
-                }
-                return (
-                  <Badge
-                    badgeContent={count}
-                    sx={{
-                      ".MuiBadge-badge": {
-                        bgcolor: "background.default",
-                        backgroundImage:
-                          "linear-gradient(rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.30))",
-                      },
-                    }}
-                    overlap="circular"
-                    key={id}
-                  >
-                    <IconButton onClick={() => handleDiceCountIncrease(id)}>
-                      <DicePreview diceStyle={die.style} diceType={die.type} />
-                    </IconButton>
-                  </Badge>
-                );
-              })}
-              <IconButton
-                onClick={() => {
-                  handleRoll(counts, bonus, advantage);
-                  handleRecentsPush();
-                }}
-                sx={{ width: "54px", height: "54px" }}
-                aria-label="Roll"
-                color="primary"
-                disabled={Object.values(counts).every((count) => count === 0)}
-              >
-                <ArrowRightIcon sx={{ fontSize: "2rem" }} />
-              </IconButton>
-            </Stack>
-          </Paper>
-        }
-      >
-        <Stack width="100%" alignItems="center">
-          <IconButton
-            sx={{ padding: "4px", width: "40px" }}
-            onClick={() => setDialogOpen(!dialogOpen)}
-          >
-            <PreviewImage src={diceSet.previewImage} />
-          </IconButton>
-        </Stack>
-      </Tooltip>
-      <Dialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        fullScreen
-        TransitionComponent={SlideTransition}
-        container={() => document.getElementById("dice-dialog-container")}
-        sx={{ position: "absolute" }}
-        hideBackdrop
-      >
-        <TopActions
-          onClose={() => setDialogOpen(false)}
-          isDefault={isDefault}
-          onReset={handleReset}
-          hidden={hidden}
-          onHide={handleHide}
-        />
-        <RecentRolls
-          recentRolls={recentRolls}
-          onRoll={handleRoll}
-          diceById={diceById}
-          onDelete={handleRecentsDelete}
-        />
-        <Controls
-          counts={counts}
-          diceById={diceById}
-          onCountChange={handleDiceCountChange}
-          onCountIncrease={handleDiceCountIncrease}
-          onCountDecrease={handleDiceCountDecrease}
-          bonus={bonus}
-          onBonusChange={setBonus}
-          onBonusIncrease={() => setBonus((prev) => prev + 1)}
-          onBonusDecrease={() => setBonus((prev) => prev - 1)}
-          advantage={advantage}
-          onAdvantageChange={setAdvantage}
-        />
-        <DialogActions>
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleRoll(counts, bonus, advantage);
-              handleRecentsPush();
-            }}
-            fullWidth
-            disabled={Object.values(counts).every((count) => count === 0)}
-          >
-            Roll
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+    <Dialog
+      open={open}
+      onClose={closeDialog}
+      fullScreen
+      sx={{ position: "absolute" }}
+      TransitionComponent={SlideTransition}
+      container={() => document.getElementById("dice-dialog-container")}
+      hideBackdrop
+    >
+      <TopActions
+        onClose={closeDialog}
+        isDefault={isDefault}
+        onReset={handleReset}
+        hidden={hidden}
+        onHide={handleHide}
+      />
+      <RecentRolls
+        recentRolls={recentRolls}
+        onRoll={handleRoll}
+        diceById={diceById}
+        onDelete={handleRecentsDelete}
+      />
+      <Controls
+        counts={counts}
+        diceById={diceById}
+        onCountChange={handleDiceCountChange}
+        onCountIncrease={handleDiceCountIncrease}
+        onCountDecrease={handleDiceCountDecrease}
+        bonus={bonus}
+        onBonusChange={setBonus}
+        onBonusIncrease={() => setBonus(bonus + 1)}
+        onBonusDecrease={() => setBonus(bonus - 1)}
+        advantage={advantage}
+        onAdvantageChange={setAdvantage}
+      />
+      <DialogActions>
+        <Button
+          variant="contained"
+          onClick={() => {
+            handleRoll();
+            handleRecentsPush();
+          }}
+          fullWidth
+          disabled={Object.values(counts).every((count) => count === 0)}
+        >
+          Roll
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 
@@ -404,17 +219,13 @@ function RecentRolls({
 }: {
   recentRolls:
     | {
-        counts: Record<string, number>;
+        counts: DiceCounts;
         bonus: number;
         advantage: Advantage;
       }[]
     | undefined;
   diceById: Record<string, Die>;
-  onRoll: (
-    counts: Record<string, number>,
-    bonus: number,
-    advantage: Advantage
-  ) => void;
+  onRoll: (counts: DiceCounts, bonus: number, advantage: Advantage) => void;
   onDelete: (index: number) => void;
 }) {
   if (!recentRolls || recentRolls.length === 0) {
@@ -499,7 +310,7 @@ function Controls({
   advantage,
   onAdvantageChange,
 }: {
-  counts: Record<string, number>;
+  counts: DiceCounts;
   diceById: Record<string, Die>;
   onCountChange: (id: string, count: number) => void;
   onCountIncrease: (id: string) => void;

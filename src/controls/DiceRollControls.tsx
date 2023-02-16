@@ -11,8 +11,9 @@ import { RerollDiceIcon } from "../icons/RerollDiceIcon";
 
 import { GradientOverlay } from "./GradientOverlay";
 import { useDiceRollStore } from "../dice/store";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DiceResults } from "./DiceResults";
+import { DiceQuickRoll } from "./DiceQuickRoll";
 
 export function DiceRollControls() {
   const roll = useDiceRollStore((state) => state.roll);
@@ -41,16 +42,47 @@ export function DiceRollControls() {
 
   const [resultsExpanded, setResultsExpanded] = useState(false);
 
+  const [hovering, setHovering] = useState(false);
+  useEffect(() => {
+    const tray = document.getElementById("interactive-tray");
+    if (tray) {
+      const startHover = () => {
+        setHovering(true);
+      };
+      const stopHover = () => {
+        setHovering(false);
+      };
+      // Hover on a touch event then stop after 3
+      // seconds of inactivity
+      let timeout: ReturnType<typeof setTimeout> | null = null;
+      const handleTouchEnd = () => {
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        startHover();
+        timeout = setTimeout(stopHover, 3000);
+      };
+      tray.addEventListener("mouseenter", startHover);
+      tray.addEventListener("mouseleave", stopHover);
+      tray.addEventListener("touchend", handleTouchEnd);
+
+      return () => {
+        tray.removeEventListener("mouseenter", startHover);
+        tray.removeEventListener("mouseleave", stopHover);
+        tray.removeEventListener("touchend", handleTouchEnd);
+      };
+    }
+  }, []);
+
   return (
     <>
-      {roll?.hidden && <GradientOverlay />}
       {/* Unmount controls as soon as we start rolling to save on performance */}
       {finishedRolling && (
         <>
           <Fade in>
             <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
           </Fade>
-          <Fade in>
+          <Fade in={hovering}>
             <Box
               sx={{
                 position: "absolute",
@@ -77,14 +109,6 @@ export function DiceRollControls() {
                     <RerollDiceIcon />
                   </IconButton>
                 </Tooltip>
-                {roll && finishedRolling && (
-                  <DiceResults
-                    diceRoll={roll}
-                    rollValues={finishedRollValues}
-                    expanded={resultsExpanded}
-                    onExpand={setResultsExpanded}
-                  />
-                )}
                 <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
                   <IconButton
                     onClick={() => clearRoll()}
@@ -97,24 +121,49 @@ export function DiceRollControls() {
               </Stack>
             </Box>
           </Fade>
+          <Fade in>
+            <Stack
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                pointerEvents: "none",
+                padding: 3,
+                alignItems: "center",
+              }}
+              component="div"
+            >
+              {roll && finishedRolling && (
+                <DiceResults
+                  diceRoll={roll}
+                  rollValues={finishedRollValues}
+                  expanded={resultsExpanded}
+                  onExpand={setResultsExpanded}
+                />
+              )}
+              {roll?.hidden && (
+                <Tooltip title="Hidden Roll" sx={{ pointerEvents: "all" }}>
+                  <HiddenIcon />
+                </Tooltip>
+              )}
+            </Stack>
+          </Fade>
         </>
       )}
-      {roll?.hidden && (
-        <Stack
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            pointerEvents: "none",
-            padding: 3,
-            alignItems: "center",
-          }}
-        >
-          <Tooltip title="Hidden Roll" sx={{ pointerEvents: "all" }}>
-            <HiddenIcon />
-          </Tooltip>
-        </Stack>
+      {(finishedRolling || Object.values(rollValues).length === 0) && (
+        <Fade in={hovering}>
+          <Stack
+            sx={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              width: "100%",
+            }}
+          >
+            <DiceQuickRoll />
+          </Stack>
+        </Fade>
       )}
     </>
   );
