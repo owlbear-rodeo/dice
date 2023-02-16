@@ -46,18 +46,23 @@ export function DiceRollControls() {
   useEffect(() => {
     const tray = document.getElementById("interactive-tray");
     if (tray) {
-      const startHover = () => {
-        setHovering(true);
+      // Only allow hover with a mouse
+      const startHover = (e: PointerEvent) => {
+        if (e.pointerType === "mouse") {
+          setHovering(true);
+        }
       };
-      const stopHover = () => {
-        setHovering(false);
+      const stopHover = (e: PointerEvent) => {
+        if (e.pointerType === "mouse") {
+          setHovering(false);
+        }
       };
-      tray.addEventListener("mouseenter", startHover);
-      tray.addEventListener("mouseleave", stopHover);
+      tray.addEventListener("pointerenter", startHover);
+      tray.addEventListener("pointerleave", stopHover);
 
       return () => {
-        tray.removeEventListener("mouseenter", startHover);
-        tray.removeEventListener("mouseleave", stopHover);
+        tray.removeEventListener("pointerenter", startHover);
+        tray.removeEventListener("pointerleave", stopHover);
       };
     }
   }, []);
