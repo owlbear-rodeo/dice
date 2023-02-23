@@ -22,6 +22,8 @@ import { DiceTransform } from "../types/DiceTransform";
 const MIN_ROLL_FINISHED_SPEED = 0.05;
 /** Cool down in MS before dice audio can get played again */
 const AUDIO_COOLDOWN = 200;
+/** Force stop the physics roll after 5 seconds */
+const MAX_ROLL_TIME = 5000;
 
 function magnitude({ x, y, z }: { x: number; y: number; z: number }) {
   return Math.sqrt(x * x + y * y + z * z);
@@ -86,36 +88,45 @@ export function PhysicsDice({
     }
   }, []);
 
-  const checkRollFinished = useCallback(() => {
-    const rigidBody = rigidBodyRef.current;
-    const group = ref.current;
-    if (rigidBody && !lockedRef.current && group) {
-      // Get the total speed for the dice
-      const linVel = rigidBody.linvel();
-      const angVel = rigidBody.angvel();
-      const speed = magnitude(linVel) + magnitude(angVel);
-      // Ensure that the dice is in the tray
-      const validPosition = rigidBody.translation().y < 1.5;
-      if (speed < MIN_ROLL_FINISHED_SPEED && validPosition) {
-        const value = getValueFromDiceGroup(group);
-        const position = rigidBody.translation();
-        const rotation = rigidBody.rotation();
-        const transform = {
-          position: { x: position.x, y: position.y, z: position.z },
-          rotation: {
-            x: rotation.x,
-            y: rotation.y,
-            z: rotation.z,
-            w: rotation.w,
-          },
-        };
-        onRollFinished?.(die.id, value, transform);
-        lockDice();
+  const checkRollFinished = useCallback(
+    (ignorePhysics?: boolean) => {
+      const rigidBody = rigidBodyRef.current;
+      const group = ref.current;
+      if (rigidBody && !lockedRef.current && group) {
+        // Get the total speed for the dice
+        const linVel = rigidBody.linvel();
+        const angVel = rigidBody.angvel();
+        const speed = magnitude(linVel) + magnitude(angVel);
+        // Ensure that the dice is in the tray
+        const validPosition = rigidBody.translation().y < 1.5;
+        if (
+          ignorePhysics ||
+          (speed < MIN_ROLL_FINISHED_SPEED && validPosition)
+        ) {
+          const value = getValueFromDiceGroup(group);
+          const position = rigidBody.translation();
+          const rotation = rigidBody.rotation();
+          const transform = {
+            position: { x: position.x, y: position.y, z: position.z },
+            rotation: {
+              x: rotation.x,
+              y: rotation.y,
+              z: rotation.z,
+              w: rotation.w,
+            },
+          };
+          onRollFinished?.(die.id, value, transform);
+          lockDice();
+        }
       }
-    }
-  }, [die.id, lockDice]);
+    },
+    [die.id, lockDice]
+  );
 
-  useFrame(checkRollFinished);
+  const handleFrame = useCallback(() => {
+    checkRollFinished();
+  }, [checkRollFinished]);
+  useFrame(handleFrame);
 
   // Lock the dice when we have a manual transform
   useEffect(() => {
@@ -123,6 +134,20 @@ export function PhysicsDice({
       lockDice();
     }
   }, [fixedTransform]);
+
+  // Stop the roll if over the max roll time
+  useEffect(() => {
+    let timeout = setTimeout(() => {
+      if (!lockedRef.current) {
+        console.warn("Roll exceeded max roll time: stopping dice");
+        checkRollFinished(true);
+      }
+    }, MAX_ROLL_TIME);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [checkRollFinished]);
 
   const listener = useAudioListener();
   const lastAudioTimeRef = useRef(0);
