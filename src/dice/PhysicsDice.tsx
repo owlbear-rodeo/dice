@@ -63,7 +63,7 @@ export function PhysicsDice({
   });
 
   const [linearVelocity] = useState<Vector3Array>(() => {
-    const v = fixedTransform ? { x: 0, y: 0, z: 0 } : dieThrow.angularVelocity;
+    const v = fixedTransform ? { x: 0, y: 0, z: 0 } : dieThrow.linearVelocity;
     return [v.x, v.y, v.z];
   });
 
