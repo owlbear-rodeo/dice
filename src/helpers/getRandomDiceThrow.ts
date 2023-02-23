@@ -11,9 +11,9 @@ const MAX_Y = 1.8;
 const MIN_Z = -0.6;
 const MAX_Z = 0.6;
 const MIN_LAUNCH_VELOCITY = 1;
-const MAX_LAUNCH_VELOCITY = 5;
-const MIN_ANGULAR_VELOCITY = 5;
-const MAX_ANGULAR_VELOCITY = 12;
+const MAX_LAUNCH_VELOCITY = 2;
+const MIN_ANGULAR_VELOCITY = 2;
+const MAX_ANGULAR_VELOCITY = 6;
 
 function randomPosition(): DiceVector3 {
   return {
