@@ -4,6 +4,7 @@ import {
   CollisionEnterPayload,
   RigidBody,
   RapierRigidBody,
+  MeshCollider,
 } from "@react-three/rapier";
 
 import { Die } from "../types/Die";
@@ -16,7 +17,6 @@ import { getDieWeightClass } from "../helpers/getDieWeightClass";
 import { getDieDensity } from "../helpers/getDieDensity";
 import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
-import { DiceCollider } from "../colliders/DiceCollider";
 
 /** Minium linear and angular speed before the dice roll is considered finished */
 const MIN_ROLL_FINISHED_SPEED = 0.05;
@@ -180,8 +180,7 @@ export function PhysicsDice({
       userData={userData}
     >
       <group ref={ref} {...props}>
-        <DiceCollider diceType={die.type} />
-        {children}
+        <MeshCollider type="hull">{children}</MeshCollider>
       </group>
     </RigidBody>
   );

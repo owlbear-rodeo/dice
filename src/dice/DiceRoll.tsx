@@ -1,7 +1,7 @@
 import { Debug, Physics } from "@react-three/rapier";
 import { useCallback, useMemo } from "react";
 import { getDieFromDice } from "../helpers/getDieFromDice";
-import { TrayColliders } from "../colliders/TrayColliders";
+import { TrayColliders } from "../tray/TrayColliders";
 import { DiceRoll as DiceRollType } from "../types/DiceRoll";
 import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
