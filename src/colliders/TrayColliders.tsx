@@ -27,10 +27,11 @@ export function TrayColliders(props: JSX.IntrinsicElements["group"]) {
       </RigidBody>
       {/* Walls of the tray */}
       {/* Use a small friction to simulate a wooden material */}
+      {/* Use a restitution of 1 to reduce the change that the dice will rest up against the wall */}
       <RigidBody
         type="fixed"
         friction={1}
-        restitution={0.5}
+        restitution={1}
         userData={{ material: "WOOD" }}
       >
         {/* Bottom wall */}
