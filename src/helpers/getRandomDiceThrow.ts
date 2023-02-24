@@ -6,8 +6,8 @@ import { random } from "./random";
 
 const MIN_X = -0.2;
 const MAX_X = 0.2;
-const MIN_Y = 1.5;
-const MAX_Y = 1.8;
+const MIN_Y = 1.4;
+const MAX_Y = 1.6;
 const MIN_Z = -0.6;
 const MAX_Z = 0.6;
 const MIN_LAUNCH_VELOCITY = 1;
