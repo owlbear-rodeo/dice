@@ -39,22 +39,6 @@ function createStandardSet(style: DiceStyle): DiceSet {
   };
 }
 
-/**
- * @example <caption>A dice set of different D6 styles</caption>
- * {
- *  id: "6s",
- *  name: "6s",
- *  dice: [
- *    { id: `GALAXY_D6`, type: "D6", style: "GALAXY" },
- *    { id: `GEMSTONE_D6`, type: "D6", style: "GEMSTONE" },
- *    { id: `GLASS_D6`, type: "D6", style: "GLASS" },
- *    { id: `IRON_D6`, type: "D6", style: "IRON" },
- *    { id: `NEBULA_D6`, type: "D6", style: "NEBULA" },
- *  ],
- *  previewImage: galaxyPreviews.D6,
- * },
- */
-
 export const diceSets: DiceSet[] = [
   createStandardSet("GALAXY"),
   createStandardSet("GEMSTONE"),
@@ -64,4 +48,19 @@ export const diceSets: DiceSet[] = [
   createStandardSet("SUNRISE"),
   createStandardSet("SUNSET"),
   createStandardSet("WALNUT"),
+  /**  A dice set of different D6 styles */
+  {
+    id: "6s",
+    name: "6s",
+    dice: [
+      { id: `GALAXY_D6`, type: "D6", style: "GALAXY" },
+      { id: `GEMSTONE_D6`, type: "D6", style: "GEMSTONE" },
+      { id: `GLASS_D6`, type: "D6", style: "GLASS" },
+      { id: `IRON_D6`, type: "D6", style: "IRON" },
+      { id: `SUNRISE_D6`, type: "D6", style: "SUNRISE" },
+      { id: `SUNSET_D6`, type: "D6", style: "SUNSET" },
+      { id: `WALNUT_D6`, type: "D6", style: "WALNUT" },
+    ],
+    previewImage: galaxyPreviews.D6,
+  },
 ];
