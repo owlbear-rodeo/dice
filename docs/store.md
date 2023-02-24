@@ -17,7 +17,9 @@ Beautiful 3D dice extension for d20 based systems
 
 You can roll dice by selecting a style on the left of the dice popover.
 
-You can then use the inputs to select which dice to roll. When you want to roll the dice simply click the Roll button.
+You can then use the quick bar to select which dice to roll. When you want to roll the dice simply click the Roll button.
+
+If you'd like more control over the roll you can expand the quick bar into a full roll dialog.
 
 ![roll interface](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/roll.jpg)
 
