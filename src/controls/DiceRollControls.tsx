@@ -14,6 +14,7 @@ import { useDiceRollStore } from "../dice/store";
 import { useEffect, useMemo, useState } from "react";
 import { DiceResults } from "./DiceResults";
 import { DiceQuickRoll } from "./DiceQuickRoll";
+import { useDiceControlsStore } from "./store";
 
 export function DiceRollControls() {
   const roll = useDiceRollStore((state) => state.roll);
@@ -66,6 +67,11 @@ export function DiceRollControls() {
       };
     }
   }, []);
+
+  const diceSet = useDiceControlsStore((state) => state.diceSet);
+  useEffect(() => {
+    setHovering(true);
+  }, [diceSet]);
 
   return (
     <>
