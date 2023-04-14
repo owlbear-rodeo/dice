@@ -277,7 +277,7 @@ function RecentRolls({
                       <DicePreview
                         diceStyle={die.style}
                         diceType={die.type}
-                        small
+                        size="small"
                       />
                     </Stack>
                   );

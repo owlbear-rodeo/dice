@@ -24,28 +24,28 @@ const previews: Record<DiceStyle, Record<DiceType, string>> = {
 };
 
 interface PreviewImageProps {
-  small?: boolean;
+  size?: "small" | "medium" | "large";
 }
 
 const PreviewImage = styled("img", {
-  shouldForwardProp: (prop) => prop !== "small",
-})<PreviewImageProps>(({ small }) => ({
-  width: small ? "28px" : "38px",
-  height: small ? "28px" : "38px",
+  shouldForwardProp: (prop) => prop !== "size",
+})<PreviewImageProps>(({ size }) => ({
+  width: size === "small" ? "28px" : size === "medium" ? "34px" : "38px",
+  height: size === "small" ? "28px" : size === "medium" ? "34px" : "38px",
 }));
 
 type DiePreviewProps = {
   diceType: DiceType;
   diceStyle: DiceStyle;
-  small?: boolean;
+  size?: "small" | "medium" | "large";
 };
 
-export function DicePreview({ diceType, diceStyle, small }: DiePreviewProps) {
+export function DicePreview({ diceType, diceStyle, size }: DiePreviewProps) {
   return (
     <PreviewImage
       src={previews[diceStyle][diceType]}
       alt={`${diceStyle} ${diceType} preview`}
-      small={small}
+      size={size}
     />
   );
 }

@@ -105,7 +105,7 @@ function DiceResultsExpanded({
       <Stack direction="row" flexWrap="wrap" gap={1} justifyContent="center">
         {die.map((d, i) => (
           <Stack direction="row" key={d.id} gap={1}>
-            <DicePreview diceStyle={d.style} diceType={d.type} small />
+            <DicePreview diceStyle={d.style} diceType={d.type} size="small" />
             <Typography lineHeight="28px">{rollValues[d.id]}</Typography>
             {i < die.length - 1 && (
               <Typography lineHeight="28px">{combination(diceRoll)}</Typography>
