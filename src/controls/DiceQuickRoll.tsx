@@ -6,6 +6,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 import { DicePreview } from "../previews/DicePreview";
 
@@ -82,6 +83,8 @@ export function DiceQuickRoll() {
     }
   }, []);
 
+  const isSmall = useMediaQuery("(max-width: 360px)");
+
   return (
     <Paper
       sx={{
@@ -112,7 +115,10 @@ export function DiceQuickRoll() {
         </Stack>
         <Stack direction="row" alignItems="flex-end">
           <Stack sx={{ py: "5px" }}>
-            <IconButton onClick={openDiceDialog}>
+            <IconButton
+              onClick={openDiceDialog}
+              size={isSmall ? "small" : "medium"}
+            >
               <ExpandIcon />
             </IconButton>
           </Stack>
@@ -128,6 +134,7 @@ export function DiceQuickRoll() {
               direction="row"
               sx={{
                 m: "0 auto",
+                gap: isSmall ? 0 : "2px",
               }}
             >
               {Object.entries(counts).map(([id, count]) => {
@@ -151,9 +158,13 @@ export function DiceQuickRoll() {
                   >
                     <IconButton
                       onClick={() => handleDiceCountIncrease(id)}
-                      sx={{ p: "0.5px" }}
+                      sx={{ p: 0 }}
                     >
-                      <DicePreview diceStyle={die.style} diceType={die.type} />
+                      <DicePreview
+                        diceStyle={die.style}
+                        diceType={die.type}
+                        size={isSmall ? "medium" : "large"}
+                      />
                     </IconButton>
                   </Badge>
                 );
