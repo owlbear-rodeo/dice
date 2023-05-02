@@ -83,7 +83,7 @@ export function PlayerTrayPreview({
             </TraySuspense>
             {diceRoll?.hidden && (
               <Backdrop open sx={{ position: "absolute" }}>
-                <HiddenIcon />
+                <HiddenIcon htmlColor="white" />
               </Backdrop>
             )}
           </Box>

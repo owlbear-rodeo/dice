@@ -103,7 +103,7 @@ export function DiceRollControls() {
                   <IconButton
                     onClick={() => reroll()}
                     disabled={!finishedRolling}
-                    sx={{ pointerEvents: "all" }}
+                    sx={{ pointerEvents: "all", color: "white" }}
                   >
                     <RerollDiceIcon />
                   </IconButton>
@@ -112,7 +112,7 @@ export function DiceRollControls() {
                   <IconButton
                     onClick={() => clearRoll()}
                     disabled={!finishedRolling}
-                    sx={{ pointerEvents: "all" }}
+                    sx={{ pointerEvents: "all", color: "white" }}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -143,7 +143,7 @@ export function DiceRollControls() {
               )}
               {roll?.hidden && (
                 <Tooltip title="Hidden Roll" sx={{ pointerEvents: "all" }}>
-                  <HiddenIcon />
+                  <HiddenIcon htmlColor="white" />
                 </Tooltip>
               )}
             </Stack>

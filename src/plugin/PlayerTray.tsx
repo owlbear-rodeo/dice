@@ -104,7 +104,7 @@ function PlayerTrayResults({ player }: { player?: Player }) {
       {diceRoll?.hidden && (
         <Backdrop open sx={{ position: "absolute" }}>
           <Tooltip title="Hidden Roll">
-            <HiddenIcon />
+            <HiddenIcon htmlColor="white" />
           </Tooltip>
         </Backdrop>
       )}

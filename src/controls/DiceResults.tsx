@@ -39,7 +39,9 @@ export function DiceResults({
           onClick={() => onExpand(!expanded)}
           color="inherit"
         >
-          <Typography variant="h4">{finalValue}</Typography>
+          <Typography variant="h4" color="white">
+            {finalValue}
+          </Typography>
         </Button>
       </Tooltip>
       <Grow
@@ -106,16 +108,22 @@ function DiceResultsExpanded({
         {die.map((d, i) => (
           <Stack direction="row" key={d.id} gap={1}>
             <DicePreview diceStyle={d.style} diceType={d.type} size="small" />
-            <Typography lineHeight="28px">{rollValues[d.id]}</Typography>
+            <Typography lineHeight="28px" color="white">
+              {rollValues[d.id]}
+            </Typography>
             {i < die.length - 1 && (
-              <Typography lineHeight="28px">{combination(diceRoll)}</Typography>
+              <Typography lineHeight="28px" color="white">
+                {combination(diceRoll)}
+              </Typography>
             )}
           </Stack>
         ))}
         {die.length > 0 && (
           <>
-            <Typography lineHeight="28px">=</Typography>
-            <Typography lineHeight="28px">
+            <Typography lineHeight="28px" color="white">
+              =
+            </Typography>
+            <Typography lineHeight="28px" color="white">
               {getCombinedDiceValue(
                 { dice: die, combination: diceRoll.combination },
                 rollValues
@@ -128,7 +136,7 @@ function DiceResultsExpanded({
         <DiceResultsExpanded key={i} diceRoll={d} rollValues={rollValues} />
       ))}
       {diceRoll.bonus && (
-        <Typography textAlign="center" lineHeight="28px">
+        <Typography textAlign="center" lineHeight="28px" color="white">
           {diceRoll.bonus > 0 && "+"}
           {diceRoll.bonus}
         </Typography>

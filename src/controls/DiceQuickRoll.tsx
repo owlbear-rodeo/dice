@@ -17,6 +17,7 @@ import { getDiceToRoll, useDiceControlsStore } from "./store";
 import { useDiceRollStore } from "../dice/store";
 import { useEffect, useMemo, useRef } from "react";
 import { DiceType } from "../types/DiceType";
+import { useTheme } from "@mui/material/styles";
 
 export function DiceQuickRoll() {
   const openDiceDialog = useDiceControlsStore((state) => state.openDiceDialog);
@@ -84,14 +85,17 @@ export function DiceQuickRoll() {
   }, []);
 
   const isSmall = useMediaQuery("(max-width: 360px)");
+  const theme = useTheme();
 
   return (
     <Paper
       sx={{
         borderRadius: "16px",
         m: 1,
-        px: 0.5,
-        backgroundColor: "rgba(34, 38, 57, 0.8)",
+        bgcolor:
+          theme.palette.mode === "dark"
+            ? "rgba(34, 38, 57, 0.9)"
+            : "rgba(241, 243, 249, 0.9)",
       }}
       elevation={1}
     >
@@ -114,7 +118,7 @@ export function DiceQuickRoll() {
           </Stack>
         </Stack>
         <Stack direction="row" alignItems="flex-end">
-          <Stack sx={{ py: "5px" }}>
+          <Stack sx={{ py: "5px", ml: 0.5 }}>
             <IconButton
               onClick={openDiceDialog}
               size={isSmall ? "small" : "medium"}
