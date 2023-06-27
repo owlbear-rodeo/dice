@@ -1,4 +1,4 @@
-import { Debug, Physics } from "@react-three/rapier";
+import { Physics } from "@react-three/rapier";
 import { useCallback, useMemo } from "react";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { TrayColliders } from "../colliders/TrayColliders";
@@ -7,7 +7,6 @@ import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
 import { Die } from "../types/Die";
 import { Dice as DefaultDice } from "./Dice";
-import { DiceRollFrameloop } from "./DiceRollFrameloop";
 import { PhysicsDice } from "./PhysicsDice";
 import { useDebugStore } from "../debug/store";
 
@@ -68,8 +67,13 @@ export function DiceRoll({
     // networking relies on the deterministic nature of Rapier when given the
     // same inputs and using the same number of update timesteps.
     return (
-      <Physics colliders={false} interpolate={false} timeStep={1 / 120}>
-        {allowPhysicsDebug && <Debug />}
+      <Physics
+        colliders={false}
+        interpolate={false}
+        timeStep={1 / 120}
+        debug={allowPhysicsDebug}
+        updateLoop="independent"
+      >
         <TrayColliders />
         {dice?.map((die) => {
           const dieThrow = rollThrows[die.id];
@@ -90,7 +94,6 @@ export function DiceRoll({
             </PhysicsDice>
           );
         })}
-        <DiceRollFrameloop />
       </Physics>
     );
   }
