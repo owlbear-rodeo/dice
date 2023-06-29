@@ -1,9 +1,4 @@
-import { useMemo } from "react";
-import {
-  Environment,
-  OrbitControls,
-  PerspectiveCamera,
-} from "@react-three/drei";
+import { Environment, OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Player } from "@owlbear-rodeo/sdk";
 
@@ -24,6 +19,7 @@ import { AudioListenerProvider } from "../audio/AudioListenerProvider";
 import { Tray } from "../tray/Tray";
 import { useDebugStore } from "../debug/store";
 import { TraySuspense } from "../tray/TraySuspense";
+import { AnimatedPlayerCamera } from "./AnimatedPlayerCamera";
 
 export function PlayerTrayPreview({
   player,
@@ -40,19 +36,6 @@ export function PlayerTrayPreview({
     usePlayerDice(player);
 
   const theme = useTheme();
-
-  const z = useMemo(() => {
-    if (finishedRollTransforms) {
-      let center = 0;
-      for (const transform of Object.values(finishedRollTransforms)) {
-        center += transform.position.z;
-        center /= 2;
-      }
-      return Math.min(0.5, Math.max(-0.5, center));
-    } else {
-      return 0;
-    }
-  }, [finishedRollTransforms]);
 
   return (
     <Stack alignItems="center">
@@ -82,16 +65,15 @@ export function PlayerTrayPreview({
             boxShadow={theme.shadows[5]}
           >
             <TraySuspense>
-              <Canvas frameloop="demand" dpr={1}>
+              <Canvas frameloop="demand">
                 <AudioListenerProvider volume={focused ? 0 : 0.25}>
                   <Environment files={environment} />
                   <Tray />
                   <PlayerDiceRoll player={player} />
-                  <PerspectiveCamera
-                    makeDefault
-                    fov={13}
-                    position={[0, 4.3, z]}
-                    rotation={[-Math.PI / 2, 0, 0]}
+                  <AnimatedPlayerCamera
+                    rollTransforms={
+                      finishedRolling ? finishedRollTransforms : undefined
+                    }
                   />
                   {allowOrbit && <OrbitControls />}
                 </AudioListenerProvider>
