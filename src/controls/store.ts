@@ -18,10 +18,7 @@ interface DiceControlsState {
   diceBonus: number;
   diceAdvantage: Advantage;
   diceHidden: boolean;
-  diceDialogOpen: boolean;
   changeDiceSet: (diceSet: DiceSet) => void;
-  openDiceDialog: () => void;
-  closeDiceDialog: () => void;
   resetDiceCounts: () => void;
   changeDieCount: (id: string, count: number) => void;
   incrementDieCount: (id: string) => void;
@@ -44,7 +41,6 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     diceBonus: 0,
     diceAdvantage: null,
     diceHidden: false,
-    diceDialogOpen: false,
     changeDiceSet(diceSet) {
       set((state) => {
         const counts: DiceCounts = {};
@@ -64,16 +60,6 @@ export const useDiceControlsStore = create<DiceControlsState>()(
         state.diceSet = diceSet;
         state.defaultDiceCounts = getDiceCountsFromSet(diceSet);
         state.diceById = getDiceByIdFromSet(diceSet);
-      });
-    },
-    openDiceDialog() {
-      set((state) => {
-        state.diceDialogOpen = true;
-      });
-    },
-    closeDiceDialog() {
-      set((state) => {
-        state.diceDialogOpen = false;
       });
     },
     resetDiceCounts() {
