@@ -66,6 +66,7 @@ export function PartyTrays() {
       left="0"
       right="0"
       px={2}
+      sx={{ pointerEvents: "none" }}
     >
       <SimpleBar
         style={{
