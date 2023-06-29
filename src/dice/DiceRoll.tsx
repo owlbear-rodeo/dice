@@ -108,7 +108,11 @@ export function DiceRoll({
               fixedTransform={fixedTransform}
             >
               {/* Override onClick event to make sure simulated dice can't be selected */}
-              <Dice die={die} onClick={emptyCallback} />
+              <Dice
+                die={die}
+                onClick={emptyCallback}
+                onPointerDown={emptyCallback}
+              />
             </PhysicsDice>
           );
         })}
