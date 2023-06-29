@@ -1,5 +1,5 @@
 import { Physics } from "@react-three/rapier";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { TrayColliders } from "../colliders/TrayColliders";
 import { DiceRoll as DiceRollType } from "../types/DiceRoll";
@@ -40,6 +40,23 @@ export function DiceRoll({
 
   const emptyCallback = useCallback(() => {}, []);
 
+  /**
+   * Because we recreate the physics world every new roll
+   * there is a frame where all the rigid bodies need to be created
+   * to ensure smooth playback we pause the physics sim until
+   * the frame after everything is created
+   */
+  const [paused, setPaused] = useState(true);
+  useEffect(() => {
+    if (finishedTransforms) {
+      setPaused(true);
+    } else {
+      requestAnimationFrame(() => {
+        setPaused(false);
+      });
+    }
+  }, [finishedTransforms]);
+
   if (finishedTransforms) {
     // Move to a static dice representation when all dice values have been found
     return (
@@ -73,6 +90,7 @@ export function DiceRoll({
         timeStep={1 / 120}
         debug={allowPhysicsDebug}
         updateLoop="independent"
+        paused={paused}
       >
         <TrayColliders />
         {dice?.map((die) => {
