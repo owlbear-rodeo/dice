@@ -145,7 +145,7 @@ function DicePickedControls() {
             transform: "translate(-50%, -50%)",
             color: hasDice ? "transparent" : "transparent !important",
             "& span": {
-              transform: "translate(-25px)",
+              transform: "translate(-23px)",
               color: theme.palette.primary.contrastText,
               transition: theme.transitions.create("transform"),
             },
