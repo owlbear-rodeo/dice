@@ -7,7 +7,7 @@ import { isDie } from "../types/Die";
 import { isDice } from "../types/Dice";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { DiceTransform } from "../types/DiceTransform";
-import { getRandomDiceThrow } from "../helpers/getRandomDiceThrow";
+import { getRandomDiceThrow } from "../helpers/DiceThrower";
 import { generateDiceId } from "../helpers/generateDiceId";
 import { DiceThrow } from "../types/DiceThrow";
 

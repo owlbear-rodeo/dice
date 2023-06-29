@@ -5,6 +5,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Fade from "@mui/material/Fade";
 import { useTheme } from "@mui/material/styles";
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 import CloseIcon from "@mui/icons-material/CloseRounded";
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
@@ -18,7 +19,6 @@ import { useMemo, useState } from "react";
 import { DiceResults } from "./DiceResults";
 import { getDiceToRoll, useDiceControlsStore } from "./store";
 import { DiceType } from "../types/DiceType";
-import Typography from "@mui/material/Typography";
 
 export function DiceRollControls() {
   const defaultDiceCounts = useDiceControlsStore(
@@ -119,6 +119,7 @@ function DicePickedControls() {
           right: 0,
           bottom: 0,
           cursor: hasDice ? "pointer" : "",
+          backgroundColor: "rgba(0, 0, 0, 0.25)",
           ":hover button": hasDice
             ? {
                 color: theme.palette.primary.contrastText,

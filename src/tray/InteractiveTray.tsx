@@ -19,6 +19,7 @@ import { PluginGate } from "../plugin/PluginGate";
 import { DiceRollSync } from "../plugin/DiceRollSync";
 import { PartyTrays } from "../plugin/PartyTrays";
 import { ResizeObserver as PluginResizeObserver } from "../plugin/ResizeObserver";
+import { PreviewDiceRoll } from "../dice/PreviewDiceRoll";
 
 /** Dice tray that controls the dice roll store */
 export function InteractiveTray() {
@@ -48,6 +49,7 @@ export function InteractiveTray() {
               color="#222222"
             />
             <Tray />
+            <PreviewDiceRoll />
             <InteractiveDiceRoll />
             <PerspectiveCamera
               makeDefault

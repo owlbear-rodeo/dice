@@ -1,15 +1,15 @@
-import { DiceQuaternion } from "../types/DiceQuaternion";
 import { DiceThrow } from "../types/DiceThrow";
+import { DiceQuaternion } from "../types/DiceQuaternion";
 import { DiceVector3 } from "../types/DiceVector3";
 
 import { random } from "./random";
 
-const MIN_X = -0.2;
-const MAX_X = 0.2;
-const MIN_Y = 1.4;
-const MAX_Y = 1.6;
-const MIN_Z = -0.6;
-const MAX_Z = 0.6;
+const MIN_X = -0.3;
+const MAX_X = 0.3;
+const MIN_Y = 1;
+const MAX_Y = 1.2;
+const MIN_Z = -0.8;
+const MAX_Z = 0.8;
 const MIN_LAUNCH_VELOCITY = 1;
 const MAX_LAUNCH_VELOCITY = 2;
 const MIN_ANGULAR_VELOCITY = 2;
@@ -91,4 +91,55 @@ export function getRandomDiceThrow(): DiceThrow {
     linearVelocity,
     angularVelocity,
   };
+}
+
+/** A dice thrower that keeps a history of previous dice to avoid collisions */
+export class DiceThrower {
+  private history: DiceThrow[] = [];
+
+  private isPositionValid(position: DiceVector3) {
+    for (const diceThrow of this.history) {
+      const a = position;
+      const b = diceThrow.position;
+      const delta: DiceVector3 = { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
+      const lenSquared =
+        delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+      const distance = Math.sqrt(lenSquared);
+      if (distance < 0.25) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  getDiceThrow(index: number): DiceThrow {
+    if (this.history.length > index) {
+      return this.history[index];
+    }
+    let position = randomPosition();
+    for (let i = 0; i < 50; i++) {
+      if (this.isPositionValid(position)) {
+        break;
+      }
+      position = randomPosition();
+    }
+    const rotation = randomRotation();
+    const linearVelocity = randomLinearVelocity(position);
+    const angularVelocity = randomAngularVelocity();
+
+    const diceThrow: DiceThrow = {
+      position,
+      rotation,
+      linearVelocity,
+      angularVelocity,
+    };
+
+    this.history.push(diceThrow);
+
+    return diceThrow;
+  }
+
+  clearHistory() {
+    this.history = [];
+  }
 }
