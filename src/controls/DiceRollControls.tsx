@@ -8,7 +8,6 @@ import Button from "@mui/material/Button";
 
 import CloseIcon from "@mui/icons-material/CloseRounded";
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
-import ResetIcon from "@mui/icons-material/RestartAltRounded";
 import RollIcon from "@mui/icons-material/ArrowForwardRounded";
 
 import { RerollDiceIcon } from "../icons/RerollDiceIcon";
@@ -171,14 +170,14 @@ function DicePickedControls() {
           transform: "translateX(-50%)",
         }}
       >
-        <Tooltip title="Reset" disableInteractive>
+        <Tooltip title="Clear" disableInteractive>
           <IconButton
             onClick={(e) => {
               e.stopPropagation();
               handleReset();
             }}
           >
-            <ResetIcon />
+            <CloseIcon />
           </IconButton>
         </Tooltip>
       </Stack>
