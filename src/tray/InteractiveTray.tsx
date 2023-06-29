@@ -15,6 +15,10 @@ import { AudioListenerProvider } from "../audio/AudioListenerProvider";
 import { Tray } from "./Tray";
 import { useDebugStore } from "../debug/store";
 import { TraySuspense } from "./TraySuspense";
+import { PluginGate } from "../plugin/PluginGate";
+import { DiceRollSync } from "../plugin/DiceRollSync";
+import { PartyTrays } from "../plugin/PartyTrays";
+import { ResizeObserver as PluginResizeObserver } from "../plugin/ResizeObserver";
 
 /** Dice tray that controls the dice roll store */
 export function InteractiveTray() {
@@ -56,8 +60,11 @@ export function InteractiveTray() {
         </Canvas>
       </TraySuspense>
       <DiceRollControls />
-      {/* Create a container for the dice dialog portal */}
-      <div id="dice-dialog-container"></div>
+      <PluginGate>
+        <DiceRollSync />
+        <PartyTrays />
+        <PluginResizeObserver />
+      </PluginGate>
     </Box>
   );
 }

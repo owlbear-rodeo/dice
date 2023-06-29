@@ -3,23 +3,42 @@ import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
 import Fade from "@mui/material/Fade";
+import { useTheme } from "@mui/material/styles";
+import Button from "@mui/material/Button";
 
 import CloseIcon from "@mui/icons-material/CloseRounded";
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
+import ResetIcon from "@mui/icons-material/RestartAltRounded";
+import RollIcon from "@mui/icons-material/ArrowForwardRounded";
 
 import { RerollDiceIcon } from "../icons/RerollDiceIcon";
 
 import { GradientOverlay } from "./GradientOverlay";
 import { useDiceRollStore } from "../dice/store";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { DiceResults } from "./DiceResults";
-import { DiceQuickRoll } from "./DiceQuickRoll";
-import { useDiceControlsStore } from "./store";
+import { getDiceToRoll, useDiceControlsStore } from "./store";
+import { DiceType } from "../types/DiceType";
+import Typography from "@mui/material/Typography";
 
 export function DiceRollControls() {
-  const roll = useDiceRollStore((state) => state.roll);
-  const clearRoll = useDiceRollStore((state) => state.clearRoll);
-  const reroll = useDiceRollStore((state) => state.reroll);
+  const defaultDiceCounts = useDiceControlsStore(
+    (state) => state.defaultDiceCounts
+  );
+
+  const counts = useDiceControlsStore((state) => state.diceCounts);
+  const bonus = useDiceControlsStore((state) => state.diceBonus);
+  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
+  // Is currently the default dice state (all counts 0 and advantage/bonus defaults)
+  const isDefault = useMemo(
+    () =>
+      Object.entries(defaultDiceCounts).every(
+        ([type, count]) => counts[type as DiceType] === count
+      ) &&
+      advantage === null &&
+      bonus === 0,
+    [counts, defaultDiceCounts, advantage, bonus]
+  );
 
   const rollValues = useDiceRollStore((state) => state.rollValues);
   const finishedRolling = useMemo(() => {
@@ -31,6 +50,185 @@ export function DiceRollControls() {
     }
   }, [rollValues]);
 
+  if (!isDefault) {
+    return (
+      <Fade in>
+        <span>
+          <DicePickedControls />
+        </span>
+      </Fade>
+    );
+  } else if (finishedRolling) {
+    return (
+      <Fade in>
+        <span>
+          <FinishedRollControls />
+        </span>
+      </Fade>
+    );
+  } else {
+    return null;
+  }
+}
+
+function DicePickedControls() {
+  const startRoll = useDiceRollStore((state) => state.startRoll);
+
+  const defaultDiceCounts = useDiceControlsStore(
+    (state) => state.defaultDiceCounts
+  );
+  const diceById = useDiceControlsStore((state) => state.diceById);
+  const counts = useDiceControlsStore((state) => state.diceCounts);
+  const hidden = useDiceControlsStore((state) => state.diceHidden);
+  const bonus = useDiceControlsStore((state) => state.diceBonus);
+  const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
+  const advantage = useDiceControlsStore((state) => state.diceAdvantage);
+  const setAdvantage = useDiceControlsStore((state) => state.setDiceAdvantage);
+
+  const resetDiceCounts = useDiceControlsStore(
+    (state) => state.resetDiceCounts
+  );
+  function handleRoll() {
+    const dice = getDiceToRoll(counts, advantage, diceById);
+    startRoll({ dice, bonus, hidden });
+    handleReset();
+  }
+
+  function handleReset() {
+    resetDiceCounts();
+    setBonus(0);
+    setAdvantage(null);
+  }
+
+  const hasDice = useMemo(
+    () =>
+      !Object.entries(defaultDiceCounts).every(
+        ([type, count]) => counts[type as DiceType] === count
+      ),
+    [counts, defaultDiceCounts]
+  );
+
+  const theme = useTheme();
+
+  return (
+    <>
+      <Stack
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          cursor: hasDice ? "pointer" : "",
+          ":hover button": hasDice
+            ? {
+                color: theme.palette.primary.contrastText,
+                width: "100px",
+                "& span": {
+                  transform: "translateX(0)",
+                },
+                backgroundColor: theme.palette.primary.main,
+              }
+            : {},
+        }}
+        onClick={() => {
+          if (hasDice) {
+            handleRoll();
+          }
+        }}
+      >
+        <Button
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            color: hasDice ? "transparent" : "transparent !important",
+            "& span": {
+              transform: "translate(-25px)",
+              color: theme.palette.primary.contrastText,
+              transition: theme.transitions.create("transform"),
+            },
+            transition: theme.transitions.create(["width", "color"]),
+            minWidth: 0,
+            width: "36px",
+            overflow: "hidden",
+            borderRadius: "20px",
+          }}
+          endIcon={<RollIcon />}
+          variant="contained"
+          disabled={!hasDice}
+        >
+          Roll
+        </Button>
+      </Stack>
+      <GradientOverlay top />
+      <Stack
+        sx={{
+          position: "absolute",
+          top: 12,
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+      >
+        <Tooltip title="Reset" disableInteractive>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              handleReset();
+            }}
+          >
+            <ResetIcon />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+      <Stack
+        sx={{
+          position: "absolute",
+          top: 12,
+          left: 24,
+        }}
+      >
+        {advantage && (
+          <Typography
+            textAlign="left"
+            lineHeight="40px"
+            color="white"
+            variant="h6"
+          >
+            {advantage === "ADVANTAGE" ? "Adv" : "Dis"}
+          </Typography>
+        )}
+      </Stack>
+      <Stack
+        sx={{
+          position: "absolute",
+          top: 12,
+          right: 24,
+        }}
+      >
+        {bonus !== 0 && (
+          <Typography
+            textAlign="right"
+            variant="h6"
+            lineHeight="40px"
+            color="white"
+          >
+            {bonus > 0 && "+"}
+            {bonus}
+          </Typography>
+        )}
+      </Stack>
+    </>
+  );
+}
+
+function FinishedRollControls() {
+  const roll = useDiceRollStore((state) => state.roll);
+  const clearRoll = useDiceRollStore((state) => state.clearRoll);
+  const reroll = useDiceRollStore((state) => state.reroll);
+
+  const rollValues = useDiceRollStore((state) => state.rollValues);
   const finishedRollValues = useMemo(() => {
     const values: Record<string, number> = {};
     for (const [id, value] of Object.entries(rollValues)) {
@@ -43,127 +241,70 @@ export function DiceRollControls() {
 
   const [resultsExpanded, setResultsExpanded] = useState(false);
 
-  const [hovering, setHovering] = useState(true);
-  useEffect(() => {
-    const tray = document.getElementById("interactive-tray");
-    if (tray) {
-      // Only allow hover with a mouse
-      const startHover = (e: PointerEvent) => {
-        if (e.pointerType === "mouse") {
-          setHovering(true);
-        }
-      };
-      const stopHover = (e: PointerEvent) => {
-        if (e.pointerType === "mouse") {
-          setHovering(false);
-        }
-      };
-      tray.addEventListener("pointerenter", startHover);
-      tray.addEventListener("pointerleave", stopHover);
-
-      return () => {
-        tray.removeEventListener("pointerenter", startHover);
-        tray.removeEventListener("pointerleave", stopHover);
-      };
-    }
-  }, []);
-
-  const diceSet = useDiceControlsStore((state) => state.diceSet);
-  useEffect(() => {
-    setHovering(true);
-  }, [diceSet]);
-
   return (
     <>
-      {/* Unmount controls as soon as we start rolling to save on performance */}
-      {finishedRolling && (
-        <>
-          <Fade in>
-            <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
-          </Fade>
-          <Fade in={hovering}>
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                pointerEvents: "none",
-                padding: 3,
-              }}
-              component="div"
+      <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          pointerEvents: "none",
+          padding: 3,
+        }}
+        component="div"
+      >
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          width="100%"
+          alignItems="start"
+        >
+          <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
+            <IconButton
+              onClick={() => reroll()}
+              sx={{ pointerEvents: "all", color: "white" }}
             >
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                width="100%"
-                alignItems="start"
-              >
-                <Tooltip title="Reroll" sx={{ pointerEvents: "all" }}>
-                  <IconButton
-                    onClick={() => reroll()}
-                    disabled={!finishedRolling}
-                    sx={{ pointerEvents: "all", color: "white" }}
-                  >
-                    <RerollDiceIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
-                  <IconButton
-                    onClick={() => clearRoll()}
-                    disabled={!finishedRolling}
-                    sx={{ pointerEvents: "all", color: "white" }}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            </Box>
-          </Fade>
-          <Fade in>
-            <Stack
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: "50%",
-                transform: "translateX(-50%)",
-                pointerEvents: "none",
-                padding: 3,
-                alignItems: "center",
-              }}
-              component="div"
+              <RerollDiceIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Clear" sx={{ pointerEvents: "all" }}>
+            <IconButton
+              onClick={() => clearRoll()}
+              sx={{ pointerEvents: "all", color: "white" }}
             >
-              {roll && finishedRolling && (
-                <DiceResults
-                  diceRoll={roll}
-                  rollValues={finishedRollValues}
-                  expanded={resultsExpanded}
-                  onExpand={setResultsExpanded}
-                />
-              )}
-              {roll?.hidden && (
-                <Tooltip title="Hidden Roll" sx={{ pointerEvents: "all" }}>
-                  <HiddenIcon htmlColor="white" />
-                </Tooltip>
-              )}
-            </Stack>
-          </Fade>
-        </>
-      )}
-      {(finishedRolling || Object.values(rollValues).length === 0) && (
-        <Fade in={hovering}>
-          <Stack
-            sx={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              width: "100%",
-            }}
-          >
-            <DiceQuickRoll />
-          </Stack>
-        </Fade>
-      )}
+              <CloseIcon />
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </Box>
+      <Stack
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          pointerEvents: "none",
+          padding: 3,
+          alignItems: "center",
+        }}
+        component="div"
+      >
+        {roll && (
+          <DiceResults
+            diceRoll={roll}
+            rollValues={finishedRollValues}
+            expanded={resultsExpanded}
+            onExpand={setResultsExpanded}
+          />
+        )}
+        {roll?.hidden && (
+          <Tooltip title="Hidden Roll" sx={{ pointerEvents: "all" }}>
+            <HiddenIcon htmlColor="white" />
+          </Tooltip>
+        )}
+      </Stack>
     </>
   );
 }

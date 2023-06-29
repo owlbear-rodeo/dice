@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Environment,
   OrbitControls,
@@ -12,6 +13,7 @@ import Typography from "@mui/material/Typography";
 import Badge from "@mui/material/Badge";
 import Backdrop from "@mui/material/Backdrop";
 import IconButton from "@mui/material/IconButton";
+import { useTheme } from "@mui/material/styles";
 
 import HiddenIcon from "@mui/icons-material/VisibilityOffRounded";
 
@@ -34,7 +36,23 @@ export function PlayerTrayPreview({
 }) {
   const allowOrbit = useDebugStore((state) => state.allowOrbit);
 
-  const { diceRoll, finalValue, finishedRolling } = usePlayerDice(player);
+  const { diceRoll, finalValue, finishedRolling, finishedRollTransforms } =
+    usePlayerDice(player);
+
+  const theme = useTheme();
+
+  const z = useMemo(() => {
+    if (finishedRollTransforms) {
+      let center = 0;
+      for (const transform of Object.values(finishedRollTransforms)) {
+        center += transform.position.z;
+        center /= 2;
+      }
+      return Math.min(0.5, Math.max(-0.5, center));
+    } else {
+      return 0;
+    }
+  }, [finishedRollTransforms]);
 
   return (
     <Stack alignItems="center">
@@ -53,17 +71,15 @@ export function PlayerTrayPreview({
         }}
         max={999}
       >
-        <IconButton
-          sx={{ borderRadius: 0.5, p: 0.25 }}
-          onClick={() => onSelect()}
-        >
+        <IconButton sx={{ borderRadius: 0.5, p: 0 }} onClick={() => onSelect()}>
           <Box
             component="div"
             borderRadius={0.5}
-            height="76px"
-            width="36px"
+            height="48px"
+            width="48px"
             overflow="hidden"
             position="relative"
+            boxShadow={theme.shadows[5]}
           >
             <TraySuspense>
               <Canvas frameloop="demand" dpr={1}>
@@ -73,14 +89,30 @@ export function PlayerTrayPreview({
                   <PlayerDiceRoll player={player} />
                   <PerspectiveCamera
                     makeDefault
-                    fov={28}
-                    position={[0, 4.3, 0]}
+                    fov={13}
+                    position={[0, 4.3, z]}
                     rotation={[-Math.PI / 2, 0, 0]}
                   />
                   {allowOrbit && <OrbitControls />}
                 </AudioListenerProvider>
               </Canvas>
             </TraySuspense>
+            <Box
+              component="div"
+              position="absolute"
+              top="0"
+              left="0"
+              right="0"
+              bottom="0"
+              sx={{
+                backgroundImage:
+                  "linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))",
+                ":hover": {
+                  backgroundImage:
+                    "linear-gradient(rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.10))",
+                },
+              }}
+            />
             {diceRoll?.hidden && (
               <Backdrop open sx={{ position: "absolute" }}>
                 <HiddenIcon htmlColor="white" />
