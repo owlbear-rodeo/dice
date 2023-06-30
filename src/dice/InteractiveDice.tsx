@@ -18,7 +18,10 @@ import {
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
-const GRAB_HEIGHT = 0.5;
+const DRAG_HEIGHT = 0.5;
+const DRAG_HISTORY_WINDOW_SIZE = 5;
+
+type DragState = { p: { x: number; z: number }; t: number };
 
 /** Custom dice can be dragged to re-roll */
 export function InteractiveDice(
@@ -32,7 +35,9 @@ export function InteractiveDice(
   const { invalidate, camera, size } = useThree();
 
   const pointerDownPositionRef = useRef({ x: 0, y: 0 });
-  const previousDicePositionRef = useRef({ x: 0, y: 0, z: 0 });
+  /** Keep a history of previous drag positions so we can calculate the throw direction and speed */
+  const dragHistoryRef = useRef<DragState[]>([]);
+
   const handlePointerDown = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
       const dice = diceRef.current;
@@ -45,14 +50,14 @@ export function InteractiveDice(
         raycaster.setFromCamera(pointer, camera);
         const position = raycaster.ray.origin.add(
           raycaster.ray.direction.multiplyScalar(
-            camera.position.y - GRAB_HEIGHT
+            camera.position.y - DRAG_HEIGHT
           )
         );
         // Offset the drag anchor so that the x and y animate to the
         // pointer position
         setDragAnchor({
           x: position.x - dice.position.x,
-          y: GRAB_HEIGHT,
+          y: DRAG_HEIGHT,
           z: position.z - dice.position.z,
         });
 
@@ -83,23 +88,18 @@ export function InteractiveDice(
               z: dice.position.z,
             };
             // Find the direction of movement
-            const { x, z } = position;
-            const { x: prevX, z: prevZ } = previousDicePositionRef.current;
-            const dx = x - prevX;
-            const dz = z - prevZ;
-            // Normalize
-            const length = Math.sqrt(dx * dx + dz * dz);
             let linearVelocity: DiceVector3;
-            if (isNaN(length) || length === 0) {
-              linearVelocity = randomLinearVelocity(position);
+            const { direction, speed } = findDragVelocity(
+              dragHistoryRef.current
+            );
+            if (direction && speed) {
+              const speedMultiplier = Math.max(1, Math.min(10, speed * 100));
+              linearVelocity = randomLinearVelocityFromDirection(
+                { x: direction.x, y: 0, z: direction.z },
+                speedMultiplier
+              );
             } else {
-              // Throw in movement direction
-              const norm: DiceVector3 = {
-                x: dx / length,
-                y: 0,
-                z: dz / length,
-              };
-              linearVelocity = randomLinearVelocityFromDirection(norm);
+              linearVelocity = randomLinearVelocity(position);
             }
             const diceThrow: DiceThrow = {
               position,
@@ -115,12 +115,7 @@ export function InteractiveDice(
       const handleMove = (e: PointerEvent) => {
         const dice = diceRef.current;
         if (dragAnchor && dice && e.target instanceof HTMLCanvasElement) {
-          previousDicePositionRef.current = {
-            x: dice.position.x,
-            y: dice.position.y,
-            z: dice.position.z,
-          };
-
+          // Find pointer location in world space
           const x = Math.min(Math.max(e.offsetX, 0), size.width);
           const y = Math.min(Math.max(e.offsetY, 0), size.height);
           pointer.x = (x / size.width) * 2 - 1;
@@ -128,15 +123,28 @@ export function InteractiveDice(
           raycaster.setFromCamera(pointer, camera);
           const position = raycaster.ray.origin.add(
             raycaster.ray.direction.multiplyScalar(
-              camera.position.y - GRAB_HEIGHT
+              camera.position.y - DRAG_HEIGHT
             )
           );
 
-          dice.position.set(
-            position.x - dragAnchor.x,
-            dice.position.y,
-            position.z - dragAnchor.z
-          );
+          // Offset initial anchor position
+          const newDiceX = position.x - dragAnchor.x;
+          const newDiceZ = position.z - dragAnchor.z;
+
+          // Push to history
+          const history = dragHistoryRef.current;
+          history.push({
+            p: {
+              x: newDiceX,
+              z: newDiceZ,
+            },
+            t: performance.now(),
+          });
+          if (history.length > DRAG_HISTORY_WINDOW_SIZE) {
+            history.shift();
+          }
+
+          dice.position.set(newDiceX, dice.position.y, newDiceZ);
           invalidate();
         }
       };
@@ -177,4 +185,44 @@ export function InteractiveDice(
       <Dice onPointerDown={handlePointerDown} ref={diceRef} {...props}></Dice>
     </animated.group>
   );
+}
+
+/** Find the average direction and speed of a drag history */
+function findDragVelocity(history: DragState[]) {
+  if (history.length > 1) {
+    let avgDx = 0;
+    let avgDz = 0;
+    let avgSpeed = 0;
+    for (let i = 0; i < history.length - 2; i++) {
+      const curr = history[i];
+      const next = history[i + 1];
+
+      const dx = next.p.x - curr.p.x;
+      const dz = next.p.z - curr.p.z;
+      const dt = next.t - curr.t;
+
+      const vx = dx / dt;
+      const vz = dz / dt;
+      const speed = Math.sqrt(vx * vx + vz * vz);
+
+      avgDx += dx;
+      avgDz += dz;
+      avgSpeed += speed;
+    }
+    avgDx / history.length;
+    avgDz / history.length;
+    avgSpeed / history.length;
+
+    const deltaLength = Math.sqrt(avgDx * avgDx + avgDz * avgDz);
+    if (!isNaN(deltaLength) && deltaLength !== 0) {
+      // Normalize drag delta
+      const direction = {
+        x: avgDx / deltaLength,
+        z: avgDz / deltaLength,
+      };
+      return { direction, speed: avgSpeed };
+    }
+  }
+
+  return { direction: undefined, speed: undefined };
 }

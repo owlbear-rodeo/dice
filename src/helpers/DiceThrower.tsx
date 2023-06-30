@@ -77,9 +77,11 @@ export function randomLinearVelocity(
 }
 
 export function randomLinearVelocityFromDirection(
-  direction: DiceVector3
+  direction: DiceVector3,
+  speedMultiplier?: number
 ): DiceVector3 {
-  const speed = random(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY);
+  const speed =
+    random(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY) * (speedMultiplier || 1);
   const velocity: DiceVector3 = {
     x: direction.x * speed,
     y: direction.y * speed,
