@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -98,7 +98,7 @@ function DicePickedControls() {
   );
   function handleRoll() {
     const dice = getDiceToRoll(counts, advantage, diceById);
-    const activeTimeSeconds = (performance.now() - rollFocusTime) / 1000;
+    const activeTimeSeconds = (performance.now() - (rollPressTime || 0)) / 1000;
     const speedMultiplier = Math.max(1, Math.min(10, activeTimeSeconds * 2));
     startRoll({ dice, bonus, hidden }, speedMultiplier);
     handleReset();
@@ -110,10 +110,28 @@ function DicePickedControls() {
     setAdvantage(null);
   }
 
-  const [rollFocusTime, setRollFocusTime] = useState(0);
-  function handleRollFocus() {
-    setRollFocusTime(performance.now());
+  const rollPressTime = useDiceControlsStore(
+    (state) => state.diceRollPressTime
+  );
+  const setRollPressTime = useDiceControlsStore(
+    (state) => state.setDiceRollPressTime
+  );
+
+  function handlePointerDown() {
+    setRollPressTime(performance.now());
   }
+
+  useEffect(() => {
+    if (rollPressTime) {
+      const handlePointerUp = () => {
+        setRollPressTime(null);
+      };
+      window.addEventListener("pointerup", handlePointerUp);
+      return () => {
+        window.removeEventListener("pointerup", handlePointerUp);
+      };
+    }
+  }, [rollPressTime]);
 
   const hasDice = useMemo(
     () =>
@@ -161,8 +179,7 @@ function DicePickedControls() {
           }
         }}
         tabIndex={0}
-        onFocus={handleRollFocus}
-        id="dice-roll-button-container"
+        onPointerDown={handlePointerDown}
         role="button"
         aria-labelledby="dice-roll-button"
       >

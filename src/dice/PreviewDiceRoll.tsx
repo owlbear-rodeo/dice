@@ -44,33 +44,11 @@ export function PreviewDiceRoll() {
     }
   }, [isDefault, diceThrower]);
 
-  // When the dice roll button is focused
-  // start a timer to increase the animation speed
-  const [rollFocusTime, setRollFocusTime] = useState<number | null>(null);
-  useEffect(() => {
-    let target: HTMLElement | undefined = undefined;
-    const handleFocus = (e: FocusEvent) => {
-      if (
-        e.target instanceof HTMLElement &&
-        e.target.id.startsWith("dice-roll-button")
-      ) {
-        target = e.target;
-        setRollFocusTime(performance.now());
-        target.addEventListener("blur", handleBlur);
-      }
-    };
-
-    const handleBlur = () => {
-      setRollFocusTime(null);
-      target?.removeEventListener("blur", handleBlur);
-    };
-
-    document.addEventListener("focusin", handleFocus);
-    return () => {
-      document.removeEventListener("focusin", handleFocus);
-      target?.removeEventListener("blur", handleBlur);
-    };
-  }, []);
+  // Track how long the roll button is pressed
+  // so we can increase the animation speed
+  const rollPressTime = useDiceControlsStore(
+    (state) => state.diceRollPressTime
+  );
 
   const groupRef = useRef<THREE.Group>(null);
   const listener = useAudioListener();
@@ -86,7 +64,7 @@ export function PreviewDiceRoll() {
   // Play a roll sound when the dice button is in focus
   useEffect(() => {
     const group = groupRef.current;
-    if (group && rollFocusTime) {
+    if (group && rollPressTime) {
       let sound: THREE.PositionalAudio | undefined = undefined;
       // Wait 300 ms so that the shake sound only plays after holding focus
       // on the roll button
@@ -115,7 +93,7 @@ export function PreviewDiceRoll() {
         }
       };
     }
-  }, [rollFocusTime, listener, diceWeight]);
+  }, [rollPressTime, listener, diceWeight]);
 
   return (
     <group ref={groupRef} position={[0, -0.8, 0]}>
@@ -129,7 +107,7 @@ export function PreviewDiceRoll() {
             die={die}
             p={p}
             r={r}
-            rollFocusTime={rollFocusTime}
+            rollPressTime={rollPressTime}
           />
         );
       })}
@@ -141,12 +119,12 @@ function AnimatedDice({
   die,
   p,
   r,
-  rollFocusTime,
+  rollPressTime,
 }: {
   die: Die;
   p: DiceVector3;
   r: DiceQuaternion;
-  rollFocusTime: number | null;
+  rollPressTime: number | null;
 }) {
   const { invalidate } = useThree();
 
@@ -162,8 +140,8 @@ function AnimatedDice({
     if (dice && group) {
       // Calculate speed up
       let speedAlpha = 0;
-      if (rollFocusTime) {
-        const activeTimeSeconds = (performance.now() - rollFocusTime) / 1000;
+      if (rollPressTime) {
+        const activeTimeSeconds = (performance.now() - rollPressTime) / 1000;
         speedAlpha = Math.min(activeTimeSeconds / 5, 1);
       }
       // Advance animation time

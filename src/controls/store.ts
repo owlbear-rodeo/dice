@@ -2,7 +2,6 @@ import create from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { diceSets } from "../sets/diceSets";
 import { Dice } from "../types/Dice";
-import { DiceRoll } from "../types/DiceRoll";
 import { DiceSet } from "../types/DiceSet";
 import { Die } from "../types/Die";
 import { generateDiceId } from "../helpers/generateDiceId";
@@ -18,6 +17,7 @@ interface DiceControlsState {
   diceBonus: number;
   diceAdvantage: Advantage;
   diceHidden: boolean;
+  diceRollPressTime: number | null;
   changeDiceSet: (diceSet: DiceSet) => void;
   resetDiceCounts: () => void;
   changeDieCount: (id: string, count: number) => void;
@@ -26,6 +26,7 @@ interface DiceControlsState {
   setDiceAdvantage: (advantage: Advantage) => void;
   setDiceBonus: (bonus: number) => void;
   toggleDiceHidden: () => void;
+  setDiceRollPressTime: (time: number | null) => void;
 }
 
 const initialSet = diceSets[0];
@@ -41,6 +42,7 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     diceBonus: 0,
     diceAdvantage: null,
     diceHidden: false,
+    diceRollPressTime: null,
     changeDiceSet(diceSet) {
       set((state) => {
         const counts: DiceCounts = {};
@@ -101,6 +103,11 @@ export const useDiceControlsStore = create<DiceControlsState>()(
     toggleDiceHidden() {
       set((state) => {
         state.diceHidden = !state.diceHidden;
+      });
+    },
+    setDiceRollPressTime(time) {
+      set((state) => {
+        state.diceRollPressTime = time;
       });
     },
   }))
