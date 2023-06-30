@@ -19,7 +19,7 @@ export function AnimatedPlayerCamera({
         const bounds = getBoundingBox(transforms);
         const size = Math.max(bounds.width, bounds.height);
         const x = Math.min(0.8, Math.max(-0.8, bounds.center.x));
-        const y = lerp(0.8, 4, Math.max(Math.min(size, 1), 0));
+        const y = lerp(1, 3, Math.max(Math.min(size, 1), 0));
         const z = Math.min(0.8, Math.max(-0.8, bounds.center.y));
         return [x, y, z];
       } else {
