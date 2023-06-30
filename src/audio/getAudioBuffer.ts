@@ -5,28 +5,33 @@ import { WeightClass } from "../types/WeightClass";
 import * as heavyDice from "./heavy/dice";
 import * as heavyLeather from "./heavy/leather";
 import * as heavyWood from "./heavy/wood";
+import * as heavyShake from "./heavy/shake";
 import * as lightDice from "./light/dice";
 import * as lightLeather from "./light/leather";
 import * as lightWood from "./light/wood";
 import * as mediumDice from "./medium/dice";
 import * as mediumLeather from "./medium/leather";
 import * as mediumWood from "./medium/wood";
+import * as mediumShake from "./medium/shake";
 
 const buffers: Record<WeightClass, Record<PhysicalMaterial, AudioBuffer[]>> = {
   HEAVY: {
     DICE: [],
     LEATHER: [],
     WOOD: [],
+    SHAKE: [],
   },
   LIGHT: {
     DICE: [],
     LEATHER: [],
     WOOD: [],
+    SHAKE: [],
   },
   MEDIUM: {
     DICE: [],
     LEATHER: [],
     WOOD: [],
+    SHAKE: [],
   },
 };
 
@@ -39,16 +44,19 @@ const indices: Record<WeightClass, Record<PhysicalMaterial, number>> = {
     DICE: 0,
     LEATHER: 0,
     WOOD: 0,
+    SHAKE: 0,
   },
   LIGHT: {
     DICE: 0,
     LEATHER: 0,
     WOOD: 0,
+    SHAKE: 0,
   },
   MEDIUM: {
     DICE: 0,
     LEATHER: 0,
     WOOD: 0,
+    SHAKE: 0,
   },
 };
 
@@ -78,6 +86,7 @@ function loadBuffers() {
   loadBuffer(heavyWood.a2, "HEAVY", "WOOD", audioLoader);
   loadBuffer(heavyWood.a3, "HEAVY", "WOOD", audioLoader);
   loadBuffer(heavyWood.a4, "HEAVY", "WOOD", audioLoader);
+  loadBuffer(heavyShake.a1, "HEAVY", "SHAKE", audioLoader);
 
   loadBuffer(lightDice.a1, "LIGHT", "DICE", audioLoader);
   loadBuffer(lightDice.a2, "LIGHT", "DICE", audioLoader);
@@ -104,6 +113,7 @@ function loadBuffers() {
   loadBuffer(mediumWood.a2, "MEDIUM", "WOOD", audioLoader);
   loadBuffer(mediumWood.a3, "MEDIUM", "WOOD", audioLoader);
   loadBuffer(mediumWood.a4, "MEDIUM", "WOOD", audioLoader);
+  loadBuffer(mediumShake.a1, "MEDIUM", "SHAKE", audioLoader);
 
   window.removeEventListener("click", loadBuffers);
 }
