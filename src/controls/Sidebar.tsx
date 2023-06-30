@@ -1,3 +1,4 @@
+import SimpleBar from "simplebar-react";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 
@@ -12,11 +13,13 @@ import { ResizeObserver as PluginResizeObserver } from "../plugin/ResizeObserver
 
 export function Sidebar() {
   return (
-    <Stack
-      maxHeight="100vh"
-      width="60px"
-      minWidth="60px"
-      sx={{ overflowY: "auto", overflowX: "hidden" }}
+    <SimpleBar
+      style={{
+        maxHeight: "100vh",
+        width: "60px",
+        minWidth: "60px",
+        overflowY: "auto",
+      }}
     >
       <Stack p={1} gap={1} alignItems="center">
         <DiceSetPicker />
@@ -31,6 +34,6 @@ export function Sidebar() {
           <PluginResizeObserver />
         </PluginGate>
       </Stack>
-    </Stack>
+    </SimpleBar>
   );
 }
