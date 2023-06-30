@@ -1,6 +1,5 @@
 import OBR, { Player } from "@owlbear-rodeo/sdk";
 import { useEffect, useMemo, useRef, useState } from "react";
-import SimpleBar from "simplebar-react";
 
 import Dialog from "@mui/material/Dialog";
 import Stack from "@mui/material/Stack";
@@ -11,8 +10,7 @@ import CloseIcon from "@mui/icons-material/ChevronLeftRounded";
 
 import { SlideTransition } from "../controls/SlideTransition";
 import { PlayerTray } from "./PlayerTray";
-import { PlayerTrayPreview } from "./PlayerTrayPreview";
-import Box from "@mui/material/Box";
+import { PlayerAvatar } from "./PlayerAvatar";
 
 export function PartyTrays() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -59,80 +57,54 @@ export function PartyTrays() {
   }
 
   return (
-    <Box
-      component="div"
-      position="absolute"
-      bottom="0"
-      left="0"
-      right="0"
-      px={2}
-      sx={{ pointerEvents: "none" }}
-    >
-      <SimpleBar
-        style={{
-          flexGrow: 1,
-          width: "100%",
-          padding: "5px 0",
+    <>
+      {players.map((player) => (
+        <PlayerAvatar
+          key={player.connectionId}
+          player={player}
+          onSelect={() => setFocusTray(player.connectionId)}
+        />
+      ))}
+      <Dialog
+        open={Boolean(focusedPlayer)}
+        onClose={() => setFocusTray(null)}
+        fullScreen
+        TransitionComponent={SlideTransition}
+        hideBackdrop
+        PaperProps={{
+          sx: {
+            bgcolor:
+              theme.palette.mode === "dark"
+                ? "rgba(34, 38, 57, 0.9)"
+                : "rgba(241, 243, 249, 0.9)",
+          },
         }}
-        scrollableNodeProps={{ ref: dockRef }}
+        // Keep mounted to allow the canvas to be ready
+        // during the open animation
+        keepMounted
       >
         <Stack
-          direction="row"
-          sx={{
-            m: "0 auto",
-            gap: 1,
-          }}
+          pl="60px"
+          position="relative"
+          width="100%"
+          height="100%"
+          overflow="hidden"
         >
-          {players.map((player) => (
-            <PlayerTrayPreview
-              key={player.connectionId}
-              player={player}
-              onSelect={() => setFocusTray(player.connectionId)}
-              focused={focusedTray === player.connectionId}
-            />
-          ))}
-          <Dialog
-            open={Boolean(focusedPlayer)}
-            onClose={() => setFocusTray(null)}
-            fullScreen
-            TransitionComponent={SlideTransition}
-            hideBackdrop
-            PaperProps={{
-              sx: {
-                bgcolor:
-                  theme.palette.mode === "dark"
-                    ? "rgba(34, 38, 57, 0.9)"
-                    : "rgba(241, 243, 249, 0.9)",
-              },
+          <PlayerTray player={focusedPlayer} />
+          <IconButton
+            onClick={() => setFocusTray(null)}
+            sx={{
+              position: "absolute",
+              left: 12,
+              top: 12,
+              height: "calc(100% - 24px)",
+              borderRadius: 0.5,
             }}
-            // Keep mounted to allow the canvas to be ready
-            // during the open animation
-            keepMounted
           >
-            <Stack
-              pl="60px"
-              position="relative"
-              width="100%"
-              height="100%"
-              overflow="hidden"
-            >
-              <PlayerTray player={focusedPlayer} />
-              <IconButton
-                onClick={() => setFocusTray(null)}
-                sx={{
-                  position: "absolute",
-                  left: 12,
-                  top: 12,
-                  height: "calc(100% - 24px)",
-                  borderRadius: 0.5,
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </Stack>
-          </Dialog>
+            <CloseIcon />
+          </IconButton>
         </Stack>
-      </SimpleBar>
-    </Box>
+      </Dialog>
+    </>
   );
 }
