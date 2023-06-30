@@ -50,7 +50,10 @@ export function randomRotation(): DiceQuaternion {
  * Always launches from where the dice is towards the center of the tray
  * This better simulates a throwing motion compared to a complete random velocity
  */
-export function randomLinearVelocity(position: DiceVector3): DiceVector3 {
+export function randomLinearVelocity(
+  position: DiceVector3,
+  speedMultiplier?: number
+): DiceVector3 {
   // Only use the horizontal plane
   const { x, z } = position;
   // Normalize the position to get the direction to [0, 0, 0]
@@ -60,7 +63,8 @@ export function randomLinearVelocity(position: DiceVector3): DiceVector3 {
   }
   const norm: DiceVector3 = { x: x / length, y: 0, z: z / length };
   // Generate a random speed
-  const speed = random(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY);
+  const speed =
+    random(MIN_LAUNCH_VELOCITY, MAX_LAUNCH_VELOCITY) * (speedMultiplier || 1);
   // Map the speed to the normalized direction and reverse it so it
   // goes inwards instead of outwards
   const velocity: DiceVector3 = {
@@ -93,10 +97,10 @@ export function randomAngularVelocity(): DiceVector3 {
   };
 }
 
-export function getRandomDiceThrow(): DiceThrow {
+export function getRandomDiceThrow(speedMultiplier?: number): DiceThrow {
   const position = randomPosition();
   const rotation = randomRotation();
-  const linearVelocity = randomLinearVelocity(position);
+  const linearVelocity = randomLinearVelocity(position, speedMultiplier);
   const angularVelocity = randomAngularVelocity();
   return {
     position,

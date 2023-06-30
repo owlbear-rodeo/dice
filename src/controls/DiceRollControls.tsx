@@ -1,9 +1,11 @@
+import { useMemo, useState } from "react";
+
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
 import Fade from "@mui/material/Fade";
-import { useTheme } from "@mui/material/styles";
+import { useTheme, keyframes } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
@@ -15,10 +17,17 @@ import { RerollDiceIcon } from "../icons/RerollDiceIcon";
 
 import { GradientOverlay } from "./GradientOverlay";
 import { useDiceRollStore } from "../dice/store";
-import { useMemo, useState } from "react";
 import { DiceResults } from "./DiceResults";
 import { getDiceToRoll, useDiceControlsStore } from "./store";
 import { DiceType } from "../types/DiceType";
+
+const jiggle = keyframes`
+0% { transform: translate(0, 0) rotate(0deg); }
+25% { transform: translate(2px, 2px) rotate(2deg); }
+50% { transform: translate(0, 0) rotate(0deg); }
+75% { transform: translate(-2px, 2px) rotate(-2deg); }
+100% { transform: translate(0, 0) rotate(0deg); }
+`;
 
 export function DiceRollControls() {
   const defaultDiceCounts = useDiceControlsStore(
@@ -89,7 +98,9 @@ function DicePickedControls() {
   );
   function handleRoll() {
     const dice = getDiceToRoll(counts, advantage, diceById);
-    startRoll({ dice, bonus, hidden });
+    const activeTimeSeconds = (performance.now() - rollFocusTime) / 1000;
+    const speedMultiplier = Math.max(1, Math.min(10, activeTimeSeconds * 2));
+    startRoll({ dice, bonus, hidden }, speedMultiplier);
     handleReset();
   }
 
@@ -97,6 +108,11 @@ function DicePickedControls() {
     resetDiceCounts();
     setBonus(0);
     setAdvantage(null);
+  }
+
+  const [rollFocusTime, setRollFocusTime] = useState(0);
+  function handleRollFocus() {
+    setRollFocusTime(performance.now());
   }
 
   const hasDice = useMemo(
@@ -120,6 +136,9 @@ function DicePickedControls() {
           bottom: 0,
           cursor: hasDice ? "pointer" : "",
           backgroundColor: "rgba(0, 0, 0, 0.25)",
+          ":focus": {
+            outline: 0,
+          },
           ":hover button": hasDice
             ? {
                 color: theme.palette.primary.contrastText,
@@ -130,37 +149,66 @@ function DicePickedControls() {
                 backgroundColor: theme.palette.primary.main,
               }
             : {},
+          ":active button": hasDice
+            ? {
+                backgroundColor: theme.palette.primary.dark,
+              }
+            : {},
         }}
         onClick={() => {
           if (hasDice) {
             handleRoll();
           }
         }}
+        tabIndex={0}
+        onFocus={handleRollFocus}
+        id="dice-roll-button-container"
+        role="button"
+        aria-labelledby="dice-roll-button"
       >
-        <Button
+        <Box
+          component="div"
           sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            color: hasDice ? "transparent" : "transparent !important",
-            "& span": {
-              transform: "translate(-23px)",
-              color: theme.palette.primary.contrastText,
-              transition: theme.transitions.create("transform"),
+            ":active": {
+              animation: `${jiggle} 0.3s infinite`,
             },
-            transition: theme.transitions.create(["width", "color"]),
-            minWidth: 0,
-            width: "36px",
-            overflow: "hidden",
-            borderRadius: "20px",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
           }}
-          endIcon={<RollIcon />}
-          variant="contained"
-          disabled={!hasDice}
         >
-          Roll
-        </Button>
+          <Button
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              color: hasDice ? "transparent" : "transparent !important",
+              "& span": {
+                transform: "translate(-23px)",
+                color: theme.palette.primary.contrastText,
+                transition: theme.transitions.create("transform"),
+              },
+              transition: theme.transitions.create([
+                "width",
+                "color",
+                "background-color",
+              ]),
+              minWidth: 0,
+              width: "36px",
+              overflow: "hidden",
+              borderRadius: "20px",
+            }}
+            endIcon={<RollIcon />}
+            variant="contained"
+            disabled={!hasDice}
+            id="dice-roll-button"
+          >
+            Roll
+          </Button>
+        </Box>
       </Stack>
       <GradientOverlay top />
       <Stack

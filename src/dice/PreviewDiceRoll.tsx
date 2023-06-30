@@ -39,13 +39,49 @@ export function PreviewDiceRoll() {
     }
   }, [isDefault, diceThrower]);
 
+  // When the dice roll button is focused
+  // start a timer to increase the animation speed
+  const [rollFocusTime, setRollFocusTime] = useState<number | null>(null);
+  useEffect(() => {
+    let target: HTMLElement | undefined = undefined;
+    const handleFocus = (e: FocusEvent) => {
+      if (
+        e.target instanceof HTMLElement &&
+        e.target.id.startsWith("dice-roll-button")
+      ) {
+        target = e.target;
+        setRollFocusTime(performance.now());
+        target.addEventListener("blur", handleBlur);
+      }
+    };
+
+    const handleBlur = () => {
+      setRollFocusTime(null);
+      target?.removeEventListener("blur", handleBlur);
+    };
+
+    document.addEventListener("focusin", handleFocus);
+    return () => {
+      document.removeEventListener("focusin", handleFocus);
+      target?.removeEventListener("blur", handleBlur);
+    };
+  }, []);
+
   return (
     <group position={[0, -1, 0]}>
       {dice.map((die, index) => {
         const dieThrow = diceThrower.getDiceThrow(index);
         const p = dieThrow.position;
         const r = dieThrow.rotation;
-        return <AnimatedDice key={index} die={die} p={p} r={r} />;
+        return (
+          <AnimatedDice
+            key={index}
+            die={die}
+            p={p}
+            r={r}
+            rollFocusTime={rollFocusTime}
+          />
+        );
       })}
     </group>
   );
@@ -55,39 +91,60 @@ function AnimatedDice({
   die,
   p,
   r,
+  rollFocusTime,
 }: {
   die: Die;
   p: DiceVector3;
   r: DiceQuaternion;
+  rollFocusTime: number | null;
 }) {
   const { invalidate } = useThree();
 
   const groupRef = useRef<THREE.Group>(null);
+  const diceRef = useRef<THREE.Group>(null);
 
   const [seed] = useState(() => Math.random());
 
-  useFrame(({ clock }, delta) => {
+  let tRef = useRef(0);
+  useFrame((_, delta) => {
     const group = groupRef.current;
-    if (group) {
-      const t = clock.getElapsedTime();
-      const q = lerp(10, 20, seed);
-      group.rotation.y = Math.sin(t * q + q) / 10;
-      group.rotation.x = Math.sin(t * q + q) / 40;
-      group.rotation.z = Math.sin(t * q + q) / 80;
-      if (group.scale.x < 1) {
-        group.scale.setScalar(Math.min(group.scale.x + delta * 5, 1));
+    const dice = diceRef.current;
+    if (dice && group) {
+      let speedAlpha = 0;
+      if (rollFocusTime) {
+        const activeTimeSeconds = (performance.now() - rollFocusTime) / 1000;
+        speedAlpha = Math.min(activeTimeSeconds / 5, 1);
       }
+      const timeSpeed = lerp(1, 3, speedAlpha);
+      tRef.current += delta * timeSpeed;
+      const t = tRef.current;
+
+      // Offset waves
+      const offset = seed * 5;
+
+      const rotAmplitude = lerp(50, 35, speedAlpha);
+      dice.rotation.y = (Math.sin(t * 20 + offset) / rotAmplitude) * Math.PI;
+
+      const posAmplitude = lerp(100, 80, speedAlpha);
+      group.position.z = Math.cos(t * 10 + offset) / posAmplitude;
+
+      if (dice.scale.x < 1) {
+        dice.scale.setScalar(Math.min(dice.scale.x + delta * 5, 1));
+      }
+
       invalidate();
     }
   });
 
   return (
-    <group ref={groupRef} position={[p.x, p.y, p.z]} scale={0}>
-      <Dice
-        userData={{ dieId: die.id }}
-        die={die}
-        quaternion={[r.x, r.y, r.z, r.w]}
-      />
+    <group ref={diceRef} position={[p.x, p.y, p.z]} scale={0}>
+      <group ref={groupRef}>
+        <Dice
+          userData={{ dieId: die.id }}
+          die={die}
+          quaternion={[r.x, r.y, r.z, r.w]}
+        />
+      </group>
     </group>
   );
 }
