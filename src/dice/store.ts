@@ -30,7 +30,7 @@ interface DiceRollState {
   startRoll: (roll: DiceRoll) => void;
   clearRoll: (ids?: string) => void;
   /** Reroll select ids of dice or reroll all dice by passing `undefined` */
-  reroll: (ids?: string[]) => void;
+  reroll: (ids?: string[], manualThrows?: Record<string, DiceThrow>) => void;
   finishDieRoll: (id: string, number: number, transform: DiceTransform) => void;
 }
 
@@ -61,12 +61,13 @@ export const useDiceRollStore = create<DiceRollState>()(
         state.rollTransforms = {};
         state.rollThrows = {};
       }),
-    reroll: (ids) => {
+    reroll: (ids, manualThrows) => {
       set((state) => {
         if (state.roll) {
           rerollDraft(
             state.roll,
             ids,
+            manualThrows,
             state.rollValues,
             state.rollTransforms,
             state.rollThrows
@@ -87,6 +88,7 @@ export const useDiceRollStore = create<DiceRollState>()(
 function rerollDraft(
   diceRoll: WritableDraft<DiceRoll>,
   ids: string[] | undefined,
+  manualThrows: Record<string, DiceThrow> | undefined,
   rollValues: WritableDraft<Record<string, number | null>>,
   rollTransforms: WritableDraft<Record<string, DiceTransform | null>>,
   rollThrows: WritableDraft<Record<string, DiceThrow>>
@@ -97,14 +99,26 @@ function rerollDraft(
         delete rollValues[dieOrDice.id];
         delete rollTransforms[dieOrDice.id];
         delete rollThrows[dieOrDice.id];
+        const manualThrow = manualThrows?.[dieOrDice.id];
         const id = generateDiceId();
         dieOrDice.id = id;
         rollValues[id] = null;
         rollTransforms[id] = null;
-        rollThrows[id] = getRandomDiceThrow();
+        if (manualThrow) {
+          rollThrows[id] = manualThrow;
+        } else {
+          rollThrows[id] = getRandomDiceThrow();
+        }
       }
     } else if (isDice(dieOrDice)) {
-      rerollDraft(dieOrDice, ids, rollValues, rollTransforms, rollThrows);
+      rerollDraft(
+        dieOrDice,
+        ids,
+        manualThrows,
+        rollValues,
+        rollTransforms,
+        rollThrows
+      );
     }
   }
 }
