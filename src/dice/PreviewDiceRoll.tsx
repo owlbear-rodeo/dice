@@ -118,7 +118,7 @@ export function PreviewDiceRoll() {
   }, [rollFocusTime, listener, diceWeight]);
 
   return (
-    <group ref={groupRef} position={[0, -1, 0]}>
+    <group ref={groupRef} position={[0, -0.8, 0]}>
       {dice.map((die, index) => {
         const dieThrow = diceThrower.getDiceThrow(index);
         const p = dieThrow.position;
