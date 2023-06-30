@@ -7,6 +7,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Fade from "@mui/material/Fade";
 import { useTheme, keyframes } from "@mui/material/styles";
 import Button from "@mui/material/Button";
+import ButtonBase from "@mui/material/ButtonBase";
 import Typography from "@mui/material/Typography";
 
 import CloseIcon from "@mui/icons-material/CloseRounded";
@@ -97,11 +98,14 @@ function DicePickedControls() {
     (state) => state.resetDiceCounts
   );
   function handleRoll() {
-    const dice = getDiceToRoll(counts, advantage, diceById);
-    const activeTimeSeconds = (performance.now() - (rollPressTime || 0)) / 1000;
-    const speedMultiplier = Math.max(1, Math.min(10, activeTimeSeconds * 2));
-    startRoll({ dice, bonus, hidden }, speedMultiplier);
-    handleReset();
+    if (hasDice && rollPressTime) {
+      const dice = getDiceToRoll(counts, advantage, diceById);
+      const activeTimeSeconds = (performance.now() - rollPressTime) / 1000;
+      const speedMultiplier = Math.max(1, Math.min(10, activeTimeSeconds * 2));
+      startRoll({ dice, bonus, hidden }, speedMultiplier);
+      handleReset();
+    }
+    setRollPressTime(null);
   }
 
   function handleReset() {
@@ -145,7 +149,7 @@ function DicePickedControls() {
 
   return (
     <>
-      <Stack
+      <ButtonBase
         sx={{
           position: "absolute",
           top: 0,
@@ -157,7 +161,7 @@ function DicePickedControls() {
           ":focus": {
             outline: 0,
           },
-          ":hover button": hasDice
+          ":hover #dice-roll-button": hasDice
             ? {
                 color: theme.palette.primary.contrastText,
                 width: "100px",
@@ -167,21 +171,16 @@ function DicePickedControls() {
                 backgroundColor: theme.palette.primary.main,
               }
             : {},
-          ":active button": hasDice
+          ":active #dice-roll-button": hasDice
             ? {
                 backgroundColor: theme.palette.primary.dark,
               }
             : {},
         }}
-        onClick={() => {
-          if (hasDice) {
-            handleRoll();
-          }
-        }}
-        tabIndex={0}
         onPointerDown={handlePointerDown}
-        role="button"
-        aria-labelledby="dice-roll-button"
+        onPointerUp={handleRoll}
+        aria-label="roll"
+        disabled={!hasDice}
       >
         <Box
           component="div"
@@ -222,11 +221,13 @@ function DicePickedControls() {
             variant="contained"
             disabled={!hasDice}
             id="dice-roll-button"
+            // @ts-ignore
+            component="div"
           >
             Roll
           </Button>
         </Box>
-      </Stack>
+      </ButtonBase>
       <GradientOverlay top />
       <Stack
         sx={{
