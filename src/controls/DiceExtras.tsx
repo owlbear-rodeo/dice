@@ -50,7 +50,12 @@ export function DiceExtras() {
         placement="top"
         disableInteractive
       >
-        <IconButton onClick={toggleDiceHidden}>
+        <IconButton
+          onClick={() => {
+            toggleDiceHidden();
+            clearRollIfNeeded();
+          }}
+        >
           {hidden ? <HiddenOnIcon /> : <HiddenOffIcon />}
         </IconButton>
       </Tooltip>
