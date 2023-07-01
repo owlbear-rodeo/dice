@@ -30,6 +30,12 @@ export function InteractiveTray() {
       overflow="hidden"
       position="relative"
       id="interactive-tray"
+      sx={{
+        "& canvas": {
+          touchAction: "manipulation",
+          userSelect: "none",
+        },
+      }}
     >
       <TraySuspense>
         <Canvas frameloop="demand">
