@@ -25,14 +25,14 @@ export function gltfTexture(
       const texture = textures[i];
       const encoding = encodings[i];
       texture.flipY = false;
-      texture.encoding =
-        encoding === "SRGB" ? THREE.sRGBEncoding : THREE.LinearEncoding;
+      texture.colorSpace =
+        encoding === "SRGB" ? THREE.SRGBColorSpace : THREE.LinearSRGBColorSpace;
     }
   } else if (Array.isArray(textures) || Array.isArray(encodings)) {
     throw Error("Textures and encodings must match types");
   } else {
     textures.flipY = false;
-    textures.encoding =
-      encodings === "SRGB" ? THREE.sRGBEncoding : THREE.LinearEncoding;
+    textures.colorSpace =
+      encodings === "SRGB" ? THREE.SRGBColorSpace : THREE.LinearSRGBColorSpace;
   }
 }

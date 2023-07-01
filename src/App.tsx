@@ -3,7 +3,6 @@ import Container from "@mui/material/Container";
 
 import { InteractiveTray } from "./tray/InteractiveTray";
 import { Sidebar } from "./controls/Sidebar";
-import { DiceDialog } from "./controls/DiceDialog";
 
 export function App() {
   return (
@@ -11,7 +10,6 @@ export function App() {
       <Stack direction="row" justifyContent="center">
         <Sidebar />
         <InteractiveTray />
-        <DiceDialog />
       </Stack>
     </Container>
   );

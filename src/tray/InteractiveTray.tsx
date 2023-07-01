@@ -15,6 +15,7 @@ import { AudioListenerProvider } from "../audio/AudioListenerProvider";
 import { Tray } from "./Tray";
 import { useDebugStore } from "../debug/store";
 import { TraySuspense } from "./TraySuspense";
+import { PreviewDiceRoll } from "../dice/PreviewDiceRoll";
 
 /** Dice tray that controls the dice roll store */
 export function InteractiveTray() {
@@ -29,6 +30,12 @@ export function InteractiveTray() {
       overflow="hidden"
       position="relative"
       id="interactive-tray"
+      sx={{
+        "& canvas": {
+          touchAction: "manipulation",
+          userSelect: "none",
+        },
+      }}
     >
       <TraySuspense>
         <Canvas frameloop="demand">
@@ -44,6 +51,7 @@ export function InteractiveTray() {
               color="#222222"
             />
             <Tray />
+            <PreviewDiceRoll />
             <InteractiveDiceRoll />
             <PerspectiveCamera
               makeDefault
@@ -56,8 +64,6 @@ export function InteractiveTray() {
         </Canvas>
       </TraySuspense>
       <DiceRollControls />
-      {/* Create a container for the dice dialog portal */}
-      <div id="dice-dialog-container"></div>
     </Box>
   );
 }

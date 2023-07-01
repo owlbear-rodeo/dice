@@ -10,13 +10,10 @@ import CloseIcon from "@mui/icons-material/ChevronLeftRounded";
 
 import { SlideTransition } from "../controls/SlideTransition";
 import { PlayerTray } from "./PlayerTray";
-import { PlayerTrayPreview } from "./PlayerTrayPreview";
+import { PlayerAvatar } from "./PlayerAvatar";
+import { getPluginId } from "./getPluginId";
 
-export function PartyTrays({
-  onPlayerCountChange,
-}: {
-  onPlayerCountChange: (count: number) => void;
-}) {
+export function PartyTrays() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [focusedTray, setFocusTray] = useState<string | null>(null);
 
@@ -24,10 +21,6 @@ export function PartyTrays({
     OBR.party.getPlayers().then(setPlayers);
   }, []);
   useEffect(() => OBR.party.onChange(setPlayers), []);
-
-  useEffect(() => {
-    onPlayerCountChange(players.length);
-  }, [players.length]);
 
   const focusedPlayer = useMemo(() => {
     if (focusedTray) {
@@ -37,20 +30,32 @@ export function PartyTrays({
     }
   }, [players, focusedTray]);
 
+  const theme = useTheme();
+
+  // Setup a broadcast channel so the popover can open a tray
+  useEffect(() => {
+    if (window.BroadcastChannel) {
+      const channel = new BroadcastChannel(getPluginId("focused-tray"));
+      channel.onmessage = (event) => {
+        setFocusTray(event.data);
+      };
+      return () => {
+        channel.close();
+      };
+    }
+  }, []);
+
   if (players.length === 0) {
     return null;
   }
 
-  const theme = useTheme();
-
   return (
-    <Stack gap={1}>
+    <>
       {players.map((player) => (
-        <PlayerTrayPreview
+        <PlayerAvatar
           key={player.connectionId}
           player={player}
           onSelect={() => setFocusTray(player.connectionId)}
-          focused={focusedTray === player.connectionId}
         />
       ))}
       <Dialog
@@ -93,6 +98,6 @@ export function PartyTrays({
           </IconButton>
         </Stack>
       </Dialog>
-    </Stack>
+    </>
   );
 }

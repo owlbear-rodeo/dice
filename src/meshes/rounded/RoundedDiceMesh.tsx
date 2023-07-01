@@ -1,3 +1,4 @@
+import React from "react";
 import { DiceType } from "../../types/DiceType";
 
 import { D10 } from "./D10";
@@ -8,26 +9,27 @@ import { D4 } from "./D4";
 import { D6 } from "./D6";
 import { D8 } from "./D8";
 
-export function RoundedDiceMesh({
-  diceType,
-  ...props
-}: JSX.IntrinsicElements["group"] & { diceType: DiceType }) {
-  switch (diceType) {
-    case "D4":
-      return <D4 {...props} />;
-    case "D6":
-      return <D6 {...props} />;
-    case "D8":
-      return <D8 {...props} />;
-    case "D10":
-      return <D10 {...props} />;
-    case "D12":
-      return <D12 {...props} />;
-    case "D20":
-      return <D20 {...props} />;
-    case "D100":
-      return <D100 {...props} />;
-    default:
-      throw Error(`Dice type ${diceType} error: not implemented`);
+type Props = JSX.IntrinsicElements["group"] & { diceType: DiceType };
+
+export const RoundedDiceMesh = React.forwardRef<THREE.Group, Props>(
+  ({ diceType, ...props }, ref) => {
+    switch (diceType) {
+      case "D4":
+        return <D4 ref={ref} {...props} />;
+      case "D6":
+        return <D6 ref={ref} {...props} />;
+      case "D8":
+        return <D8 ref={ref} {...props} />;
+      case "D10":
+        return <D10 ref={ref} {...props} />;
+      case "D12":
+        return <D12 ref={ref} {...props} />;
+      case "D20":
+        return <D20 ref={ref} {...props} />;
+      case "D100":
+        return <D100 ref={ref} {...props} />;
+      default:
+        throw Error(`Dice type ${diceType} error: not implemented`);
+    }
   }
-}
+);

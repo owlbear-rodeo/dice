@@ -1,5 +1,5 @@
-import { Debug, Physics } from "@react-three/rapier";
-import { useCallback, useMemo } from "react";
+import { Physics } from "@react-three/rapier";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getDieFromDice } from "../helpers/getDieFromDice";
 import { TrayColliders } from "../colliders/TrayColliders";
 import { DiceRoll as DiceRollType } from "../types/DiceRoll";
@@ -7,7 +7,6 @@ import { DiceThrow } from "../types/DiceThrow";
 import { DiceTransform } from "../types/DiceTransform";
 import { Die } from "../types/Die";
 import { Dice as DefaultDice } from "./Dice";
-import { DiceRollFrameloop } from "./DiceRollFrameloop";
 import { PhysicsDice } from "./PhysicsDice";
 import { useDebugStore } from "../debug/store";
 
@@ -41,6 +40,23 @@ export function DiceRoll({
 
   const emptyCallback = useCallback(() => {}, []);
 
+  /**
+   * Because we recreate the physics world every new roll
+   * there is a frame where all the rigid bodies need to be created
+   * to ensure smooth playback we pause the physics sim until
+   * the frame after everything is created
+   */
+  const [paused, setPaused] = useState(true);
+  useEffect(() => {
+    if (finishedTransforms) {
+      setPaused(true);
+    } else {
+      requestAnimationFrame(() => {
+        setPaused(false);
+      });
+    }
+  }, [finishedTransforms]);
+
   if (finishedTransforms) {
     // Move to a static dice representation when all dice values have been found
     return (
@@ -68,8 +84,14 @@ export function DiceRoll({
     // networking relies on the deterministic nature of Rapier when given the
     // same inputs and using the same number of update timesteps.
     return (
-      <Physics colliders={false} interpolate={false} timeStep={1 / 120}>
-        {allowPhysicsDebug && <Debug />}
+      <Physics
+        colliders={false}
+        interpolate={false}
+        timeStep={1 / 120}
+        debug={allowPhysicsDebug}
+        updateLoop="independent"
+        paused={paused}
+      >
         <TrayColliders />
         {dice?.map((die) => {
           const dieThrow = rollThrows[die.id];
@@ -86,11 +108,14 @@ export function DiceRoll({
               fixedTransform={fixedTransform}
             >
               {/* Override onClick event to make sure simulated dice can't be selected */}
-              <Dice die={die} onClick={emptyCallback} />
+              <Dice
+                die={die}
+                onClick={emptyCallback}
+                onPointerDown={emptyCallback}
+              />
             </PhysicsDice>
           );
         })}
-        <DiceRollFrameloop />
       </Physics>
     );
   }
