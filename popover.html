@@ -22,6 +22,17 @@
           passive: false,
         }
       );
+      window.document.addEventListener(
+        "touchstart",
+        (e) => {
+          if (event.touches.length > 1) {
+            e.preventDefault();
+          }
+        },
+        {
+          passive: false,
+        }
+      );
     </script>
   </body>
 </html>
