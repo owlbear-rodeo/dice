@@ -9,5 +9,19 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/popover.tsx"></script>
+    <script>
+      // Prevent pinch to zoom event on Safari
+      window.document.addEventListener(
+        "wheel",
+        (e) => {
+          if (e.ctrlKey) {
+            e.preventDefault();
+          }
+        },
+        {
+          passive: false,
+        }
+      );
+    </script>
   </body>
 </html>
