@@ -1,5 +1,5 @@
 import OBR, { Player } from "@owlbear-rodeo/sdk";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Dialog from "@mui/material/Dialog";
 import Stack from "@mui/material/Stack";
@@ -11,6 +11,7 @@ import CloseIcon from "@mui/icons-material/ChevronLeftRounded";
 import { SlideTransition } from "../controls/SlideTransition";
 import { PlayerTray } from "./PlayerTray";
 import { PlayerAvatar } from "./PlayerAvatar";
+import { getPluginId } from "./getPluginId";
 
 export function PartyTrays() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -31,23 +32,15 @@ export function PartyTrays() {
 
   const theme = useTheme();
 
-  const dockRef = useRef<HTMLDivElement>(null);
-  // Scroll dock with Y and X direction wheel events
+  // Setup a broadcast channel so the popover can open a tray
   useEffect(() => {
-    const scroll = dockRef.current;
-    if (scroll) {
-      const handleWheel = (event: WheelEvent) => {
-        event.preventDefault();
-        if (Math.abs(event.deltaY) !== 0) {
-          scroll.scrollBy({ left: event.deltaY });
-        }
-        if (Math.abs(event.deltaX) !== 0) {
-          scroll.scrollBy({ left: event.deltaX });
-        }
+    if (window.BroadcastChannel) {
+      const channel = new BroadcastChannel(getPluginId("focused-tray"));
+      channel.onmessage = (event) => {
+        setFocusTray(event.data);
       };
-      scroll.addEventListener("wheel", handleWheel);
       return () => {
-        scroll.removeEventListener("wheel", handleWheel);
+        channel.close();
       };
     }
   }, []);

@@ -7,7 +7,8 @@ import Box from "@mui/material/Box";
 import Slide from "@mui/material/Slide";
 import Typography from "@mui/material/Typography";
 import { useTheme } from "@mui/material/styles";
-import Stack from "@mui/material/Stack";
+import Paper from "@mui/material/Paper";
+import ButtonBase from "@mui/material/ButtonBase";
 
 import environment from "../environment.hdr";
 import { usePlayerDice } from "./usePlayerDice";
@@ -17,7 +18,15 @@ import { Tray } from "../tray/Tray";
 import { TraySuspense } from "../tray/TraySuspense";
 import { AnimatedPlayerCamera } from "./AnimatedPlayerCamera";
 
-export function PopoverTray({ player }: { player: Player }) {
+export function PopoverTray({
+  player,
+  onToggle,
+  onOpen,
+}: {
+  player: Player;
+  onToggle: (connectionId: string, show: boolean) => void;
+  onOpen: (connectionId: string) => void;
+}) {
   const { diceRoll, finalValue, finishedRolling, finishedRollTransforms } =
     usePlayerDice(player);
 
@@ -40,57 +49,72 @@ export function PopoverTray({ player }: { player: Player }) {
     }
   }, [finishedRolling]);
 
+  const shown = !hidden && !timedOut;
+  useEffect(() => {
+    if (shown) {
+      onToggle(player.connectionId, true);
+    }
+  }, [shown]);
+
+  function handleClick() {
+    if (shown) {
+      setTimedOut(true);
+      onOpen(player.connectionId);
+    }
+  }
+
   return (
-    <Box component="div" position="absolute" right={16} bottom={56}>
-      <Slide in={!hidden && !timedOut} direction="up">
-        <Stack
-          height="282px"
-          width="250px"
-          borderRadius={2}
-          overflow="hidden"
-          sx={{
-            backgroundColor:
-              theme.palette.mode === "dark"
-                ? "rgba(34, 38, 57, 0.6)"
-                : "rgba(255, 255, 255, 0.2)",
-            backdropFilter:
-              theme.palette.mode === "dark" ? "blur(10px)" : "blur(20px)",
-            boxShadow: theme.shadows[3],
-          }}
-        >
-          <Box component="div" height="250px" width="250px">
-            <TraySuspense>
-              <Canvas frameloop="demand">
-                <AudioListenerProvider volume={0.25}>
-                  <Environment files={environment} />
-                  <Tray />
-                  <PlayerDiceRoll player={player} />
-                  <AnimatedPlayerCamera
-                    rollTransforms={
-                      finishedRolling ? finishedRollTransforms : undefined
-                    }
-                  />
-                </AudioListenerProvider>
-              </Canvas>
-            </TraySuspense>
-          </Box>
-          <Typography
-            variant="subtitle1"
-            color="text.secondary"
-            textAlign="center"
-            lineHeight="32px"
+    <Box component="div" position="absolute" right={16} bottom={16}>
+      <Slide
+        in={shown}
+        onTransitionEnd={() => onToggle(player.connectionId, shown)}
+        direction="up"
+      >
+        <ButtonBase onClick={handleClick}>
+          <Paper
+            elevation={8}
             sx={{
-              background:
+              width: "250px",
+              height: "282px",
+              borderRadius: 2,
+              overflow: "hidden",
+              backgroundColor:
                 theme.palette.mode === "dark"
-                  ? "rgba(0, 0, 0, 0.16)"
-                  : "rgba(255, 255, 255, 0.16)",
+                  ? "rgba(34, 38, 57, 0.8)"
+                  : "rgba(255, 255, 255, 0.4)",
             }}
-            noWrap
           >
-            {player?.name}
-            {finishedRolling && <span> | {finalValue}</span>}
-          </Typography>
-        </Stack>
+            <Box component="div" height="250px" width="250px">
+              <TraySuspense>
+                <Canvas frameloop="demand">
+                  <AudioListenerProvider volume={0.25}>
+                    <Environment files={environment} />
+                    <Tray />
+                    <PlayerDiceRoll player={player} />
+                    <AnimatedPlayerCamera
+                      rollTransforms={
+                        finishedRolling ? finishedRollTransforms : undefined
+                      }
+                    />
+                  </AudioListenerProvider>
+                </Canvas>
+              </TraySuspense>
+            </Box>
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              textAlign="center"
+              lineHeight="32px"
+              sx={{
+                bgcolor: "background.default",
+              }}
+              noWrap
+            >
+              {player?.name}
+              {finishedRolling && <span> | {finalValue}</span>}
+            </Typography>
+          </Paper>
+        </ButtonBase>
       </Slide>
     </Box>
   );
