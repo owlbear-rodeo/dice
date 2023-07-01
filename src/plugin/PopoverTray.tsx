@@ -67,7 +67,7 @@ export function PopoverTray({
     <Box component="div" position="absolute" right={16} bottom={16}>
       <Slide
         in={shown}
-        onTransitionEnd={() => onToggle(player.connectionId, shown)}
+        onExited={() => onToggle(player.connectionId, false)}
         direction="up"
       >
         <ButtonBase onClick={handleClick}>
