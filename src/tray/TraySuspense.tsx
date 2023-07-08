@@ -8,7 +8,7 @@ export function TraySuspense({ children }: { children: React.ReactNode }) {
     <Suspense
       fallback={
         <Backdrop open sx={{ position: "absolute" }}>
-          <CircularProgress />
+          <CircularProgress size="3rem" />
         </Backdrop>
       }
     >
