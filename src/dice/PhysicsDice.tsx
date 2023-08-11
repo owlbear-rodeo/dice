@@ -19,7 +19,7 @@ import { DiceTransform } from "../types/DiceTransform";
 import { DiceCollider } from "../colliders/DiceCollider";
 
 /** Minium linear and angular speed before the dice roll is considered finished */
-const MIN_ROLL_FINISHED_SPEED = 0.01;
+const MIN_ROLL_FINISHED_SPEED = 0.005;
 /** Cool down in MS before dice audio can get played again */
 const AUDIO_COOLDOWN = 200;
 /** Force stop the physics roll after 5 seconds */
