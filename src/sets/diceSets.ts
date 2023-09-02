@@ -1,5 +1,6 @@
 import { DiceSet } from "../types/DiceSet";
 import { DiceStyle } from "../types/DiceStyle";
+import { Die } from "../types/Die";
 
 import * as galaxyPreviews from "../previews/galaxy";
 import * as gemstonePreviews from "../previews/gemstone";
@@ -9,6 +10,8 @@ import * as nebulaPreviews from "../previews/nebula";
 import * as sunrisePreviews from "../previews/sunrise";
 import * as sunsetPreviews from "../previews/sunset";
 import * as walnutPreviews from "../previews/walnut";
+
+import allPreview from "../previews/all.png";
 
 const standardPreviews: Record<DiceStyle, string> = {
   GALAXY: galaxyPreviews.D20,
@@ -39,7 +42,7 @@ function createStandardSet(style: DiceStyle): DiceSet {
   };
 }
 
-export const diceSets: DiceSet[] = [
+const standardSets = [
   createStandardSet("GALAXY"),
   createStandardSet("GEMSTONE"),
   createStandardSet("GLASS"),
@@ -48,19 +51,16 @@ export const diceSets: DiceSet[] = [
   createStandardSet("SUNRISE"),
   createStandardSet("SUNSET"),
   createStandardSet("WALNUT"),
-  /**  A dice set of different D6 styles */
-  {
-    id: "6s",
-    name: "6s",
-    dice: [
-      { id: `GALAXY_D6`, type: "D6", style: "GALAXY" },
-      { id: `GEMSTONE_D6`, type: "D6", style: "GEMSTONE" },
-      { id: `GLASS_D6`, type: "D6", style: "GLASS" },
-      { id: `IRON_D6`, type: "D6", style: "IRON" },
-      { id: `SUNRISE_D6`, type: "D6", style: "SUNRISE" },
-      { id: `SUNSET_D6`, type: "D6", style: "SUNSET" },
-      { id: `WALNUT_D6`, type: "D6", style: "WALNUT" },
-    ],
-    previewImage: galaxyPreviews.D6,
-  },
 ];
+
+const allSet: DiceSet = {
+  id: "all",
+  name: "all",
+  dice: standardSets.reduce(
+    (prev, curr) => [...prev, ...curr.dice],
+    [] as Die[]
+  ),
+  previewImage: allPreview,
+};
+
+export const diceSets: DiceSet[] = [...standardSets, allSet];
