@@ -3,7 +3,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
 type DieAdvantageProps = {
   advantage?: "ADVANTAGE" | "DISADVANTAGE" | null;
-  onChange: (advanatage: "ADVANTAGE" | "DISADVANTAGE" | null) => void;
+  onChange: (advantage: "ADVANTAGE" | "DISADVANTAGE" | null) => void;
 };
 
 export function DieAdvantage({ advantage, onChange }: DieAdvantageProps) {
