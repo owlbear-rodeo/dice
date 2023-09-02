@@ -21,6 +21,8 @@ import { useDiceRollStore } from "../dice/store";
 import { DiceResults } from "./DiceResults";
 import { getDiceToRoll, useDiceControlsStore } from "./store";
 import { DiceType } from "../types/DiceType";
+import { useDiceHistoryStore } from "./history";
+import { Die } from "../types/Die";
 
 const jiggle = keyframes`
 0% { transform: translate(0, 0) rotate(0deg); }
@@ -97,12 +99,24 @@ function DicePickedControls() {
   const resetDiceCounts = useDiceControlsStore(
     (state) => state.resetDiceCounts
   );
+
+  const pushRecentRoll = useDiceHistoryStore((state) => state.pushRecentRoll);
+
   function handleRoll() {
     if (hasDice && rollPressTime) {
       const dice = getDiceToRoll(counts, advantage, diceById);
       const activeTimeSeconds = (performance.now() - rollPressTime) / 1000;
       const speedMultiplier = Math.max(1, Math.min(10, activeTimeSeconds * 2));
       startRoll({ dice, bonus, hidden }, speedMultiplier);
+
+      const rolledDiceById: Record<string, Die> = {};
+      for (const id of Object.keys(counts)) {
+        if (!(id in rolledDiceById)) {
+          rolledDiceById[id] = diceById[id];
+        }
+      }
+      pushRecentRoll({ advantage, counts, bonus, diceById: rolledDiceById });
+
       handleReset();
     }
     setRollPressTime(null);

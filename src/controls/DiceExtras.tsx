@@ -2,12 +2,9 @@ import { useState } from "react";
 
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
 import Stack from "@mui/material/Stack";
 import Menu from "@mui/material/Menu";
 
-import HiddenOnIcon from "@mui/icons-material/VisibilityOffRounded";
-import HiddenOffIcon from "@mui/icons-material/VisibilityRounded";
 import MoreIcon from "@mui/icons-material/MoreHorizRounded";
 
 import { DieBonus } from "./DieBonus";
@@ -16,10 +13,6 @@ import { useDiceControlsStore } from "./store";
 import { useDiceRollStore } from "../dice/store";
 
 export function DiceExtras() {
-  const hidden = useDiceControlsStore((state) => state.diceHidden);
-  const toggleDiceHidden = useDiceControlsStore(
-    (state) => state.toggleDiceHidden
-  );
   const bonus = useDiceControlsStore((state) => state.diceBonus);
   const setBonus = useDiceControlsStore((state) => state.setDiceBonus);
   const advantage = useDiceControlsStore((state) => state.diceAdvantage);
@@ -45,20 +38,6 @@ export function DiceExtras() {
 
   return (
     <>
-      <Tooltip
-        title={hidden ? "Show Roll" : "Hide Roll"}
-        placement="top"
-        disableInteractive
-      >
-        <IconButton
-          onClick={() => {
-            toggleDiceHidden();
-            clearRollIfNeeded();
-          }}
-        >
-          {hidden ? <HiddenOnIcon /> : <HiddenOffIcon />}
-        </IconButton>
-      </Tooltip>
       <IconButton
         aria-label="more"
         id="more-button"
@@ -66,8 +45,9 @@ export function DiceExtras() {
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
+        sx={{ fontSize: "18px" }}
       >
-        <MoreIcon />
+        <span style={{ width: "24px", height: "24px" }}>+/-</span>
       </IconButton>
       <Menu
         id="more-menu"
