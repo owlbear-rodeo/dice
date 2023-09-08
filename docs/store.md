@@ -19,7 +19,7 @@ You can add dice to your dice tray by clicking one of the dice icons in the left
 
 When you want to roll the dice simply click the Roll button.
 
-![roll interface](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/roll.jpg)
+![roll interface](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/rolls.jpg)
 
 Once rolled the extension will use a physics simulation to determine the results of the roll.
 
