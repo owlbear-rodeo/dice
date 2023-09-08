@@ -15,11 +15,9 @@ learn-more: https://owlbear.app
 
 Beautiful 3D dice extension for d20 based systems
 
-You can roll dice by selecting a style on the left of the dice popover.
+You can add dice to your dice tray by clicking one of the dice icons in the left bar.
 
-You can then use the quick bar to select which dice to roll. When you want to roll the dice simply click the Roll button.
-
-If you'd like more control over the roll you can expand the quick bar into a full roll dialog.
+When you want to roll the dice simply click the Roll button.
 
 ![roll interface](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/roll.jpg)
 
@@ -29,11 +27,25 @@ Once rolled the extension will use a physics simulation to determine the results
 
 The dice roller will sync this simulation over the network so all connected players can see the roll in real-time.
 
-By default other players dice trays will show up as a small preview in the bottom left. You can expand this preview by clicking it.
+By default other players dice trays will show up as a small preview in the bottom right. You can expand this preview by clicking it.
+
+![player roll](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/roll.jpg)
 
 **Private Rolls**
 
-To make a roll privately you can select the eye icon in the top right when making a roll.
+To make a roll privately you can select the eye icon in the sidebar when making a roll.
+
+**Bonus and Advantage**
+
+To add a bonus or advantage/disadvantage to your next roll you can click the +/- icon in the sidebar.
+
+![bonus](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/bonus.jpg)
+
+**Recent Rolls**
+
+To re-roll one of your recent rolls you can click the search glass icon in the sidebar.
+
+![recent rolls](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/recent.jpg)
 
 **Support**
 
