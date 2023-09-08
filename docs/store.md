@@ -29,7 +29,7 @@ The dice roller will sync this simulation over the network so all connected play
 
 By default other players dice trays will show up as a small preview in the bottom right. You can expand this preview by clicking it.
 
-![player roll](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/roll.jpg)
+![player roll](https://raw.githubusercontent.com/owlbear-rodeo/dice/main/docs/player.jpg)
 
 **Private Rolls**
 
