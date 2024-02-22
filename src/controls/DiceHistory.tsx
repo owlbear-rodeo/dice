@@ -5,6 +5,7 @@ import Stack from "@mui/material/Stack";
 import Menu from "@mui/material/Menu";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
+import Tooltip from "@mui/material/Tooltip";
 
 import HistoryIcon from "@mui/icons-material/SavedSearchRounded";
 import NoHistoryIcon from "@mui/icons-material/ManageSearchRounded";
@@ -51,23 +52,24 @@ export function DiceHistory() {
 
   return (
     <>
-      <IconButton
-        aria-label="more"
-        id="more-button"
-        aria-controls={open ? "more-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        onClick={handleClick}
-      >
-        <HistoryIcon />
-      </IconButton>
+      <Tooltip title="History" placement="top" disableInteractive>
+        <IconButton
+          id="history-button"
+          aria-controls={open ? "history-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
+          onClick={handleClick}
+        >
+          <HistoryIcon />
+        </IconButton>
+      </Tooltip>
       <Menu
-        id="more-menu"
+        id="history-menu"
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         MenuListProps={{
-          "aria-labelledby": "more-button",
+          "aria-labelledby": "history-button",
         }}
         anchorOrigin={{
           vertical: "center",
