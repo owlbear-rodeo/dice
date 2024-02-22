@@ -4,8 +4,7 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Menu from "@mui/material/Menu";
-
-import MoreIcon from "@mui/icons-material/MoreHorizRounded";
+import Tooltip from "@mui/material/Tooltip";
 
 import { DieBonus } from "./DieBonus";
 import { DieAdvantage } from "./DieAdvantage";
@@ -38,17 +37,19 @@ export function DiceExtras() {
 
   return (
     <>
-      <IconButton
-        aria-label="more"
-        id="more-button"
-        aria-controls={open ? "more-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-        onClick={handleClick}
-        sx={{ fontSize: "18px" }}
-      >
-        <span style={{ width: "24px", height: "24px" }}>+/-</span>
-      </IconButton>
+      <Tooltip title="Bonus" placement="top" disableInteractive>
+        <IconButton
+          aria-label="more"
+          id="more-button"
+          aria-controls={open ? "more-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
+          onClick={handleClick}
+          sx={{ fontSize: "18px" }}
+        >
+          <span style={{ width: "24px", height: "24px" }}>+/-</span>
+        </IconButton>
+      </Tooltip>
       <Menu
         id="more-menu"
         anchorEl={anchorEl}
