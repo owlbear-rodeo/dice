@@ -308,7 +308,7 @@ export function FairnessTester() {
                   fullWidth
                   endIcon={<InfoRounded />}
                   size="small"
-                  href="https://blog.owlbear.rodeo/are-owlbear-rodeos-dice-fair/"
+                  href="https://blog.owlbear.rodeo/are-owlbear-rodeos-dice-still-fair/"
                   rel="noopener noreferrer"
                   target="_blank"
                 >
