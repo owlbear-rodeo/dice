@@ -8,6 +8,8 @@ import { DiceExtras } from "./DiceExtras";
 import { DiceHidden } from "./DiceHidden";
 import { DiceHistory } from "./DiceHistory";
 
+import { FairnessTesterButton } from "../tests/FairnessTesterButton";
+
 import { PluginGate } from "../plugin/PluginGate";
 import { DiceRollSync } from "../plugin/DiceRollSync";
 import { PartyTrays } from "../plugin/PartyTrays";
@@ -31,6 +33,7 @@ export function Sidebar() {
         <DiceHidden />
         <DiceExtras />
         <DiceHistory />
+        <FairnessTesterButton />
         <PluginGate>
           <Divider flexItem sx={{ mx: 1 }} />
           <DiceRollSync />
