@@ -34,7 +34,7 @@ export function PopoverTray({
 
   const hidden = !diceRoll || diceRoll.hidden;
 
-  const [timedOut, setTimedOut] = useState(false);
+  const [timedOut, setTimedOut] = useState(finishedRolling);
 
   useEffect(() => {
     if (finishedRolling) {
