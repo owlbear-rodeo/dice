@@ -36,10 +36,10 @@ interface DiceRollState {
 
 export const useDiceRollStore = create<DiceRollState>()(
   immer((set) => ({
-    roll: null,
-    rollValues: {},
-    rollTransforms: {},
-    rollThrows: {},
+    roll: { dice: [{ id: "1", dice: [], style: "OWLBEAR", type: "D20" }] },
+    rollValues: { 1: null },
+    rollTransforms: { 1: null },
+    rollThrows: { 1: getRandomDiceThrow() },
     startRoll: (roll, speedMultiplier?: number) =>
       set((state) => {
         state.roll = roll;
@@ -122,3 +122,5 @@ function rerollDraft(
     }
   }
 }
+
+useDiceRollStore.getState().reroll();

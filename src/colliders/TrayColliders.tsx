@@ -5,9 +5,9 @@ import { CuboidCollider, RigidBody } from "@react-three/rapier";
 const WALL_THICKNESS = 50;
 const WALL_SIZE = 100;
 const FLOOR_Y = -WALL_THICKNESS + 0.005; // Push the floor up a little for better contact shadows
-const ROOF_Y = WALL_THICKNESS + 1.5;
-const WALL_X = WALL_THICKNESS + 0.46; // Move the wall in a bit to account for the wood thickness
-const WALL_Z = WALL_THICKNESS + 0.96;
+const ROOF_Y = WALL_THICKNESS + 1.5 + 10;
+const WALL_X = WALL_THICKNESS + 0.46 + 10; // Move the wall in a bit to account for the wood thickness
+const WALL_Z = WALL_THICKNESS + 0.96 + 10;
 
 export function TrayColliders(props: JSX.IntrinsicElements["group"]) {
   return (

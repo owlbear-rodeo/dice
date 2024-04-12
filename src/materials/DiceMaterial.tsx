@@ -4,6 +4,7 @@ import { GemstoneMaterial } from "./gemstone/GemstoneMaterial";
 import { GlassMaterial } from "./glass/GlassMaterial";
 import { IronMaterial } from "./iron/IronMaterial";
 import { NebulaMaterial } from "./nebula/NebulaMaterial";
+import { OwlbearMaterial } from "./owlbear/OwlbearMaterial";
 import { SunriseMaterial } from "./sunrise/SunriseMaterial";
 import { SunsetMaterial } from "./sunset/SunsetMaterial";
 import { WalnutMaterial } from "./walnut/WalnutMaterial";
@@ -26,6 +27,8 @@ export function DiceMaterial({ diceStyle }: { diceStyle: DiceStyle }) {
       return <SunsetMaterial />;
     case "WALNUT":
       return <WalnutMaterial />;
+    case "OWLBEAR":
+      return <OwlbearMaterial />;
     default:
       throw Error(`Dice style ${diceStyle} error: not implemented`);
   }

@@ -100,6 +100,21 @@ export function randomAngularVelocity(): DiceVector3 {
 }
 
 export function getRandomDiceThrow(speedMultiplier?: number): DiceThrow {
+  // Still shot
+  // return {
+  //   position: { x: 0, y: 0.1, z: 0 },
+  //   rotation: { x: 0, y: -0.7071068, z: 0, w: 0.7071068 },
+  //   angularVelocity: { x: 0, y: 0, z: 0 },
+  //   linearVelocity: { x: 0, y: 1, z: 0 },
+  // };
+
+  return {
+    position: { x: 0, y: 0.13, z: -1 },
+    rotation: { x: 0, y: -0.7571068, z: 0, w: 0.7571068 },
+    angularVelocity: { x: 0, y: 0.04, z: 0 },
+    linearVelocity: { x: 0, y: 1, z: 5.5 },
+  };
+
   const position = randomPosition();
   const rotation = randomRotation();
   const linearVelocity = randomLinearVelocity(position, speedMultiplier);

@@ -10,6 +10,7 @@ import * as nebulaPreviews from "../previews/nebula";
 import * as sunrisePreviews from "../previews/sunrise";
 import * as sunsetPreviews from "../previews/sunset";
 import * as walnutPreviews from "../previews/walnut";
+import * as owlbearPreviews from "../previews/owlbear";
 
 import allPreview from "../previews/all.png";
 
@@ -22,6 +23,7 @@ const standardPreviews: Record<DiceStyle, string> = {
   SUNRISE: sunrisePreviews.D20,
   SUNSET: sunsetPreviews.D20,
   WALNUT: walnutPreviews.D20,
+  OWLBEAR: owlbearPreviews.D20,
 };
 
 function createStandardSet(style: DiceStyle): DiceSet {
@@ -51,6 +53,7 @@ const standardSets = [
   createStandardSet("SUNRISE"),
   createStandardSet("SUNSET"),
   createStandardSet("WALNUT"),
+  createStandardSet("OWLBEAR"),
 ];
 
 const allSet: DiceSet = {

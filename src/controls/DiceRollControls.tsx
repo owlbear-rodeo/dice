@@ -325,7 +325,7 @@ function FinishedRollControls() {
 
   return (
     <>
-      <GradientOverlay top height={resultsExpanded ? 500 : undefined} />
+      {/* <GradientOverlay top height={resultsExpanded ? 500 : undefined} /> */}
       <Box
         sx={{
           position: "absolute",
@@ -361,7 +361,7 @@ function FinishedRollControls() {
           </Tooltip>
         </Stack>
       </Box>
-      <Stack
+      {/* <Stack
         sx={{
           position: "absolute",
           top: 0,
@@ -386,7 +386,7 @@ function FinishedRollControls() {
             <HiddenIcon htmlColor="white" />
           </Tooltip>
         )}
-      </Stack>
+      </Stack> */}
     </>
   );
 }

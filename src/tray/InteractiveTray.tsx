@@ -27,7 +27,7 @@ export function InteractiveTray() {
       component="div"
       borderRadius={1}
       height="100vh"
-      width="calc(100vh / 2)"
+      width="calc(100vw - 80px)"
       overflow="hidden"
       position="relative"
       id="interactive-tray"
@@ -51,13 +51,13 @@ export function InteractiveTray() {
               far={1}
               color="#222222"
             />
-            <Tray />
+            {/* <Tray /> */}
             <PreviewDiceRoll />
             <InteractiveDiceRoll />
             <PerspectiveCamera
               makeDefault
               fov={28}
-              position={[0, 4.3, 0]}
+              position={[0, 3, 0]}
               rotation={[-Math.PI / 2, 0, 0]}
             />
             {allowOrbit && <OrbitControls />}
